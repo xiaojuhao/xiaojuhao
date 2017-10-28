@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.service.MaterialService;
+import com.xjh.service.vo.WmsMaterialVo;
 
 @Controller
 public class IndexController {
 	@Resource HttpServletRequest request;
+	@Resource MaterialService materialService;
 	
 	@RequestMapping("/index")
 	@ResponseBody
@@ -41,6 +44,13 @@ public class IndexController {
 		menus.add(sysconfig);
 		
 		return ResultBaseBuilder.succ().data(menus).rb(request);
+	}
+	
+	@RequestMapping("/queryAllMaterials")
+	@ResponseBody
+	public Object queryAllMaterials(){
+		List<WmsMaterialVo> list = this.materialService.queryAllMaterials();
+		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 	
 }
