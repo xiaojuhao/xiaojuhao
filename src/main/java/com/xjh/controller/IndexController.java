@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
@@ -49,7 +50,7 @@ public class IndexController {
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
 	
-	@RequestMapping("/queryMaterials")
+	@RequestMapping(value="/queryMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterials(){
 		String materialCode = request.getParameter("materialCode");
@@ -59,7 +60,7 @@ public class IndexController {
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 	
-	@RequestMapping("/insertMaterialsStock")
+	@RequestMapping(value = "/insertMaterialsStock", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object insertMaterialsStock(){
 		String materialCode = request.getParameter("materialCode");
@@ -69,7 +70,7 @@ public class IndexController {
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 	
-	@RequestMapping("/queryMaterialsStock")
+	@RequestMapping(value="/queryMaterialsStock", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStock(){
 		String materialCode = request.getParameter("materialCode");
@@ -77,5 +78,21 @@ public class IndexController {
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+	
+	@RequestMapping(value="/queryMaterialsStockById", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMaterialsStockById(){
+		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
+		if(id == null){
+			return ResultBaseBuilder.fails("入参错误").rb(request);
+		}
+		WmsMaterialStockDO example = new WmsMaterialStockDO();
+		example.setId(id);
+		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
+		if(list==null || list.size()==0){
+			return ResultBaseBuilder.fails("数据不存在").rb(request);
+		}
+		return ResultBaseBuilder.succ().data(list.get(0)).rb(request);
 	}
 }
