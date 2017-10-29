@@ -24,12 +24,6 @@ public class IndexController {
 	@Resource HttpServletRequest request;
 	@Resource MaterialService materialService;
 	
-	@RequestMapping("/index")
-	@ResponseBody
-	public Object index(){
-		return ResultBaseBuilder.succ().data("index page").rb(request);
-	}
-	
 	@RequestMapping(value = "/menu", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object menu(){
