@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.service.MaterialService;
+import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
 @Controller
@@ -72,8 +74,8 @@ public class IndexController {
 	public Object queryMaterialsStock(){
 		String materialCode = request.getParameter("materialCode");
 		String storeCode = request.getParameter("storeCode");
-		WmsMaterialDO example = new WmsMaterialDO();
-		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
+		WmsMaterialStockDO example = new WmsMaterialStockDO();
+		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }
