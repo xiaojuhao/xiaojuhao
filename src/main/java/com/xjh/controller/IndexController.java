@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.service.MaterialService;
 import com.xjh.service.vo.WmsMaterialVo;
 
@@ -46,11 +47,33 @@ public class IndexController {
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
 	
-	@RequestMapping("/queryAllMaterials")
+	@RequestMapping("/queryMaterials")
 	@ResponseBody
-	public Object queryAllMaterials(){
-		List<WmsMaterialVo> list = this.materialService.queryAllMaterials();
+	public Object queryMaterials(){
+		String materialCode = request.getParameter("materialCode");
+		String materialName = request.getParameter("materialName");
+		WmsMaterialDO example = new WmsMaterialDO();
+		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 	
+	@RequestMapping("/insertMaterialsStock")
+	@ResponseBody
+	public Object insertMaterialsStock(){
+		String materialCode = request.getParameter("materialCode");
+		String storeCode = request.getParameter("storeCode");
+		WmsMaterialDO example = new WmsMaterialDO();
+		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+	
+	@RequestMapping("/queryMaterialsStock")
+	@ResponseBody
+	public Object queryMaterialsStock(){
+		String materialCode = request.getParameter("materialCode");
+		String storeCode = request.getParameter("storeCode");
+		WmsMaterialDO example = new WmsMaterialDO();
+		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
 }
