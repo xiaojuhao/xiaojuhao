@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xjh.dao.mapper.WmsMaterialStockMapper">
 	<select id="selectByExample" resultType="com.xjh.dao.dataobject.WmsMaterialStockDO">
-		select * from wms_material_stock limit 10
+		select * from wms_material_stock where 1=1
+		<if test="id!=null">
+			and id = #{id}
+		</if>
+		<if test="materialCode!=null and materialCode!=''">
+			and material_code = #{materialCode}
+		</if>
+		limit 10
 	</select>
 </mapper>

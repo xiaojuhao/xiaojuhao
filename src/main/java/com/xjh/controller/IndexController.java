@@ -67,9 +67,12 @@ public class IndexController {
 	@RequestMapping(value="/queryMaterialsStock", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStock(){
+		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = request.getParameter("materialCode");
 		String storeCode = request.getParameter("storeCode");
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
+		example.setId(id);
+		example.setMaterialCode(materialCode);
 		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
