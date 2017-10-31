@@ -15,6 +15,7 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
@@ -23,7 +24,14 @@ import com.xjh.service.vo.WmsMaterialVo;
 public class IndexController {
 	@Resource HttpServletRequest request;
 	@Resource MaterialService materialService;
+	@Resource TkWmsMaterialMapper tkWmsMaterialMapper;
 	
+	@RequestMapping(value = "/dblist", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object dblist(){
+		List<WmsMaterialDO> list = tkWmsMaterialMapper.selectAll();
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
 	@RequestMapping(value = "/menu", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object menu(){

@@ -38,4 +38,10 @@
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg index="0" ref="sqlSessionFactory" />
 	</bean>
+	<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.xjh.dao.tkmapper" />
+		<property name="properties">
+			<value>mappers=tk.mybatis.mapper.common.Mapper</value>
+		</property>
+	</bean>
 </beans>
