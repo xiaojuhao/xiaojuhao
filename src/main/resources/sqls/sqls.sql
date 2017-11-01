@@ -106,8 +106,7 @@ CREATE TABLE wms_material_supplier
         material_name VARCHAR(50) NOT NULL COMMENT '原料名称',
         material_code VARCHAR(35) NOT NULL COMMENT '原料编码',
         supplier_code VARCHAR(32) NOT NULL COMMENT '供货商编码',
-        supplier_name VARCHAR(128) NOT NULL COMMENT '供货商名称',
-        PRIMARY KEY (id)
+        supplier_name VARCHAR(128) NOT NULL COMMENT '供货商名称'
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供货商';
 
