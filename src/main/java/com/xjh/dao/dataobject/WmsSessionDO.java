@@ -18,4 +18,5 @@ public class WmsSessionDO extends PageDTO {
 	Long id;
 	String sessionId;
 	Date expiredTime;
+	String userInfo;
 }
