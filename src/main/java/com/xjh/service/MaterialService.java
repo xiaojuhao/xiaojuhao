@@ -12,4 +12,5 @@ public interface MaterialService {
 	
 	public List<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example);
 	
+	public int insertMaterial(WmsMaterialDO example);
 }

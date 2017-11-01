@@ -99,4 +99,15 @@ create table wms_recipes_formula(
    material_unit varchar(10) comment '食材单位'
 ) comment '食谱配方';
 
+drop table if exists wms_material_supplier;
+CREATE TABLE wms_material_supplier
+    (
+        id bigint NOT NULL COMMENT '主键',
+        material_name VARCHAR(50) NOT NULL COMMENT '原料名称',
+        material_code VARCHAR(35) NOT NULL COMMENT '原料编码',
+        supplier_code VARCHAR(32) NOT NULL COMMENT '供货商编码',
+        supplier_name VARCHAR(128) NOT NULL COMMENT '供货商名称',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供货商';
 

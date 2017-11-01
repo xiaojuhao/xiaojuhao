@@ -61,9 +61,13 @@ public class IndexController {
 	@RequestMapping(value="/queryMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterials(){
+		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
+		int pageSize=CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		String materialCode = request.getParameter("materialCode");
-		String materialName = request.getParameter("materialName");
 		WmsMaterialDO example = new WmsMaterialDO();
+		example.setPageNo(pageNo);
+		example.setPageSize(pageSize);
+		example.setMaterialCode(materialCode);
 		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
@@ -72,10 +76,16 @@ public class IndexController {
 	@ResponseBody
 	public Object insertMaterialsStock(){
 		String materialCode = request.getParameter("materialCode");
-		String storeCode = request.getParameter("storeCode");
+		String materialName = request.getParameter("materialName");
 		WmsMaterialDO example = new WmsMaterialDO();
-		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
-		return ResultBaseBuilder.succ().data(list).rb(request);
+		example.setMaterialCode(materialCode);
+		example.setMaterialName(materialName);
+		example.setStatus(1);
+		int i = this.materialService.insertMaterial(example);
+		JSONObject ret = new JSONObject();
+		ret.put("count", i);
+		ret.put("message", "插入成功");
+		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 	
 	@RequestMapping(value="/queryMaterialsStock", produces = "application/json;charset=UTF-8")

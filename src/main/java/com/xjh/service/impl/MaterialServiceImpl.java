@@ -39,7 +39,13 @@ public class MaterialServiceImpl implements MaterialService{
 		}
 		return ret;
 	}
-	
+	@Override
+	public int insertMaterial(WmsMaterialDO example) {
+		if(example == null){
+			return 0;
+		}
+		return wmsMaterialMapper.insert(example);
+	}
 	@Override
 	public List<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
 		if(example == null){
