@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService{
 	WmsSessionMapper wmsSessionMapper;
 	
 	@Override
-	public ResultBase<JSONObject> queryUser(Long userId) {
+	public ResultBase<WmsUserDO> queryUser(String userId) {
 		return null;
 	}
 

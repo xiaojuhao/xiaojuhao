@@ -5,7 +5,7 @@ import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsUserDO;
 
 public interface UserService {
-	public ResultBase<JSONObject> queryUser(Long userId);
+	public ResultBase<WmsUserDO> queryUser(String userCode);
 	
 	public ResultBase<Boolean> isValidSession(String sessionId);
 	
