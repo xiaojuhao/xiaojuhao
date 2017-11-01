@@ -20,6 +20,8 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
+import tk.mybatis.mapper.entity.Example;
+
 @Controller
 public class IndexController {
 	@Resource HttpServletRequest request;
@@ -29,7 +31,11 @@ public class IndexController {
 	@RequestMapping(value = "/dblist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object dblist(){
-		List<WmsMaterialDO> list = tkWmsMaterialMapper.selectAll();
+		Example example = new Example(WmsMaterialDO.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("materialCode","10001");
+		criteria.andLike("materialName", "鱼%");
+		List<WmsMaterialDO> list = tkWmsMaterialMapper.selectByExample(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 	@RequestMapping(value = "/menu", produces = "application/json;charset=UTF-8")
