@@ -38,7 +38,7 @@ create table wms_store(
 
 drop table if exists wms_material;
 create table wms_material (
-   id bigint primary key comment '主键',
+   id bigint primary key auto_increment  comment  '主键',
    material_name varchar(50) not null comment '原料名称',
    material_code varchar(35) not null comment '原料编码',
    can_split varchar(1) not null comment '是否可拆分 Y:是 N:否',
@@ -48,7 +48,7 @@ create table wms_material (
 
 drop table if exists wms_material_split_cfg;
 create table wms_material_split_cfg (
-   id bigint primary key comment '主键',
+   id bigint primary key auto_increment  comment  '主键',
    material_name varchar(50) not null comment '原料名称',
    material_code varchar(35) not null comment '原料编码',
    split_name varchar(1) not null comment '拆分子原料名称',
@@ -102,7 +102,7 @@ create table wms_recipes_formula(
 drop table if exists wms_material_supplier;
 CREATE TABLE wms_material_supplier
     (
-        id bigint NOT NULL COMMENT '主键',
+        id bigint primary key auto_increment  comment  '主键',
         material_name VARCHAR(50) NOT NULL COMMENT '原料名称',
         material_code VARCHAR(35) NOT NULL COMMENT '原料编码',
         supplier_code VARCHAR(32) NOT NULL COMMENT '供货商编码',
