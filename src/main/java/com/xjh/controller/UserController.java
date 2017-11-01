@@ -30,8 +30,8 @@ public class UserController {
 		if(userService.isValidSession(sessionId).getIsSuccess()){
 			return ResultBaseBuilder.succ().rb(request);
 		}
-		
-		return ResultBaseBuilder.succ().rb(request);
+		//
+		return ResultBaseBuilder.succ().data("登录成功").rb(request);
 		
 	}
 }

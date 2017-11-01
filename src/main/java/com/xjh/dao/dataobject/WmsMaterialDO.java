@@ -21,6 +21,6 @@ public class WmsMaterialDO extends PageDTO implements Serializable{
 	String materialName;
 	String materialCode;
 	String canSplit;
-	String StockUnit;
+	String stockUnit;
 	Integer status;
 }

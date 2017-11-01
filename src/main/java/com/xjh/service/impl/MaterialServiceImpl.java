@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
-import com.xjh.dao.mapper.WmsMaterialMapper;
-import com.xjh.dao.mapper.WmsMaterialStockMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
@@ -19,16 +19,16 @@ import com.xjh.service.vo.WmsMaterialVo;
 @Service
 public class MaterialServiceImpl implements MaterialService{
 	@Resource
-	WmsMaterialMapper wmsMaterialMapper;
+	TkWmsMaterialMapper wmsMaterialMapper;
 	@Resource
-	WmsMaterialStockMapper wmsMaterialStockMapper;
+	TkWmsMaterialStockMapper wmsMaterialStockMapper;
 	
 	@Override
 	public List<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
 		if(example == null){
 			example = new WmsMaterialDO();
 		}
-		List<WmsMaterialDO> list = wmsMaterialMapper.selectByExample(example);
+		List<WmsMaterialDO> list = wmsMaterialMapper.select(example);
 		List<WmsMaterialVo> ret = new ArrayList<>();
 		for(WmsMaterialDO dd : list){
 			WmsMaterialVo vo = new WmsMaterialVo();
@@ -43,7 +43,7 @@ public class MaterialServiceImpl implements MaterialService{
 		if(example == null){
 			example = new WmsMaterialStockDO();
 		}
-		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.selectByExample(example);
+		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.select(example);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
 		for(WmsMaterialStockDO dd : list){
 			WmsMaterialStockVo vo = new WmsMaterialStockVo();
