@@ -192,7 +192,7 @@ public class IndexController {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}
 		//更新库存
-		stock.setCurrStock(t.getCurrStock()+outstockAmt.doubleValue());
+		stock.setCurrStock(stock.getCurrStock()-outstockAmt.doubleValue());
 		this.stockMapper.updateByPrimaryKeySelective(stock);
 		//记录history
 		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
