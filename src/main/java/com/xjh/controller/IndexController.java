@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,11 +15,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.service.MaterialService;
+import com.xjh.service.SequenceService;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
@@ -29,6 +32,7 @@ public class IndexController {
 	@Resource HttpServletRequest request;
 	@Resource MaterialService materialService;
 	@Resource TkWmsMaterialMapper tkWmsMaterialMapper;
+	@Resource SequenceService sequenceService;
 	
 	@RequestMapping(value = "/dblist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -60,6 +64,39 @@ public class IndexController {
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
 	
+	@RequestMapping(value="/test", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object test(){
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaa"));
+		System.out.println(sequenceService.next("aaaabbb"));
+		System.out.println(sequenceService.next("aaaabbb"));
+		System.out.println(sequenceService.next("aaaabbx"));
+		return ResultBaseBuilder.succ().rb(request);
+	}
+	
+	@RequestMapping(value="/addMaterials", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object addyMaterials(WmsMaterialDO material){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if(user == null){
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		if(StringUtils.isBlank(material.getMaterialName())){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		long nextVal = this.sequenceService.next("wms_material");
+		String materialCode = "M"+StringUtils.leftPad(nextVal+"", 5, '0');
+		material.setMaterialCode(materialCode);
+		material.setStatus(1);
+		this.materialService.addMaterial(material);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+	
 	@RequestMapping(value="/queryMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterials(){
@@ -76,22 +113,6 @@ public class IndexController {
 		example.setMaterialCode(materialCode);
 		List<WmsMaterialVo> list = this.materialService.queryMaterials(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
-	}
-	
-	@RequestMapping(value = "/insertMaterialsStock", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object insertMaterialsStock(){
-		String materialCode = request.getParameter("materialCode");
-		String materialName = request.getParameter("materialName");
-		WmsMaterialDO example = new WmsMaterialDO();
-		example.setMaterialCode(materialCode);
-		example.setMaterialName(materialName);
-		example.setStatus(1);
-		int i = this.materialService.insertMaterial(example);
-		JSONObject ret = new JSONObject();
-		ret.put("count", i);
-		ret.put("message", "插入成功");
-		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 	
 	@RequestMapping(value="/queryMaterialsStock", produces = "application/json;charset=UTF-8")

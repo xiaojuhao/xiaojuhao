@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.Constants;
+import com.xjh.commons.CookieUtils;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsUserDO;
@@ -48,5 +50,12 @@ public class UserController {
 		WmsUserDO ret = new WmsUserDO();
 		ret.setUserName(loginRs.getValue().getUserName());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
+	}
+	
+	@RequestMapping(value="/logout",produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object logout(HttpServletResponse response){
+		CookieUtils.addCookie(request, response, Constants.WMS_LOGIN_KEY, null, null);
+		return ResultBaseBuilder.succ().rb(request);
 	}
 }

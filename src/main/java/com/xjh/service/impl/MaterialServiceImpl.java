@@ -18,49 +18,61 @@ import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
 @Service
-public class MaterialServiceImpl implements MaterialService{
+public class MaterialServiceImpl implements MaterialService {
 	@Resource
 	TkWmsMaterialMapper wmsMaterialMapper;
 	@Resource
 	TkWmsMaterialStockMapper wmsMaterialStockMapper;
-	
+
 	@Override
 	public List<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
-		if(example == null){
+		if (example == null) {
 			example = new WmsMaterialDO();
 		}
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialDO> list = wmsMaterialMapper.select(example);
 		List<WmsMaterialVo> ret = new ArrayList<>();
-		for(WmsMaterialDO dd : list){
+		for (WmsMaterialDO dd : list) {
 			WmsMaterialVo vo = new WmsMaterialVo();
 			ret.add(vo);
 			BeanUtils.copyProperties(dd, vo);
 		}
 		return ret;
 	}
+
 	@Override
-	public int insertMaterial(WmsMaterialDO example) {
-		if(example == null){
+	public int addMaterial(WmsMaterialDO example) {
+		if (example == null) {
 			return 0;
 		}
-		return wmsMaterialMapper.insert(example);
+		int i = wmsMaterialMapper.insert(example);
+		if (i > 0) {
+			WmsMaterialStockDO stock = new WmsMaterialStockDO();
+			stock.setMaterialCode(example.getMaterialCode());
+			stock.setMaterialName(example.getMaterialName());
+			stock.setStockUnit(example.getStockUnit());
+			stock.setStockType("2");
+			stock.setCurrStock(0D);
+			stock.setUsedStock(0D);
+			wmsMaterialStockMapper.insert(stock);
+		}
+		return i;
 	}
+
 	@Override
 	public List<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
-		if(example == null){
+		if (example == null) {
 			example = new WmsMaterialStockDO();
 		}
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.select(example);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
-		for(WmsMaterialStockDO dd : list){
+		for (WmsMaterialStockDO dd : list) {
 			WmsMaterialStockVo vo = new WmsMaterialStockVo();
 			ret.add(vo);
 			BeanUtils.copyProperties(dd, vo);
 		}
 		return ret;
 	}
-	
-	
+
 }
