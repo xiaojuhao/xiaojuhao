@@ -3,13 +3,15 @@ package com.xjh.service.impl;
 import java.util.Date;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
+import com.xjh.commons.CookieUtils;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -51,7 +53,7 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public ResultBase<JSONObject> login(WmsUserDO userDO) {
+	public ResultBase<WmsUserDO> login(WmsUserDO userDO,HttpServletRequest request,HttpServletResponse response) {
 		if(userDO == null){
 			return ResultBaseBuilder.fails("入参错误").rb();
 		}
@@ -64,17 +66,17 @@ public class UserServiceImpl implements UserService{
 		if(user == null){
 			return ResultBaseBuilder.fails("登录失败").rb();
 		}
-		if(StringUtils.equals(user.getPassword(), userDO.getPassword())){
+		if(!StringUtils.equals(user.getPassword(), userDO.getPassword())){
+			CookieUtils.deleteCookie(request, Constants.WMS_LOGIN_KEY);
 			return ResultBaseBuilder.fails("登录失败").rb();
 		}
 		WmsSessionDO sessionDO = new WmsSessionDO();
-		sessionDO.setSessionId("JSESSIONID"+CommonUtils.uuid().toUpperCase());
+		sessionDO.setSessionId("WmsLogin"+CommonUtils.uuid().toUpperCase());
 		sessionDO.setExpiredTime(CommonUtils.future(Constants.default_session_expired_seconds));
 		sessionDO.setUserInfo(CommonUtils.toJsonString(userDO));
 		sessionMapper.insert(sessionDO);
-		JSONObject data = new JSONObject();
-		data.put("JSESSIONID", sessionDO.getSessionId());
-		return ResultBaseBuilder.succ().msg("登录成功").data(data).rb();
+		CookieUtils.addCookie(request, response, Constants.WMS_LOGIN_KEY, sessionDO.getSessionId(), null);
+		return ResultBaseBuilder.succ().msg("登录成功").data(user).rb();
 	}
 
 }

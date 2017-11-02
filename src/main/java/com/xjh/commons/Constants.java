@@ -6,4 +6,6 @@ public class Constants {
 	public static long default_session_expired_seconds = one_month_seconds;
 	
 	public static String JSESSIONID = "JSESSIONID";
+	
+	public static String WMS_LOGIN_KEY = "WMS_LOGIN_KEY";
 }

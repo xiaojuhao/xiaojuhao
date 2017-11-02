@@ -1,13 +1,15 @@
 package com.xjh.service;
 
-import com.alibaba.fastjson.JSONObject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsUserDO;
 
 public interface UserService {
 	public ResultBase<WmsUserDO> queryUser(String userCode);
-	
+
 	public ResultBase<Boolean> isValidSession(String sessionId);
-	
-	public ResultBase<JSONObject> login(WmsUserDO userDO);
+
+	public ResultBase<WmsUserDO> login(WmsUserDO userDO, HttpServletRequest request, HttpServletResponse response);
 }
