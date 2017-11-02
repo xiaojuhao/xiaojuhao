@@ -9,6 +9,7 @@ public enum ResultCode {
 	personal_limit_over("R002","4","您已参与过","个人限制规则"),
 	frequent_visit("600","6","请勿频繁访问","访问系统太频繁"),
 	param_missing("601","6","入参错误","入参错误"),
+	info_missing("604","6","信息不存在","信息缺失"),
 	concurrent_error("602","6","并发操作","并发操作"),
 	antifraud_error("603","6","客官请慢点","反欺诈错误"),
 	activity_invalid("502","5","活动无效","活动无效"),

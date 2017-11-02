@@ -9,7 +9,5 @@ import com.xjh.dao.dataobject.WmsUserDO;
 public interface UserService {
 	public ResultBase<WmsUserDO> queryUser(String userCode);
 
-	public ResultBase<Boolean> isValidSession(String sessionId);
-
 	public ResultBase<WmsUserDO> login(WmsUserDO userDO, HttpServletRequest request, HttpServletResponse response);
 }

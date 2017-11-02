@@ -1,7 +1,5 @@
 package com.xjh.service.impl;
 
-import java.util.Date;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,28 +28,18 @@ public class UserServiceImpl implements UserService{
 	
 	@Override
 	public ResultBase<WmsUserDO> queryUser(String userId) {
-		return null;
+		if(StringUtils.isBlank(userId)){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
+		}
+		WmsUserDO user = new WmsUserDO();
+		user.setUserCode(userId);
+		user = userMapper.selectOne(user);
+		if(user == null){
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb();
+		}
+		return ResultBaseBuilder.succ().data(user).rb();
 	}
 
-	@Override
-	public ResultBase<Boolean> isValidSession(String sessionId) {
-		if(StringUtils.isBlank(sessionId)){
-			return ResultBaseBuilder.fails("入参错误").rb();
-		}
-		WmsSessionDO t = new WmsSessionDO();
-		t.setSessionId(sessionId);
-		WmsSessionDO session = sessionMapper.selectOne(t);
-		if(session == null){
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb();
-		}
-		boolean b = CommonUtils.partiallyOrder(new Date(), session.getExpiredTime());
-		if(b){
-			return ResultBaseBuilder.succ().rb();
-		}else{
-			return ResultBaseBuilder.fails("回话过期").rb();
-		}
-	}
-	
 	@Override
 	public ResultBase<WmsUserDO> login(WmsUserDO userDO,HttpServletRequest request,HttpServletResponse response) {
 		if(userDO == null){
