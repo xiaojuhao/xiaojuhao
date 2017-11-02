@@ -1,5 +1,7 @@
 package com.xjh.controller;
 
+import java.util.Enumeration;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,11 +24,16 @@ public class UserController {
 	@Resource
 	HttpServletRequest request;
 	
-	@RequestMapping("/login")
+	@RequestMapping(value="/login",produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object login(HttpServletResponse response){
 		String userCode = request.getParameter("userCode");
 		String password = request.getParameter("password");//密码原文
+		Enumeration<String> params = request.getParameterNames();
+		while(params.hasMoreElements()){
+			String p = params.nextElement();
+			System.out.println(p+"="+request.getParameter(p));
+		}
 		//
 		if(CommonUtils.isAnyBlank(userCode,password)){
 			return ResultBaseBuilder.fails("入参错误").rb(request);
@@ -38,6 +45,8 @@ public class UserController {
 		if(loginRs.getIsSuccess() == false){
 			return ResultBaseBuilder.fails("登录失败").rb(request);
 		}
-		return ResultBaseBuilder.succ().data("登录成功").rb(request);
+		WmsUserDO ret = new WmsUserDO();
+		ret.setUserName(loginRs.getValue().getUserName());
+		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 }

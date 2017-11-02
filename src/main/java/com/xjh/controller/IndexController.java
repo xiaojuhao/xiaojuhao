@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.vo.WmsMaterialStockVo;
@@ -61,6 +63,10 @@ public class IndexController {
 	@RequestMapping(value="/queryMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterials(){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if(user == null){
+			
+		}
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		int pageSize=CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		String materialCode = request.getParameter("materialCode");
@@ -91,6 +97,10 @@ public class IndexController {
 	@RequestMapping(value="/queryMaterialsStock", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStock(){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if(user == null){
+			
+		}
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = request.getParameter("materialCode");
 		String storeCode = request.getParameter("storeCode");

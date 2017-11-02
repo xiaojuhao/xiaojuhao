@@ -10,22 +10,26 @@ create table wms_menu(
 );
 
 drop table if exists wms_user;
-create table wms_user(
-   id bigint primary key auto_increment comment '主键',
-   user_code varchar(35) comment '用户编码',
-   user_name varchar(128) comment '用户名称',
-   user_mobile varchar(15) comment '用户手机号',
-   store_code varchar(35) comment '用户归属门店',
-   user_role varchar(50) comment '用户角色',
-   password varchar(35) comment '用户密码'
-) comment '用户信息';
+CREATE TABLE wms_user
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        user_code VARCHAR(35) COMMENT '用户编码',
+        user_name VARCHAR(128) COMMENT '用户名称',
+        user_mobile VARCHAR(15) COMMENT '用户手机号',
+        store_code VARCHAR(35) COMMENT '用户归属门店',
+        user_role VARCHAR(50) COMMENT '用户角色',
+        password VARCHAR(35) COMMENT '用户密码',
+        PRIMARY KEY (id),
+        CONSTRAINT uni_user_code UNIQUE (user_code)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';
 
 drop table if exists wms_session;
 create table wms_session(
    id bigint primary key auto_increment comment '主键',
    session_id varchar(50),
    user_code varchar(35) comment '用户CODE',
-   expired_time datetime comment '过期时间'
+   expired_time datetime comment '过期时间',
+   user_info varchar(1024) comment '用户信息',
 ) comment 'session信息';
 
 drop table if exists wms_store;
@@ -109,4 +113,9 @@ CREATE TABLE wms_material_supplier
         supplier_name VARCHAR(128) NOT NULL COMMENT '供货商名称'
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供货商';
+
+
+    
+insert into wms_user(user_code,user_name,password)
+values('yinguoliang','yinguoliang','E10ADC3949BA59ABBE56E057F20F883E');
 
