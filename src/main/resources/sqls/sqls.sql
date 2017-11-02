@@ -29,7 +29,7 @@ create table wms_session(
    session_id varchar(50),
    user_code varchar(35) comment '用户CODE',
    expired_time datetime comment '过期时间',
-   user_info varchar(1024) comment '用户信息',
+   user_info varchar(1024) comment '用户信息'
 ) comment 'session信息';
 
 drop table if exists wms_store;
