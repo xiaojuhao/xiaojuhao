@@ -193,6 +193,7 @@ public class IndexController {
 		}
 		//更新库存
 		stock.setCurrStock(stock.getCurrStock()-outstockAmt.doubleValue());
+		stock.setUsedStock(stock.getUsedStock()+outstockAmt.doubleValue());
 		this.stockMapper.updateByPrimaryKeySelective(stock);
 		//记录history
 		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
