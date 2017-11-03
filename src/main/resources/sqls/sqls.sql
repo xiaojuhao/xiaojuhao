@@ -68,6 +68,7 @@ create table wms_material_stock(
    material_code varchar(35) comment '原料编码',
    curr_stock decimal(20,2) comment '当前库存',
    used_stock decimal(20,2) comment '消耗库存',
+   store_code varchar(35) comment '门店代码',
    stock_type varchar(1) comment '库存类型, 1:总库,2:分库'
 );
 
