@@ -75,6 +75,7 @@ public class MaterialServiceImpl implements MaterialService {
 		}
 		int totalRows = this.wmsMaterialStockMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
+		PageHelper.orderBy("id");
 		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.select(example);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
 		for (WmsMaterialStockDO dd : list) {

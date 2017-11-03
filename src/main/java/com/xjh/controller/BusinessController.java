@@ -42,7 +42,7 @@ public class BusinessController {
 	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
 	SequenceService sequenceService;
-	
+
 	@RequestMapping(value = "/addMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object addyMaterials(WmsMaterialDO material) {
@@ -86,6 +86,8 @@ public class BusinessController {
 		if (user == null) {
 
 		}
+		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 20);
+		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = request.getParameter("materialCode");
 		String storeCode = request.getParameter("storeCode");
@@ -93,6 +95,8 @@ public class BusinessController {
 		example.setId(id);
 		example.setMaterialCode(materialCode);
 		example.setStoreCode(storeCode);
+		example.setPageSize(pageSize);
+		example.setPageNo(pageNo);
 		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
@@ -107,11 +111,12 @@ public class BusinessController {
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example);
-		if(page.getValues()==null || page.getValues().size()==0){
+		if (page.getValues() == null || page.getValues().size() == 0) {
 			return ResultBaseBuilder.fails("数据不存在").rb(request);
 		}
 		return ResultBaseBuilder.succ().data(page.getValues().get(0)).rb(request);
 	}
+
 	@RequestMapping(value = "/queryMaterialsStockHistory", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStockHistory() {
@@ -129,6 +134,7 @@ public class BusinessController {
 		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
+
 	/**
 	 * 出库
 	 * 
@@ -148,7 +154,7 @@ public class BusinessController {
 		String materialCode = request.getParameter("materialCode");
 		String outstockAmtStr = request.getParameter("outstockAmt");
 		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
-		if(outstockAmt == null){
+		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		// 查询数据库
@@ -156,14 +162,14 @@ public class BusinessController {
 		t.setId(id);
 		t.setMaterialCode(materialCode);
 		WmsMaterialStockDO stock = stockMapper.selectOne(t);
-		if(stock == null){
+		if (stock == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}
-		//更新库存
-		stock.setCurrStock(stock.getCurrStock()-outstockAmt.doubleValue());
-		stock.setUsedStock(stock.getUsedStock()+outstockAmt.doubleValue());
+		// 更新库存
+		stock.setCurrStock(stock.getCurrStock() - outstockAmt.doubleValue());
+		stock.setUsedStock(stock.getUsedStock() + outstockAmt.doubleValue());
 		this.stockMapper.updateByPrimaryKeySelective(stock);
-		//记录history
+		// 记录history
 		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
 		history.setMaterialCode(stock.getMaterialCode());
 		history.setMaterialName(stock.getMaterialName());
@@ -173,5 +179,87 @@ public class BusinessController {
 		history.setOperator(user.getUserCode());
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/instock", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object instock() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
+		if (id == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		String materialCode = request.getParameter("materialCode");
+		String instockAmtStr = request.getParameter("instockAmt");
+		BigDecimal instockAmt = CommonUtils.parseBigDecimal(instockAmtStr);
+		if (instockAmt == null || Math.abs(instockAmt.doubleValue()) < 0.009) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		// 查询数据库
+		WmsMaterialStockDO t = new WmsMaterialStockDO();
+		t.setId(id);
+		t.setMaterialCode(materialCode);
+		WmsMaterialStockDO stock = stockMapper.selectOne(t);
+		if (stock == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		// 更新库存
+		stock.setCurrStock(stock.getCurrStock() + instockAmt.doubleValue());
+		this.stockMapper.updateByPrimaryKeySelective(stock);
+		// 记录history
+		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
+		history.setMaterialCode(stock.getMaterialCode());
+		history.setMaterialName(stock.getMaterialName());
+		history.setCurrStock(stock.getCurrStock());
+		history.setStockChg(-instockAmt.doubleValue());
+		history.setOperator("in_stock");
+		history.setOperator(user.getUserCode());
+		this.stockHistoryMapper.insert(history);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+	
+	@RequestMapping(value = "/correctStock", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object correctStock() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
+		if (id == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		String materialCode = request.getParameter("materialCode");
+		String realStockStr = request.getParameter("realStock");
+		BigDecimal realStock = CommonUtils.parseBigDecimal(realStockStr);
+		if (realStock == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		// 查询数据库
+		WmsMaterialStockDO t = new WmsMaterialStockDO();
+		t.setId(id);
+		t.setMaterialCode(materialCode);
+		WmsMaterialStockDO stock = stockMapper.selectOne(t);
+		if (stock == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		// 更新库存
+		Double prevStock = stock.getCurrStock();
+		stock.setCurrStock(realStock.doubleValue());
+		this.stockMapper.updateByPrimaryKeySelective(stock);
+		// 记录history
+		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
+		history.setMaterialCode(stock.getMaterialCode());
+		history.setMaterialName(stock.getMaterialName());
+		history.setCurrStock(stock.getCurrStock());
+		history.setStockChg(prevStock - realStock.doubleValue());
+		history.setOperator("correct");
+		history.setOperator(user.getUserCode());
+		history.setRemark(String.format("库存盘点,%s=>%s", prevStock,realStock));
+		this.stockHistoryMapper.insert(history);
+		return ResultBaseBuilder.succ().data(stock).rb(request);
 	}
 }
