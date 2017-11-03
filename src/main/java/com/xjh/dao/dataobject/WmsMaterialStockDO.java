@@ -21,6 +21,7 @@ public class WmsMaterialStockDO extends PageDTO{
 	Double currStock;
 	Double usedStock;
 	String stockType;
+	String storeCode;
 	String stockUnit;
 	String modifier;
 }

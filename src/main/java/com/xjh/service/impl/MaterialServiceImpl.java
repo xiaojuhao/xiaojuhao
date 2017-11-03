@@ -26,10 +26,12 @@ public class MaterialServiceImpl implements MaterialService {
 	TkWmsMaterialStockMapper wmsMaterialStockMapper;
 
 	@Override
-	public List<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
+	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
+		PageResult<WmsMaterialVo> page = new PageResult<WmsMaterialVo>();
 		if (example == null) {
 			example = new WmsMaterialDO();
 		}
+		int totalRows = this.wmsMaterialMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialDO> list = wmsMaterialMapper.select(example);
 		List<WmsMaterialVo> ret = new ArrayList<>();
@@ -38,7 +40,11 @@ public class MaterialServiceImpl implements MaterialService {
 			ret.add(vo);
 			BeanUtils.copyProperties(dd, vo);
 		}
-		return ret;
+		page.setPageNo(example.getPageNo());
+		page.setPageSize(example.getPageSize());
+		page.setTotalRows(totalRows);
+		page.setValues(ret);
+		return page;
 	}
 
 	@Override
