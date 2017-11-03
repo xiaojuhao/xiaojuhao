@@ -11,6 +11,7 @@ public class WmsMaterialStockVo implements Serializable{
 	String materialName;
 	String materialCode;
 	String storeCode;
+	String storeName;
 	Double currStock;
 	Double usedStock;
 	String stockType;

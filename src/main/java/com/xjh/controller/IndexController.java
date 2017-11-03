@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.ResultBaseBuilder;
-import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
-import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
-import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 
@@ -24,12 +21,6 @@ public class IndexController {
 	HttpServletRequest request;
 	@Resource
 	MaterialService materialService;
-	@Resource
-	TkWmsMaterialMapper tkWmsMaterialMapper;
-	@Resource
-	TkWmsMaterialStockMapper stockMapper;
-	@Resource
-	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
 	SequenceService sequenceService;
 
@@ -49,8 +40,12 @@ public class IndexController {
 		sysconfig.put("title", "系统管理");
 		sysconfig.put("icon", "el-icon-setting");
 		menus.add(sysconfig);
-
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
-
+	@RequestMapping(value = "/initMaterials", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object initMaterials(){
+		materialService.initMaterials();
+		return ResultBaseBuilder.succ().rb(request);
+	}
 }

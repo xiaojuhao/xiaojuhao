@@ -1,12 +1,16 @@
 package com.xjh.service;
 
 import com.xjh.commons.PageResult;
+import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
 public interface MaterialService {
+	
+	public ResultBase<Boolean> initMaterials();
+	
 	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example);
 	
 	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example);

@@ -9,7 +9,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
+import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
+import com.xjh.commons.ResultBase;
+import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
@@ -24,6 +27,28 @@ public class MaterialServiceImpl implements MaterialService {
 	TkWmsMaterialMapper wmsMaterialMapper;
 	@Resource
 	TkWmsMaterialStockMapper wmsMaterialStockMapper;
+
+	@Override
+	public ResultBase<Boolean> initMaterials() {
+		List<WmsMaterialDO> materials = wmsMaterialMapper.selectAll();
+		for (WmsMaterialDO m : materials) {
+			WmsMaterialStockDO stock = new WmsMaterialStockDO();
+			stock.setMaterialCode(m.getMaterialCode());
+			stock.setStockType("1");
+			List<WmsMaterialStockDO> stocks = wmsMaterialStockMapper.select(stock);
+			if (stocks == null || stocks.size() == 0) {
+				WmsMaterialStockDO insert = new WmsMaterialStockDO();
+				CommonUtils.copyPropertiesQuietly(insert, m);
+				insert.setStoreCode("DEFAULT");
+				insert.setStoreName("总库");
+				insert.setStockType("1");
+				insert.setCurrStock(0D);
+				insert.setUsedStock(0D);
+				this.wmsMaterialStockMapper.insert(insert);
+			}
+		}
+		return ResultBaseBuilder.succ().data(true).rb();
+	}
 
 	@Override
 	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
@@ -58,7 +83,9 @@ public class MaterialServiceImpl implements MaterialService {
 			stock.setMaterialCode(example.getMaterialCode());
 			stock.setMaterialName(example.getMaterialName());
 			stock.setStockUnit(example.getStockUnit());
-			stock.setStockType("2");
+			stock.setStockType("1");
+			stock.setStoreCode("DEFAULT");
+			stock.setStoreName("总库");
 			stock.setCurrStock(0D);
 			stock.setUsedStock(0D);
 			wmsMaterialStockMapper.insert(stock);
