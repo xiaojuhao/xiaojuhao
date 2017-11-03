@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
@@ -141,7 +142,7 @@ public class IndexController {
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		example.setMaterialCode(materialCode);
-		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
+		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 
@@ -154,13 +155,29 @@ public class IndexController {
 		}
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
-		List<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
-		if (list == null || list.size() == 0) {
+		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example);
+		if(page.getValues()==null || page.getValues().size()==0){
 			return ResultBaseBuilder.fails("数据不存在").rb(request);
 		}
-		return ResultBaseBuilder.succ().data(list.get(0)).rb(request);
+		return ResultBaseBuilder.succ().data(page.getValues().get(0)).rb(request);
 	}
-
+	@RequestMapping(value = "/queryMaterialsStockHistory", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMaterialsStockHistory() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
+		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
+		String materialCode = request.getParameter("materialCode");
+		WmsMaterialStockDO example = new WmsMaterialStockDO();
+		example.setMaterialCode(materialCode);
+		example.setPageSize(pageSize);
+		example.setPageNo(pageNo);
+		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
 	/**
 	 * 出库
 	 * 

@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
+import com.xjh.commons.PageResult;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
@@ -60,10 +61,13 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public List<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
+	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
+		PageResult<WmsMaterialStockVo> page = new PageResult<>();
+		page.setTotalRows(0);
 		if (example == null) {
 			example = new WmsMaterialStockDO();
 		}
+		int totalRows = this.wmsMaterialStockMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.select(example);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
@@ -72,7 +76,11 @@ public class MaterialServiceImpl implements MaterialService {
 			ret.add(vo);
 			BeanUtils.copyProperties(dd, vo);
 		}
-		return ret;
+		page.setTotalRows(totalRows);
+		page.setPageNo(example.getPageNo());
+		page.setPageSize(example.getPageSize());
+		page.setValues(ret);
+		return page;
 	}
 
 }
