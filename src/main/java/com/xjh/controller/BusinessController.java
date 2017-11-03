@@ -76,7 +76,7 @@ public class BusinessController {
 		}
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
-		String materialCode = request.getParameter("materialCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setPageNo(pageNo);
 		example.setPageSize(pageSize);
@@ -95,14 +95,16 @@ public class BusinessController {
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 20);
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		String materialCode = request.getParameter("materialCode");
-		String storeCode = request.getParameter("storeCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String storeCode = CommonUtils.get(request, "storeCode");
+		String stockType = CommonUtils.get(request, "stockType");
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		example.setMaterialCode(materialCode);
 		example.setStoreCode(storeCode);
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
+		example.setStockType(stockType);
 		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
@@ -132,7 +134,7 @@ public class BusinessController {
 		}
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
-		String materialCode = request.getParameter("materialCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setMaterialCode(materialCode);
 		example.setPageSize(pageSize);
@@ -157,8 +159,8 @@ public class BusinessController {
 		if (id == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		String materialCode = request.getParameter("materialCode");
-		String outstockAmtStr = request.getParameter("outstockAmt");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String outstockAmtStr = CommonUtils.get(request, "outstockAmt");
 		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
 		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -194,9 +196,9 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		String materialCode = request.getParameter("materialCode");
-		String instockAmtStr = request.getParameter("instockAmt");
-		String storeCode = request.getParameter("storeCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String instockAmtStr = CommonUtils.get(request, "instockAmt");
+		String storeCode = CommonUtils.get(request, "storeCode");
 		BigDecimal instockAmt = CommonUtils.parseBigDecimal(instockAmtStr);
 		if (instockAmt == null || Math.abs(instockAmt.doubleValue()) < 0.009) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

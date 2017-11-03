@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.DateUtils;
@@ -616,6 +618,14 @@ public class CommonUtils {
 		return Long.parseLong(str);
 	}
 
+	public static String get(HttpServletRequest request, String paramName) {
+		String val = request.getParameter(paramName);
+		if(StringUtils.isBlank(val)){
+			val = null;
+		}
+		return val;
+	}
+	
 	public static Integer parseInt(String str, Integer defaultValue) {
 		if (!isDigital(str)) {
 			return defaultValue;
