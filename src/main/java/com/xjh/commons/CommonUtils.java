@@ -626,6 +626,14 @@ public class CommonUtils {
 		return val;
 	}
 	
+	public static Double getDbl(HttpServletRequest request, String paramName, Double def) {
+		BigDecimal val = parseBigDecimal(request.getParameter(paramName),null);
+		if(val == null){
+			return def;
+		}
+		return val.doubleValue();
+	}
+	
 	public static Integer parseInt(String str, Integer defaultValue) {
 		if (!isDigital(str)) {
 			return defaultValue;

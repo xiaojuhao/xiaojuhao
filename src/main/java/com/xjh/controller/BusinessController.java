@@ -303,4 +303,19 @@ public class BusinessController {
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().data(stock).rb(request);
 	}
+	
+	@RequestMapping(value = "/diaobo", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object diaobo() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String materialCode=CommonUtils.get(request, "materialCode");//调拨材料
+		String storeCode = CommonUtils.get(request, "storeCode");//拨出门店
+		String toStoreCode=CommonUtils.get(request, "toStoreCode");//拨入门店
+		Double diaoboAmt = CommonUtils.getDbl(request, "diaoboAmt",null);
+		
+		return ResultBaseBuilder.succ().msg("调拨成功").rb(request);
+	}
 }
