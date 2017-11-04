@@ -78,13 +78,13 @@ public class CommonUtils {
 			.expireAfterWrite(5, TimeUnit.MINUTES) // 缓存时间
 			.build();
 	private static Random random = new Random();
-	
-	public static Date future(long seconds){
+
+	public static Date future(long seconds) {
 		Date date = new Date();
-		date.setTime(date.getTime()+seconds*1000);
+		date.setTime(date.getTime() + seconds * 1000);
 		return date;
 	}
-	
+
 	public static <T> boolean isEqual(T a, T b) {
 		if (a == null || b == null) {
 			return false;
@@ -620,20 +620,39 @@ public class CommonUtils {
 
 	public static String get(HttpServletRequest request, String paramName) {
 		String val = request.getParameter(paramName);
-		if(StringUtils.isBlank(val)){
+		if (StringUtils.isBlank(val)) {
 			val = null;
 		}
 		return val;
 	}
-	
+
+	public static Long getLong(HttpServletRequest request, String paramName) {
+		String val = request.getParameter(paramName);
+		return parseLong(val, null);
+	}
+
 	public static Double getDbl(HttpServletRequest request, String paramName, Double def) {
-		BigDecimal val = parseBigDecimal(request.getParameter(paramName),null);
-		if(val == null){
+		BigDecimal val = parseBigDecimal(request.getParameter(paramName), null);
+		if (val == null) {
 			return def;
 		}
 		return val.doubleValue();
 	}
-	
+
+	public static int getPageSize(HttpServletRequest request) {
+		if (request == null) {
+			return 10;
+		}
+		return parseInt(request.getParameter("pageSize"), 10);
+	}
+
+	public static int getPageNo(HttpServletRequest request) {
+		if (request == null) {
+			return 1;
+		}
+		return parseInt(request.getParameter("pageNo"), 1);
+	}
+
 	public static Integer parseInt(String str, Integer defaultValue) {
 		if (!isDigital(str)) {
 			return defaultValue;

@@ -42,7 +42,7 @@ public class StoreController {
 		String managerPhone = request.getParameter("managerPhone");
 		String managerEmail = request.getParameter("managerEmail");
 		long val = sequenceService.next("wms_store");
-		String storeCode = "M"+StringUtils.leftPad(val+"", 3, "0");
+		String storeCode = "MD"+StringUtils.leftPad(val+"", 4, "0");
 		WmsStoreDO store = new WmsStoreDO();
 		store.setStoreName(storeName);
 		store.setStoreCode(storeCode);
@@ -51,7 +51,7 @@ public class StoreController {
 		store.setManagerEmail(managerEmail);
 		store.setManagerPhone(managerPhone);
 		ResultBase<WmsStoreDO> rs = storeService.addStore(store);
-		return rs;
+		return ResultBaseBuilder.wrap(rs).rb(request);
 	}
 	@RequestMapping(value="/updateStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -80,7 +80,7 @@ public class StoreController {
 		store.setManagerEmail(managerEmail);
 		store.setManagerPhone(managerPhone);
 		ResultBase<Integer> rs = storeService.updateStore(store);
-		return rs;
+		return ResultBaseBuilder.wrap(rs).rb(request);
 	}
 	@RequestMapping(value="/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody

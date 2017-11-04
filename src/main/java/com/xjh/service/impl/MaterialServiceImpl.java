@@ -39,8 +39,8 @@ public class MaterialServiceImpl implements MaterialService {
 			if (stocks == null || stocks.size() == 0) {
 				WmsMaterialStockDO insert = new WmsMaterialStockDO();
 				CommonUtils.copyPropertiesQuietly(insert, m);
-				insert.setStoreCode("M000");
-				insert.setStoreName("总库");
+				insert.setWarehouseCode("WH0000");
+				insert.setWarehouseName("总库");
 				insert.setStockType("1");
 				insert.setCurrStock(0D);
 				insert.setUsedStock(0D);
@@ -84,15 +84,22 @@ public class MaterialServiceImpl implements MaterialService {
 			stock.setMaterialName(example.getMaterialName());
 			stock.setStockUnit(example.getStockUnit());
 			stock.setStockType("1");
-			stock.setStoreCode("M000");
-			stock.setStoreName("总库");
+			stock.setWarehouseCode("WH0000");
+			stock.setWarehouseName("总库");
 			stock.setCurrStock(0D);
 			stock.setUsedStock(0D);
 			wmsMaterialStockMapper.insert(stock);
 		}
 		return i;
 	}
-
+	@Override
+	public int updateMaterial(WmsMaterialDO example) {
+		if (example == null) {
+			return 0;
+		}
+		int i = this.wmsMaterialMapper.updateByPrimaryKeySelective(example);
+		return i;
+	}
 	@Override
 	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
 		PageResult<WmsMaterialStockVo> page = new PageResult<>();

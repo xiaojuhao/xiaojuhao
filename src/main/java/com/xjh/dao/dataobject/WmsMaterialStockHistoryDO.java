@@ -22,6 +22,7 @@ public class WmsMaterialStockHistoryDO extends PageDTO{
 	Double stockChg;
 	Double currStock;
 	String operator;
+	String warehouseCode;
 	String storeCode;
 	String remark;
 }

@@ -1,5 +1,7 @@
 package com.xjh.dao.dataobject;
 
+import java.io.Serializable;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,20 +11,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
-@Table(name="wms_material_stock")
-public class WmsMaterialStockDO extends PageDTO{
+@EqualsAndHashCode(callSuper = false)
+@Table(name = "wms_warehouse")
+public class WmsWarehouseDO extends PageDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY,generator="Mysql")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
-	String materialName;
-	String materialCode;
-	Double currStock;
-	Double usedStock;
-	String stockType;
 	String warehouseCode;
 	String warehouseName;
-	String stockUnit;
-	String modifier;
+	String warehouseManager;
+	String warehouseAddr;
+	String managerPhone;
+	String managerEmail;
+
 }

@@ -16,4 +16,6 @@ public interface MaterialService {
 	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example);
 	
 	public int addMaterial(WmsMaterialDO example);
+	
+	public int updateMaterial(WmsMaterialDO example);
 }

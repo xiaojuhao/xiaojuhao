@@ -13,5 +13,6 @@ public class WmsMaterialVo implements Serializable{
 	String canSplit;
 	String StockUnit;
 	Integer status;
+	String searchKey;
 
 }
