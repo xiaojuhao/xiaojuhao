@@ -28,7 +28,7 @@ public class SequenceServiceImpl implements SequenceService {
 			WmsSequenceDO insert = new WmsSequenceDO();
 			insert.setSequenceCode(sequenceCode);
 			insert.setNextValue(2L);
-			insert.setModifyVersion(0L);
+			insert.setModifyVersion(2L);
 			sequenceMapper.insert(insert);
 			return 1;
 		}

@@ -39,7 +39,7 @@ public class MaterialServiceImpl implements MaterialService {
 			if (stocks == null || stocks.size() == 0) {
 				WmsMaterialStockDO insert = new WmsMaterialStockDO();
 				CommonUtils.copyPropertiesQuietly(insert, m);
-				insert.setStoreCode("DEFAULT");
+				insert.setStoreCode("M000");
 				insert.setStoreName("总库");
 				insert.setStockType("1");
 				insert.setCurrStock(0D);
@@ -84,7 +84,7 @@ public class MaterialServiceImpl implements MaterialService {
 			stock.setMaterialName(example.getMaterialName());
 			stock.setStockUnit(example.getStockUnit());
 			stock.setStockType("1");
-			stock.setStoreCode("DEFAULT");
+			stock.setStoreCode("M000");
 			stock.setStoreName("总库");
 			stock.setCurrStock(0D);
 			stock.setUsedStock(0D);

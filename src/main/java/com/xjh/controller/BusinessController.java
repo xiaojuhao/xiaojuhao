@@ -176,14 +176,17 @@ public class BusinessController {
 		// 更新库存
 		stock.setCurrStock(stock.getCurrStock() - outstockAmt.doubleValue());
 		stock.setUsedStock(stock.getUsedStock() + outstockAmt.doubleValue());
+		stock.setModifier(user.getUserCode());
 		this.stockMapper.updateByPrimaryKeySelective(stock);
 		// 记录history
 		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
 		history.setMaterialCode(stock.getMaterialCode());
 		history.setMaterialName(stock.getMaterialName());
 		history.setCurrStock(stock.getCurrStock());
+		history.setStoreCode(stock.getStoreCode());
 		history.setStockChg(outstockAmt.doubleValue());
-		history.setOperator("out_stock");
+		history.setOpType("out_stock");
+		history.setRemark("出库");
 		history.setOperator(user.getUserCode());
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().rb(request);
@@ -232,16 +235,27 @@ public class BusinessController {
 			t.setUsedStock(0D);
 			stockMapper.insert(t);
 		}
-		// 更新库存
+		WmsMaterialStockDO zk = new WmsMaterialStockDO();
+		zk.setMaterialCode(materialCode);
+		zk.setStockType("1");
+		zk.setStoreCode("M000");
+		zk = this.stockMapper.selectOne(zk);
+		zk.setCurrStock(zk.getCurrStock()+instockAmt.doubleValue());
+		zk.setModifier(user.getUserCode());
+		this.stockMapper.updateByPrimaryKey(zk);
+		// 更新库存（分库）
 		stock.setCurrStock(stock.getCurrStock() + instockAmt.doubleValue());
+		stock.setModifier(user.getUserCode());
 		this.stockMapper.updateByPrimaryKeySelective(stock);
 		// 记录history
 		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
 		history.setMaterialCode(stock.getMaterialCode());
 		history.setMaterialName(stock.getMaterialName());
 		history.setCurrStock(stock.getCurrStock());
+		history.setStoreCode(stock.getStoreCode());
 		history.setStockChg(-instockAmt.doubleValue());
-		history.setOperator("in_stock");
+		history.setOpType("in_stock");
+		history.setRemark("入库");
 		history.setOperator(user.getUserCode());
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().rb(request);
@@ -281,8 +295,9 @@ public class BusinessController {
 		history.setMaterialCode(stock.getMaterialCode());
 		history.setMaterialName(stock.getMaterialName());
 		history.setCurrStock(stock.getCurrStock());
+		history.setStoreCode(stock.getStoreCode());
 		history.setStockChg(prevStock - realStock.doubleValue());
-		history.setOperator("correct");
+		history.setOpType("correct");
 		history.setOperator(user.getUserCode());
 		history.setRemark(String.format("库存盘点,%s=>%s", prevStock,realStock));
 		this.stockHistoryMapper.insert(history);

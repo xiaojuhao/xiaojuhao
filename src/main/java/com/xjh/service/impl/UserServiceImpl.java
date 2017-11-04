@@ -1,5 +1,7 @@
 package com.xjh.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
 import com.xjh.commons.CookieUtils;
+import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -40,6 +43,17 @@ public class UserServiceImpl implements UserService{
 		return ResultBaseBuilder.succ().data(user).rb();
 	}
 
+	@Override
+	public PageResult<WmsUserDO> queryUsers(WmsUserDO userDO) {
+		if(userDO == null){
+			userDO = new WmsUserDO();
+		}
+		PageResult<WmsUserDO> page = new PageResult<>();
+		List<WmsUserDO> list = this.userMapper.select(userDO);
+		page.setValues(list);
+		return page;
+	}
+	
 	@Override
 	public ResultBase<WmsUserDO> login(WmsUserDO userDO,HttpServletRequest request,HttpServletResponse response) {
 		if(userDO == null){
