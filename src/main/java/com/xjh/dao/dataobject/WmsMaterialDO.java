@@ -23,4 +23,5 @@ public class WmsMaterialDO extends PageDTO implements Serializable{
 	String canSplit;
 	String stockUnit;
 	Integer status;
+	String searchKey;
 }
