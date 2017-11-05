@@ -31,7 +31,13 @@ public class RecipesController {
 		if(user == null){
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		return null;
+		String recipesCode = CommonUtils.get(request, "recipesCode");
+		String recipesName = CommonUtils.get(request, "recipesName");
+		WmsRecipesDO recipes = new WmsRecipesDO();
+		recipes.setRecipesCode(recipesCode);
+		recipes.setRecipesName(recipesName);
+		this.recipesService.saveRecipes(recipes);
+		return ResultBaseBuilder.succ().data(recipes).rb(request);
 	}
 	
 	

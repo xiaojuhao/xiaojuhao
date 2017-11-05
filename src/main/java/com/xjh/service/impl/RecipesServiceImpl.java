@@ -26,12 +26,16 @@ public class RecipesServiceImpl implements RecipesService {
 		String recipesCode = wmsRecipesDO.getRecipesCode();
 		Long id = wmsRecipesDO.getId();
 		if (id != null || StringUtils.isNotBlank(recipesCode)) {
+			WmsRecipesDO t = new WmsRecipesDO();
+			t.setRecipesCode(recipesCode);
+			t = this.recipesMapper.selectOne(t);
+			wmsRecipesDO.setId(t.getId());
+			return recipesMapper.updateByPrimaryKeySelective(wmsRecipesDO);
+		}else{
 			long val = sequenceService.next("wms_recipes");
 			recipesCode = "CD"+StringUtils.leftPad(val+"", 6, "0");
 			wmsRecipesDO.setRecipesCode(recipesCode);
 			return recipesMapper.insert(wmsRecipesDO);
-		}else{
-			return recipesMapper.updateByPrimaryKeySelective(wmsRecipesDO);
 		}
 	}
 
