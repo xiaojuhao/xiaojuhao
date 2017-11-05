@@ -28,7 +28,11 @@ public class RecipesServiceImpl implements RecipesService {
 		if (id != null || StringUtils.isNotBlank(recipesCode)) {
 			WmsRecipesDO t = new WmsRecipesDO();
 			t.setRecipesCode(recipesCode);
+			t.setId(id);
 			t = this.recipesMapper.selectOne(t);
+			if(t == null){
+				throw new RuntimeException("数据异常");
+			}
 			wmsRecipesDO.setId(t.getId());
 			return recipesMapper.updateByPrimaryKeySelective(wmsRecipesDO);
 		}else{
