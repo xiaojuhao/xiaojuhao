@@ -206,6 +206,7 @@ public class BusinessController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String outstockAmtStr = CommonUtils.get(request, "outstockAmt");
 		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
+		String storeCode = CommonUtils.get(request, "storeCode");
 		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
@@ -231,6 +232,7 @@ public class BusinessController {
 		history.setStockChg(outstockAmt.doubleValue());
 		history.setOpType("out_stock");
 		history.setRemark("出库");
+		history.setStoreCode(storeCode);
 		history.setOperator(user.getUserCode());
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().rb(request);
