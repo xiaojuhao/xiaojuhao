@@ -631,6 +631,11 @@ public class CommonUtils {
 		return parseLong(val, null);
 	}
 
+	public static Integer getInt(HttpServletRequest request, String paramName) {
+		String val = request.getParameter(paramName);
+		return parseInt(val, null);
+	}
+	
 	public static Double getDbl(HttpServletRequest request, String paramName, Double def) {
 		BigDecimal val = parseBigDecimal(request.getParameter(paramName), null);
 		if (val == null) {

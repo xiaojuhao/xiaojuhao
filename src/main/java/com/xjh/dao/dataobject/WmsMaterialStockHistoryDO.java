@@ -1,5 +1,7 @@
 package com.xjh.dao.dataobject;
 
+import java.util.Date;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,4 +27,5 @@ public class WmsMaterialStockHistoryDO extends PageDTO{
 	String warehouseCode;
 	String storeCode;
 	String remark;
+	Date gmtCreated;
 }

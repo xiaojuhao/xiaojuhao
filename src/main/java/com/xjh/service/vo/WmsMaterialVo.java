@@ -14,5 +14,5 @@ public class WmsMaterialVo implements Serializable{
 	String StockUnit;
 	Integer status;
 	String searchKey;
-
+	Integer utilizationRatio;
 }

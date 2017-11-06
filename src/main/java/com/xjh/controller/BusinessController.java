@@ -59,12 +59,14 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String formula = request.getParameter("formulaStr");
 		WmsMaterialDO material = new WmsMaterialDO();
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
 		material.setSearchKey(CommonUtils.get(request, "searchKey"));
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
+		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
 		material.setStatus(1);
 
 		if (StringUtils.isBlank(material.getMaterialName())) {
