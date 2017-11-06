@@ -66,17 +66,12 @@ public class BusinessController {
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
 		material.setSearchKey(CommonUtils.get(request, "searchKey"));
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
+		material.setCanSplit(CommonUtils.get(request, "canSplit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
 		material.setStatus(1);
 
 		if (StringUtils.isBlank(material.getMaterialName())) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		String boolCanSplit = CommonUtils.get(request, "boolCanSplit");
-		if ("true".equals(boolCanSplit)) {
-			material.setCanSplit("Y");
-		} else {
-			material.setCanSplit("N");
 		}
 		if (material.getId() == null) {
 			long nextVal = this.sequenceService.next("wms_material");
