@@ -106,6 +106,9 @@ public class WarehouseController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String warehouseCode = CommonUtils.get(request, "warehouseCode");
+		if(StringUtils.isBlank(warehouseCode)){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		warehouse.setWarehouseCode(warehouseCode);
 		warehouse = this.warehouseMapper.selectOne(warehouse);
