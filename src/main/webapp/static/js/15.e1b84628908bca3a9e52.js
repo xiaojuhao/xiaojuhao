@@ -1,15 +1,19 @@
-webpackJsonp([22],{
+webpackJsonp([15],{
 
-/***/ 516:
+/***/ 511:
 /***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(711)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(658),
+  __webpack_require__(652),
   /* template */
-  __webpack_require__(692),
+  __webpack_require__(689),
   /* scopeId */
-  null,
+  "data-v-00e3dfd9",
   /* cssModules */
   null
 )
@@ -7129,6 +7133,9 @@ const recipes = {
 	queryRecipesPage(data) {
 		return http.jsonp2("/recipes/queryRecipes", data);
 	},
+	queryAllRecipes() {
+		return http.jsonp2("/recipes/queryAllRecipes", {});
+	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
 	}
@@ -12104,7 +12111,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 658:
+/***/ 652:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12164,228 +12171,354 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data: function () {
+    data() {
         return {
-            form: {
-                id: this.$route.query.mid,
-                materialName: '',
+            url: './static/vuetable.json',
+            tableData: [],
+            cur_page: 1,
+            pageSize: 5,
+            totalRows: 0,
+            loadingState: false,
+            del_list: [],
+            is_search: false,
+            query: {
                 materialCode: '',
-                utilizationRatio: 100,
-                stockUnit: '',
-                canSplit: '',
-                searchKey: '',
-                formulaStr: '',
-                formula: [{ id: 1, name: 'aaaaaaa' }, { id: 2, name: 'bbbbbbb' }]
+                stockType: '2',
+                warehouseCode: ''
             },
-            rules: {}
+            warehouseSelection: [],
+            materialSelection: [],
+            showOutStock: false
         };
     },
-    methods: {
-        onSubmit() {
-            let self = this;
-            this.$data.form.formulaStr = JSON.stringify(this.$data.form.formula);
-            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/addMaterials',
-                data: this.$data.form,
-                dataType: 'jsonp'
-            }).then(resp => {
-                self.$message.success("操作成功");
-                self.$router.go(-1);
-            });
-        },
-        onCancel() {
-            this.$router.go(-1);
-        }
-    },
-    computed: {},
     created() {},
     mounted() {
-        let form = this.$data.form;
+        this.getData();
+        var $this = this;
         __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
-            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialById',
-            data: { id: this.$data.form.id },
+            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/warehouse/queryWarehouses",
             dataType: 'jsonp'
         }).then(resp => {
-            if (resp.code == 200 && resp.value) {
-                var v = resp.value;
-                form.materialName = v.materialName;
-                form.materialCode = v.materialCode;
-                form.stockUnit = v.stockUnit;
-                form.searchKey = v.searchKey;
-                form.canSplit = v.canSplit;
-                form.utilizationRatio = v.utilizationRatio;
-            }
+            $this.warehouseSelection = resp.value.values;
         });
+    },
+    activated() {},
+    computed: {
+        data() {
+            const self = this;
+            return self.tableData.filter(function (d) {
+                return d;
+            });
+        }
+    },
+    methods: {
+        handleCurrentChange(val) {
+            this.cur_page = val;
+            this.getData();
+        },
+        getData() {
+            let self = this;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialsStock',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.cur_page,
+                    materialCode: self.$data.query.materialCode,
+                    warehouseCode: self.$data.query.warehouseCode,
+                    stockType: self.$data.query.stockType
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.tableData = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                // self.$notify({
+                //     title:'请求数据',message:'请求完成',duration:1000,position: 'bottom-right'
+                // });
+                self.$data.loadingState = false;
+            });
+        },
+        search() {
+            this.tableData = [];
+            this.getData();
+        },
+        formatStockType(row, column) {
+            return row.stockType == 1 ? "总库" : "分库";
+        },
+        filterTag(value, row) {
+            return row.tag === value;
+        },
+        diaobo(index, item) {
+            // this.$message('编辑第'+(index+1)+'行');
+            //console.log(row)
+            this.$router.push({ path: "/diaoboPage", query: { stockId: item.id } });
+            // this.$data.showOutStock=true;
+        },
+        handleEdit(index, row) {
+            this.$message('编辑第' + (index + 1) + '行');
+        },
+        handleDelete(index, row) {
+            this.$message.error('删除第' + (index + 1) + '行');
+        },
+        delAll() {
+            const self = this,
+                  length = self.multipleSelection.length;
+            let str = '';
+            self.del_list = self.del_list.concat(self.multipleSelection);
+            for (let i = 0; i < length; i++) {
+                str += self.multipleSelection[i].name + ' ';
+            }
+            self.$message.error('删除了' + str);
+            self.multipleSelection = [];
+        },
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
+        },
+        handleSelect(item) {
+            this.$data.query.name = item.value;
+        },
+        querySearch(queryString, cb) {
+            var data = [];
+            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.search({ w: queryString }, resp => {
+                data = resp.values;
+            });
+            cb(data);
+        },
+        remoteMethod(query) {
+            if (query !== '') {
+                this.loading = true;
+                setTimeout(() => {
+                    this.loading = false;
+                    __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.search({ w: query }, resp => {
+                        this.materialSelection = resp.value;
+                    });
+                }, 200);
+            } else {
+                this.materialSelection = [];
+            }
+        }
     }
 });
 
 /***/ }),
 
-/***/ 692:
+/***/ 670:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(87)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".handle-box[data-v-00e3dfd9]{margin-bottom:20px}.handle-select[data-v-00e3dfd9]{width:120px}.handle-input[data-v-00e3dfd9]{width:300px;display:inline-block}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 689:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('div', {
-    staticClass: "crumbs"
-  }, [_c('el-breadcrumb', {
-    attrs: {
-      "separator": "/"
-    }
-  }, [_c('el-breadcrumb-item', [_c('i', {
-    staticClass: "el-icon-date"
-  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("原料管理")])], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "form-box"
-  }, [_c('el-form', {
-    ref: "form",
-    attrs: {
-      "label-width": "80px"
-    }
-  }, [_c('el-form-item', {
-    attrs: {
-      "label": "原料名称"
-    }
-  }, [_c('el-input', {
-    model: {
-      value: (_vm.form.materialName),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "materialName", $$v)
-      },
-      expression: "form.materialName"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "原料编码"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "disabled": "",
-      "placehoder": "自动生成"
-    },
-    model: {
-      value: (_vm.form.materialCode),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "materialCode", $$v)
-      },
-      expression: "form.materialCode"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "利用率(%)"
-    }
-  }, [_c('el-slider', {
-    attrs: {
-      "min": 50,
-      "max": 100,
-      "show-input": true
-    },
-    model: {
-      value: (_vm.form.utilizationRatio),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "utilizationRatio", $$v)
-      },
-      expression: "form.utilizationRatio"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "保质期"
-    }
-  }, [_c('el-input', {
-    model: {
-      value: (_vm.form.storageLife),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "storageLife", $$v)
-      },
-      expression: "form.storageLife"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "单位"
-    }
+  return _c('div', {
+    staticClass: "table"
+  }, [_c('div', {
+    staticClass: "handle-box"
   }, [_c('el-select', {
     attrs: {
-      "placeholder": "请选择"
+      "filterable": "",
+      "clearable": "",
+      "remote": "",
+      "reserve-keyword": "",
+      "placeholder": "请输入关键词",
+      "remote-method": _vm.remoteMethod
     },
     model: {
-      value: (_vm.form.stockUnit),
+      value: (_vm.query.materialCode),
       callback: function($$v) {
-        _vm.$set(_vm.form, "stockUnit", $$v)
+        _vm.$set(_vm.query, "materialCode", $$v)
       },
-      expression: "form.stockUnit"
+      expression: "query.materialCode"
     }
-  }, [_c('el-option', {
-    key: "bbk",
+  }, _vm._l((_vm.materialSelection), function(item) {
+    return _c('el-option', {
+      key: item.code,
+      attrs: {
+        "label": item.name,
+        "value": item.code
+      }
+    })
+  })), _vm._v(" "), _c('el-select', {
     attrs: {
-      "label": "个",
-      "value": "个"
-    }
-  }), _vm._v(" "), _c('el-option', {
-    key: "xtc",
-    attrs: {
-      "label": "斤",
-      "value": "斤"
-    }
-  }), _vm._v(" "), _c('el-option', {
-    key: "imoo",
-    attrs: {
-      "label": "克",
-      "value": "克"
-    }
-  }), _vm._v(" "), _c('el-option', {
-    key: "imoo",
-    attrs: {
-      "label": "箱",
-      "value": "箱"
-    }
-  })], 1)], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "是否可拆"
-    }
-  }, [_c('el-switch', {
-    attrs: {
-      "on-text": "是",
-      "off-text": "否",
-      "on-value": "Y",
-      "off-value": "N"
+      "clearable": "",
+      "placeholder": "仓库"
     },
     model: {
-      value: (_vm.form.canSplit),
+      value: (_vm.query.warehouseCode),
       callback: function($$v) {
-        _vm.$set(_vm.form, "canSplit", $$v)
+        _vm.$set(_vm.query, "warehouseCode", $$v)
       },
-      expression: "form.canSplit"
+      expression: "query.warehouseCode"
     }
-  })], 1), _vm._v(" "), _c('el-form-item', {
+  }, _vm._l((_vm.warehouseSelection), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
+      attrs: {
+        "label": item.warehouseName,
+        "value": item.warehouseCode
+      }
+    })
+  })), _vm._v(" "), _c('el-button', {
     attrs: {
-      "label": "搜索短语"
-    }
-  }, [_c('el-input', {
-    model: {
-      value: (_vm.form.searchKey),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "searchKey", $$v)
-      },
-      expression: "form.searchKey"
-    }
-  })], 1), _vm._v(" "), _c('el-row', [_c('el-col', [_c('el-form-item', [_c('el-button', {
-    attrs: {
-      "type": "primary"
+      "type": "primary",
+      "icon": "search"
     },
     on: {
-      "click": _vm.onSubmit
+      "click": _vm.search
     }
-  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
+  }, [_vm._v("搜索")])], 1), _vm._v(" "), _c('el-table', {
+    directives: [{
+      name: "loading",
+      rawName: "v-loading",
+      value: (_vm.loadingState),
+      expression: "loadingState"
+    }],
+    staticStyle: {
+      "width": "100%"
+    },
     attrs: {
-      "type": "primary"
+      "data": _vm.data,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
+    }
+  }, [_c('el-table-column', {
+    attrs: {
+      "type": "expand"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(props) {
+        return [_vm._v("\n             【待实现】展示" + _vm._s(props.row.materialName) + "最近几条调拨记录\n            ")]
+      }
+    }])
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "materialCode",
+      "label": "原料编码",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "materialName",
+      "label": "原料名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "currStock",
+      "label": "当前库存",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "usedStock",
+      "label": "已用数量",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseName",
+      "label": "仓库",
+      "width": "200"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "modifier",
+      "label": "修改人",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "100"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.diaobo(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("调拨")])]
+      }
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
     },
     on: {
-      "click": _vm.onCancel
+      "current-change": _vm.handleCurrentChange
     }
-  }, [_vm._v("取消")])], 1)], 1)], 1)], 1)], 1)])
+  })], 1)], 1)
 },staticRenderFns: []}
+
+/***/ }),
+
+/***/ 711:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(670);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(199)("c8b83bc8", content, true);
 
 /***/ })
 

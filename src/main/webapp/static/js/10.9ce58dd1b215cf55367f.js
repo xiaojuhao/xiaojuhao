@@ -7156,6 +7156,9 @@ const recipes = {
 	queryRecipesPage(data) {
 		return http.jsonp2("/recipes/queryRecipes", data);
 	},
+	queryAllRecipes() {
+		return http.jsonp2("/recipes/queryAllRecipes", {});
+	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
 	}

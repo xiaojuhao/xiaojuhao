@@ -1,19 +1,19 @@
-webpackJsonp([13],{
+webpackJsonp([12],{
 
-/***/ 513:
+/***/ 526:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(719)
+__webpack_require__(717)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(654),
+  __webpack_require__(668),
   /* template */
-  __webpack_require__(701),
+  __webpack_require__(698),
   /* scopeId */
-  "data-v-53985ce8",
+  "data-v-40ccdf9f",
   /* cssModules */
   null
 )
@@ -7133,6 +7133,9 @@ const recipes = {
 	queryRecipesPage(data) {
 		return http.jsonp2("/recipes/queryRecipes", data);
 	},
+	queryAllRecipes() {
+		return http.jsonp2("/recipes/queryAllRecipes", {});
+	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
 	}
@@ -12108,7 +12111,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 654:
+/***/ 668:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12117,7 +12120,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(560);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_bus__ = __webpack_require__(590);
 //
 //
 //
@@ -12159,78 +12161,67 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data: function () {
+    data() {
         return {
-            item: {},
-            inStockAmt: 0,
-            warehouseCode: '',
-            warehouseSelection: []
+            tableData: [],
+            pageNo: 1,
+            pageSize: 20,
+            totalRows: 0,
+            loadingState: false,
+            queryList: []
         };
     },
     methods: {
-        onSubmit() {
-            var self = this;
-            __WEBPACK_IMPORTED_MODULE_2__common_bus__["b" /* store */].instock({
-                materialCode: self.item.materialCode,
-                instockAmt: self.inStockAmt,
-                warehouseCode: self.warehouseCode
-            }).then(resp => {
-                self.$message("处理成功");
-                self.$router.go(-1);
-            }).fail(resp => {
-                self.$message.error(resp.message);
+        handleCurrentChange(val) {
+            this.$data.pageNo = val;
+            this.queryData();
+        },
+        queryData() {
+            this.queryList = [];
+            this.totalRows = 0;
+            let self = this;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/warehouse/queryWarehouses',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.pageNo
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.queryList = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                self.$data.loadingState = false;
             });
         },
-        onBack() {
-            this.$router.go(-1);
-        },
-        initData() {
-            var stockId = this.$route.query.stockId;
-            var $data = this;
-            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryMaterialsStockById(stockId, resp => {
-                $data.item = resp.value;
-            });
-        }
-    },
-    computed: {
-        stockTypeName: function () {
-            if (this.item.stockType && this.item.stockType == 1) {
-                return '总库';
-            } else {
-                return '分库';
-            }
+        edit(index, item) {
+            this.$router.push({ path: "/warehouseManagePage", query: { warehouseCode: item && item.warehouseCode } });
         }
     },
     mounted() {
-        this.initData();
-        __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.getWarehouse({}, resp => {
-            console.log(resp);
-            this.warehouseSelection = resp.value.values;
-        });
-    },
-    activated() {}
+        this.queryData();
+    }
 });
 
 /***/ }),
 
-/***/ 678:
+/***/ 676:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(87)(undefined);
@@ -12238,132 +12229,146 @@ exports = module.exports = __webpack_require__(87)(undefined);
 
 
 // module
-exports.push([module.i, ".table-simple[data-v-53985ce8]{font-size:0}.table-simple label[data-v-53985ce8]{width:90px;color:#99a9bf;background-color:red}.table-simple .el-form-item[data-v-53985ce8]{margin-right:0;margin-bottom:0;width:50%}.table-simple .el-form-item2[data-v-53985ce8]{width:90%}.el-form-item-button[data-v-53985ce8]{margin-top:10px;margin-left:20%;width:90%}.input-width-short[data-v-53985ce8]{width:150px}", ""]);
+exports.push([module.i, ".handle-box[data-v-40ccdf9f]{margin-bottom:20px}.handle-select[data-v-40ccdf9f]{width:120px}.handle-input[data-v-40ccdf9f]{width:300px;display:inline-block}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 701:
+/***/ 698:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('div', {
-    staticClass: "crumbs"
-  }, [_c('el-breadcrumb', {
-    attrs: {
-      "separator": "/"
-    }
-  }, [_c('el-breadcrumb-item', [_c('i', {
-    staticClass: "el-icon-date"
-  }), _vm._v(" 进销存管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("入库")])], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "form-box"
-  }, [_c('el-form', {
-    ref: "form",
-    staticClass: "table-simple",
-    attrs: {
-      "inline": true,
-      "label-width": "80px"
-    }
-  }, [_c('el-form-item', {
-    attrs: {
-      "label": "原料名称"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialName))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "原料编码"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialCode))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "当前库存"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "已用数量"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.usedStock))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "库存类型"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.stockTypeName))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "是否拆分"
-    }
-  }, [_c('span', [_vm._v("否")])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "入库数量"
-    }
-  }, [_c('el-input', {
-    staticClass: "input-width-short",
-    model: {
-      value: (_vm.inStockAmt),
-      callback: function($$v) {
-        _vm.inStockAmt = $$v
-      },
-      expression: "inStockAmt"
-    }
-  }, [_c('template', {
-    attrs: {
-      "slot": "append"
-    },
-    slot: "append"
-  }, [_vm._v(_vm._s(_vm.item.stockUnit))])], 2)], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "仓库"
-    }
-  }, [_c('el-select', {
-    attrs: {
-      "placeholder": "请选择"
-    },
-    model: {
-      value: (_vm.warehouseCode),
-      callback: function($$v) {
-        _vm.warehouseCode = $$v
-      },
-      expression: "warehouseCode"
-    }
-  }, _vm._l((_vm.warehouseSelection), function(item) {
-    return _c('el-option', {
-      key: item.warehouseCode,
-      attrs: {
-        "label": item.warehouseName,
-        "value": item.warehouseCode
-      }
-    })
-  }))], 1), _vm._v(" "), _c('el-form-item', {
-    staticClass: "el-form-item-button"
+  return _c('div', {
+    staticClass: "table"
+  }, [_c('div', {
+    staticClass: "handle-box"
   }, [_c('el-button', {
     attrs: {
-      "type": "primary"
+      "round": ""
     },
     on: {
-      "click": _vm.onSubmit
+      "click": function($event) {
+        _vm.queryData()
+      }
     }
-  }, [_vm._v("提交")]), _vm._v(" "), _c('span', {
+  }, [_vm._v("查询列表")]), _vm._v(" "), _c('div', {
     staticStyle: {
-      "margin-right": "20px"
+      "position": "relative",
+      "float": "right"
     }
-  }), _vm._v(" "), _c('el-button', {
+  }, [_c('el-button', {
+    attrs: {
+      "round": ""
+    },
     on: {
-      "click": _vm.onBack
+      "click": function($event) {
+        _vm.edit()
+      }
     }
-  }, [_vm._v("取消")])], 1)], 1)], 1)])
+  }, [_vm._v("增加仓库")])], 1)], 1), _vm._v(" "), _c('el-table', {
+    directives: [{
+      name: "loading",
+      rawName: "v-loading",
+      value: (_vm.loadingState),
+      expression: "loadingState"
+    }],
+    staticStyle: {
+      "width": "100%"
+    },
+    attrs: {
+      "data": _vm.queryList,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
+    }
+  }, [_c('el-table-column', {
+    attrs: {
+      "prop": "warehouseCode",
+      "label": "仓库编码",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseName",
+      "label": "仓库名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseManager",
+      "label": "负责人",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseAddr",
+      "label": "仓库地址",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerPhone",
+      "label": "负责人手机",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerEmail",
+      "label": "负责人邮箱",
+      "width": "250"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "100"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.edit(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("编辑")])]
+      }
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
+    },
+    on: {
+      "current-change": _vm.handleCurrentChange
+    }
+  })], 1)], 1)
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 719:
+/***/ 717:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(678);
+var content = __webpack_require__(676);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("417be5c0", content, true);
+var update = __webpack_require__(199)("064ab776", content, true);
 
 /***/ })
 

@@ -1,4 +1,4 @@
-webpackJsonp([11],{
+webpackJsonp([3,11],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
@@ -14,6 +14,29 @@ var Component = __webpack_require__(198)(
   __webpack_require__(638),
   /* scopeId */
   "data-v-38481101",
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 524:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(715)
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(666),
+  /* template */
+  __webpack_require__(696),
+  /* scopeId */
+  "data-v-36b93086",
   /* cssModules */
   null
 )
@@ -7133,6 +7156,9 @@ const recipes = {
 	queryRecipesPage(data) {
 		return http.jsonp2("/recipes/queryRecipes", data);
 	},
+	queryAllRecipes() {
+		return http.jsonp2("/recipes/queryAllRecipes", {});
+	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
 	}
@@ -13019,6 +13045,279 @@ if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var update = __webpack_require__(199)("0479b6cf", content, true);
+
+/***/ }),
+
+/***/ 666:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue__ = __webpack_require__(506);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__OutStock_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery__ = __webpack_require__(560);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_jquery__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data() {
+        return {
+            url: './static/vuetable.json',
+            tableData: [],
+            pageNo: 1,
+            pageSize: 20,
+            totalRows: 0,
+            loadingState: false,
+            queryList: []
+        };
+    },
+    methods: {
+        handleCurrentChange(val) {
+            this.pageNo = val;
+            this.queryData();
+        },
+        queryData() {
+            this.queryList = [];
+            this.totalRows = 0;
+            let self = this;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/store/getAllStore',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.pageNo
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.queryList = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                self.$data.loadingState = false;
+            });
+        },
+        edit(index, item) {
+            this.$router.push({ path: "/storeManagePage", query: { storeCode: item && item.storeCode } });
+        }
+    },
+    mounted() {
+        this.queryData();
+    }
+});
+
+/***/ }),
+
+/***/ 674:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(87)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".handle-box[data-v-36b93086]{margin-bottom:20px}.handle-select[data-v-36b93086]{width:120px}.handle-input[data-v-36b93086]{width:300px;display:inline-block}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 696:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "table"
+  }, [_c('div', {
+    staticClass: "handle-box"
+  }, [_c('el-button', {
+    attrs: {
+      "round": ""
+    },
+    on: {
+      "click": function($event) {
+        _vm.queryData()
+      }
+    }
+  }, [_vm._v("查询列表")]), _vm._v(" "), _c('div', {
+    staticStyle: {
+      "position": "relative",
+      "float": "right"
+    }
+  }, [_c('el-button', {
+    attrs: {
+      "round": ""
+    },
+    on: {
+      "click": function($event) {
+        _vm.edit()
+      }
+    }
+  }, [_vm._v("增加新门店")])], 1)], 1), _vm._v(" "), _c('el-table', {
+    directives: [{
+      name: "loading",
+      rawName: "v-loading",
+      value: (_vm.loadingState),
+      expression: "loadingState"
+    }],
+    staticStyle: {
+      "width": "100%"
+    },
+    attrs: {
+      "data": _vm.queryList,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
+    }
+  }, [_c('el-table-column', {
+    attrs: {
+      "prop": "storeCode",
+      "label": "门店编码",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeName",
+      "label": "门店名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "defaultWharehouse",
+      "label": "默认仓库",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeManager",
+      "label": "负责人",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeAddr",
+      "label": "门店地址",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerPhone",
+      "label": "负责人手机",
+      "width": "130"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerEmail",
+      "label": "负责人邮箱",
+      "width": "220"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "100"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.edit(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("编辑")])]
+      }
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
+    },
+    on: {
+      "current-change": _vm.handleCurrentChange
+    }
+  })], 1)], 1)
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 715:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(674);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(199)("2e18af7c", content, true);
 
 /***/ })
 
