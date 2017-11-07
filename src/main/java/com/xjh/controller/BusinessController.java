@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
@@ -18,7 +20,6 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
-import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
@@ -46,7 +47,7 @@ public class BusinessController {
 	TkWmsStoreMapper storeMapper;
 	@Resource
 	TkWmsWarehouseMapper warehouseMapper;
-
+	
 	@Resource
 	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
@@ -176,12 +177,21 @@ public class BusinessController {
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		String materialCode = CommonUtils.get(request, "materialCode");
-		WmsMaterialStockDO example = new WmsMaterialStockDO();
+		String opType = CommonUtils.get(request, "opType");
+		WmsMaterialStockHistoryDO example = new WmsMaterialStockHistoryDO();
 		example.setMaterialCode(materialCode);
+		example.setOpType(opType);
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
-		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
-		return ResultBaseBuilder.succ().data(list).rb(request);
+		PageHelper.startPage(pageNo, pageSize);
+		List<WmsMaterialStockHistoryDO> list = stockHistoryMapper.select(example);
+		int totalRows = this.stockHistoryMapper.selectCount(example);
+		PageResult<WmsMaterialStockHistoryDO> page = new PageResult<>();
+		page.setTotalRows(totalRows);
+		page.setValues(list);
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
 	/**
