@@ -57,6 +57,19 @@ public class RecipesController {
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 	
+	@RequestMapping(value="/queryAllRecipes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryAllRecipes(){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if(user == null){
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
+		wmsRecipesDO.setPageSize(1000);
+		PageResult<WmsRecipesDO> page = recipesService.queryRecipes(wmsRecipesDO);
+		return ResultBaseBuilder.succ().data(page.getValues()).rb(request);
+	}
+	
 	@RequestMapping(value="/queryRecipesByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryRecipesByCode(){
