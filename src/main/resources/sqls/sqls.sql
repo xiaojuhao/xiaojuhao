@@ -8,6 +8,8 @@ CREATE TABLE
         stock_unit VARCHAR(10) COMMENT '单位，如克，条，箱等',
         status INT COMMENT '状态 0:待处理 1:有效 2:无效',
         search_key VARCHAR(512) COMMENT '搜索key,以逗号隔开',
+        utilization_ratio INT DEFAULT '100' NOT NULL COMMENT '利用率(%)',
+        storage_life VARCHAR(10) COMMENT '保质时间',
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -23,8 +25,7 @@ CREATE TABLE
         status INT COMMENT '状态 0:待处理 1:有效 2:无效',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='菜品拆分配置表';  
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='菜品拆分配置表';
 CREATE TABLE
     wms_material_stock
     (
@@ -41,7 +42,6 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
 CREATE TABLE
     wms_material_stock_history
     (
@@ -55,10 +55,10 @@ CREATE TABLE
         warehouse_code VARCHAR(35) COMMENT '仓库地址',
         store_code VARCHAR(35) COMMENT '门店',
         remark VARCHAR(1024) COMMENT '备注',
+        gmt_created DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
 CREATE TABLE
     wms_material_supplier
     (
@@ -69,8 +69,7 @@ CREATE TABLE
         supplier_name VARCHAR(128) NOT NULL COMMENT '供货商名称',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供货商';    
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供货商';
 CREATE TABLE
     wms_menu
     (
@@ -84,7 +83,6 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
 CREATE TABLE
     wms_recipes
     (
@@ -95,7 +93,6 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱';
-    
 CREATE TABLE
     wms_recipes_formula
     (
@@ -108,8 +105,7 @@ CREATE TABLE
         material_unit VARCHAR(10) COMMENT '食材单位',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱配方';    
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱配方';
 CREATE TABLE
     wms_sequence
     (
@@ -120,9 +116,8 @@ CREATE TABLE
         PRIMARY KEY (id),
         CONSTRAINT uni_seq_code UNIQUE (sequence_code)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8;    
-    
- CREATE TABLE
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE
     wms_session
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -132,8 +127,8 @@ CREATE TABLE
         user_info VARCHAR(1024) COMMENT '用户信息',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='session信息';   
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='session信息';
+
 CREATE TABLE
     wms_store
     (
@@ -144,10 +139,11 @@ CREATE TABLE
         store_manager VARCHAR(128) COMMENT '负责人',
         manager_phone VARCHAR(64) COMMENT '负责人手机',
         manager_email VARCHAR(64) COMMENT '邮箱',
+        default_warehouse VARCHAR(35) COMMENT '默认仓库',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='门店信息';    
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='门店信息';
+
 CREATE TABLE
     wms_user
     (
@@ -158,11 +154,12 @@ CREATE TABLE
         store_code VARCHAR(35) COMMENT '用户归属门店',
         user_role VARCHAR(50) COMMENT '用户角色',
         password VARCHAR(35) COMMENT '用户密码',
+        status VARCHAR(1) DEFAULT '1' COMMENT '用户状态 1:有效 2:无效',
         PRIMARY KEY (id),
         CONSTRAINT uni_user_code UNIQUE (user_code)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';    
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';
+
 CREATE TABLE
     wms_warehouse
     (
@@ -176,4 +173,18 @@ CREATE TABLE
         PRIMARY KEY (id),
         CONSTRAINT uni_wh_code UNIQUE (warehouse_code)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
