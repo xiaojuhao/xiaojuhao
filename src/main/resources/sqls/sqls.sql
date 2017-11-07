@@ -176,7 +176,8 @@ CREATE TABLE
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
 
 
-
+insert into wms_user(user_code,user_name,password,status)
+values('admin','admin','E10ADC3949BA59ABBE56E057F20F883E','1');
 
 
 
