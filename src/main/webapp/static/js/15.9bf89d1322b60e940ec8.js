@@ -1,19 +1,19 @@
-webpackJsonp([13],{
+webpackJsonp([15],{
 
-/***/ 513:
+/***/ 511:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(719)
+__webpack_require__(711)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(654),
+  __webpack_require__(652),
   /* template */
-  __webpack_require__(701),
+  __webpack_require__(689),
   /* scopeId */
-  "data-v-53985ce8",
+  "data-v-00e3dfd9",
   /* cssModules */
   null
 )
@@ -33,16 +33,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* global Symbol
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(542),
 	__webpack_require__(529),
-	__webpack_require__(628),
+	__webpack_require__(627),
 	__webpack_require__(559),
 	__webpack_require__(587),
 	__webpack_require__(589),
 	__webpack_require__(556),
 	__webpack_require__(553),
-	__webpack_require__(629),
+	__webpack_require__(628),
 	__webpack_require__(555),
 	__webpack_require__(588),
-	__webpack_require__(627),
+	__webpack_require__(626),
 	__webpack_require__(536),
 	__webpack_require__(564)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( arr, document, getProto, slice, concat, push, indexOf,
@@ -523,7 +523,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 /***/ 530:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(624) ], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(623) ], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	"use strict";
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -818,12 +818,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(528),
 	__webpack_require__(529),
 	__webpack_require__(534),
-	__webpack_require__(597),
+	__webpack_require__(596),
 	__webpack_require__(561),
 	__webpack_require__(562),
 
 	__webpack_require__(531),
-	__webpack_require__(595),
+	__webpack_require__(594),
 	__webpack_require__(551),
 	__webpack_require__(538),
 	__webpack_require__(584) // jQuery.param
@@ -2833,8 +2833,8 @@ return jQuery;
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(556),
+	__webpack_require__(624),
 	__webpack_require__(625),
-	__webpack_require__(626),
 	__webpack_require__(586),
 	__webpack_require__(533),
 
@@ -3500,7 +3500,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(578),
 	__webpack_require__(579),
 	__webpack_require__(577),
-	__webpack_require__(621),
+	__webpack_require__(620),
 
 	__webpack_require__(532),
 	__webpack_require__(576),
@@ -4438,7 +4438,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(574),
 	__webpack_require__(568),
 	__webpack_require__(532),
-	__webpack_require__(607),
+	__webpack_require__(606),
 
 	__webpack_require__(531),
 	__webpack_require__(552),
@@ -4446,7 +4446,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(540),
 	__webpack_require__(543),
 	__webpack_require__(541),
-	__webpack_require__(612)
+	__webpack_require__(611)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document, rcssNum, rnothtmlwhite, cssExpand, isHiddenWithinTree, swap,
 	adjustCSS, dataPriv, showHide ) {
 
@@ -5591,34 +5591,34 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(540),
 	__webpack_require__(545),
 	__webpack_require__(538),
-	__webpack_require__(609),
-	__webpack_require__(565),
 	__webpack_require__(608),
+	__webpack_require__(565),
+	__webpack_require__(607),
 	__webpack_require__(552),
-	__webpack_require__(623),
-	__webpack_require__(599),
+	__webpack_require__(622),
+	__webpack_require__(598),
 	__webpack_require__(539),
+	__webpack_require__(614),
 	__webpack_require__(615),
-	__webpack_require__(616),
 	__webpack_require__(543),
-	__webpack_require__(620),
-	__webpack_require__(630),
+	__webpack_require__(619),
+	__webpack_require__(629),
 	__webpack_require__(541),
-	__webpack_require__(606),
+	__webpack_require__(605),
 	__webpack_require__(584),
 	__webpack_require__(537),
-	__webpack_require__(598),
-	__webpack_require__(596),
+	__webpack_require__(597),
+	__webpack_require__(595),
+	__webpack_require__(592),
 	__webpack_require__(593),
-	__webpack_require__(594),
-	__webpack_require__(614),
-	__webpack_require__(550),
 	__webpack_require__(613),
-	__webpack_require__(622),
-	__webpack_require__(611),
+	__webpack_require__(550),
+	__webpack_require__(612),
+	__webpack_require__(621),
 	__webpack_require__(610),
-	__webpack_require__(618),
-	__webpack_require__(619)
+	__webpack_require__(609),
+	__webpack_require__(617),
+	__webpack_require__(618)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery ) {
 
 "use strict";
@@ -5840,7 +5840,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(529),
-	__webpack_require__(604),
+	__webpack_require__(603),
 	__webpack_require__(538)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document ) {
 
@@ -7053,7 +7053,7 @@ const http = {
 
 
 
-const login = {
+const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
@@ -7064,12 +7064,7 @@ const login = {
 			df.resolve(resp);
 		});
 		return df;
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["d"] = login;
-
-
-const store = {
+	},
 	getAllStoreList() {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		http.jsonp('/store/getAllStore').then(resp => {
@@ -7107,12 +7102,7 @@ const store = {
 			df.reject(resp);
 		});
 		return df;
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["b"] = store;
-
-
-const recipes = {
+	},
 	addRecipes(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
@@ -7138,41 +7128,20 @@ const recipes = {
 	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["c"] = recipes;
-
-
-const busi = {
+	},
 	queryMaterialsStockHistory(data) {
 		return http.jsonp2("/busi/queryMaterialsStockHistory", data);
+	},
+	queryMaterialsStockById(id) {
+		return http.jsonp2("/busi/queryMaterialsStockById", { id: id });
 	}
 };
-/* unused harmony export busi */
+/* harmony export (immutable) */ __webpack_exports__["b"] = api;
 
 
 /***/ }),
 
 /***/ 591:
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(631),
-  /* template */
-  null,
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 592:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -9452,7 +9421,7 @@ if ( true ) {
 
 /***/ }),
 
-/***/ 593:
+/***/ 592:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9562,13 +9531,13 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 /***/ }),
 
-/***/ 594:
+/***/ 593:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(546),
-	__webpack_require__(603),
+	__webpack_require__(602),
 	__webpack_require__(537),
 	__webpack_require__(540),
 	__webpack_require__(543),
@@ -9646,7 +9615,7 @@ jQuery.fn.load = function( url, params, callback ) {
 
 /***/ }),
 
-/***/ 595:
+/***/ 594:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9684,7 +9653,7 @@ return jQuery.parseXML;
 
 /***/ }),
 
-/***/ 596:
+/***/ 595:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9769,7 +9738,7 @@ jQuery.ajaxTransport( "script", function( s ) {
 
 /***/ }),
 
-/***/ 597:
+/***/ 596:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -9782,7 +9751,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 
 /***/ }),
 
-/***/ 598:
+/***/ 597:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9959,15 +9928,15 @@ jQuery.ajaxTransport( function( options ) {
 
 /***/ }),
 
-/***/ 599:
+/***/ 598:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
-	__webpack_require__(600),
+	__webpack_require__(599),
 	__webpack_require__(563),
-	__webpack_require__(601),
-	__webpack_require__(602)
+	__webpack_require__(600),
+	__webpack_require__(601)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery ) {
 
 "use strict";
@@ -9980,7 +9949,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 600:
+/***/ 599:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10129,7 +10098,7 @@ jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) 
 
 /***/ }),
 
-/***/ 601:
+/***/ 600:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10311,7 +10280,7 @@ jQuery.fn.extend( {
 
 /***/ }),
 
-/***/ 602:
+/***/ 601:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10509,7 +10478,7 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 
 /***/ }),
 
-/***/ 603:
+/***/ 602:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10519,7 +10488,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(577),
 
 	// This is the only module that needs core/support
-	__webpack_require__(605)
+	__webpack_require__(604)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document, rsingleTag, buildFragment, support ) {
 
 "use strict";
@@ -10582,7 +10551,7 @@ return jQuery.parseHTML;
 
 /***/ }),
 
-/***/ 604:
+/***/ 603:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10603,7 +10572,7 @@ jQuery.readyException = function( error ) {
 
 /***/ }),
 
-/***/ 605:
+/***/ 604:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10631,7 +10600,7 @@ return support;
 
 /***/ }),
 
-/***/ 606:
+/***/ 605:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10654,7 +10623,7 @@ jQuery.expr.pseudos.visible = function( elem ) {
 
 /***/ }),
 
-/***/ 607:
+/***/ 606:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10767,7 +10736,7 @@ return showHide;
 
 /***/ }),
 
-/***/ 608:
+/***/ 607:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10954,7 +10923,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 609:
+/***/ 608:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10983,7 +10952,7 @@ jQuery.Deferred.exceptionHook = function( error, stack ) {
 
 /***/ }),
 
-/***/ 610:
+/***/ 609:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11031,7 +11000,7 @@ jQuery.nodeName = nodeName;
 
 /***/ }),
 
-/***/ 611:
+/***/ 610:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11095,7 +11064,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 612:
+/***/ 611:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11226,7 +11195,7 @@ jQuery.fx.step = {};
 
 /***/ }),
 
-/***/ 613:
+/***/ 612:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11249,7 +11218,7 @@ jQuery.expr.pseudos.animated = function( elem ) {
 
 /***/ }),
 
-/***/ 614:
+/***/ 613:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11279,7 +11248,7 @@ jQuery.each( [
 
 /***/ }),
 
-/***/ 615:
+/***/ 614:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11316,13 +11285,13 @@ jQuery.fn.extend( {
 
 /***/ }),
 
-/***/ 616:
+/***/ 615:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(532),
-	__webpack_require__(617),
+	__webpack_require__(616),
 
 	__webpack_require__(539),
 	__webpack_require__(551)
@@ -11379,7 +11348,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 617:
+/***/ 616:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11398,7 +11367,7 @@ return support;
 
 /***/ }),
 
-/***/ 618:
+/***/ 617:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11433,7 +11402,7 @@ if ( true ) {
 
 /***/ }),
 
-/***/ 619:
+/***/ 618:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11475,7 +11444,7 @@ if ( !noGlobal ) {
 
 /***/ }),
 
-/***/ 620:
+/***/ 619:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11506,7 +11475,7 @@ return jQuery._evalUrl;
 
 /***/ }),
 
-/***/ 621:
+/***/ 620:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11549,7 +11518,7 @@ return support;
 
 /***/ }),
 
-/***/ 622:
+/***/ 621:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11786,7 +11755,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 623:
+/***/ 622:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11818,12 +11787,12 @@ return jQuery.fn.delay;
 
 /***/ }),
 
-/***/ 624:
+/***/ 623:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
-	__webpack_require__(592)
+	__webpack_require__(591)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, Sizzle ) {
 
 "use strict";
@@ -11845,7 +11814,7 @@ jQuery.escapeSelector = Sizzle.escape;
 
 /***/ }),
 
-/***/ 625:
+/***/ 624:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11875,7 +11844,7 @@ return function( elem, dir, until ) {
 
 /***/ }),
 
-/***/ 626:
+/***/ 625:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -11900,7 +11869,7 @@ return function( n, elem ) {
 
 /***/ }),
 
-/***/ 627:
+/***/ 626:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11915,7 +11884,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 628:
+/***/ 627:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -11928,7 +11897,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 
 /***/ }),
 
-/***/ 629:
+/***/ 628:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11943,7 +11912,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 630:
+/***/ 629:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -12028,7 +11997,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 631:
+/***/ 630:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12111,16 +12080,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 654:
+/***/ 631:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(630),
+  /* template */
+  null,
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 652:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(631);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(560);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_bus__ = __webpack_require__(590);
 //
 //
 //
@@ -12174,66 +12161,166 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data: function () {
+    data() {
         return {
-            item: {},
-            inStockAmt: 0,
-            warehouseCode: '',
-            warehouseSelection: []
+            url: './static/vuetable.json',
+            tableData: [],
+            cur_page: 1,
+            pageSize: 5,
+            totalRows: 0,
+            loadingState: false,
+            del_list: [],
+            is_search: false,
+            query: {
+                materialCode: '',
+                stockType: '2',
+                warehouseCode: ''
+            },
+            warehouseSelection: [],
+            materialSelection: [],
+            showOutStock: false
         };
     },
-    methods: {
-        onSubmit() {
-            var self = this;
-            __WEBPACK_IMPORTED_MODULE_2__common_bus__["b" /* store */].instock({
-                materialCode: self.item.materialCode,
-                instockAmt: self.inStockAmt,
-                warehouseCode: self.warehouseCode
-            }).then(resp => {
-                self.$message("处理成功");
-                self.$router.go(-1);
-            }).fail(resp => {
-                self.$message.error(resp.message);
-            });
-        },
-        onBack() {
-            this.$router.go(-1);
-        },
-        initData() {
-            var stockId = this.$route.query.stockId;
-            var $data = this;
-            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryMaterialsStockById(stockId, resp => {
-                $data.item = resp.value;
-            });
-        }
-    },
-    computed: {
-        stockTypeName: function () {
-            if (this.item.stockType && this.item.stockType == 1) {
-                return '总库';
-            } else {
-                return '分库';
-            }
-        }
-    },
+    created() {},
     mounted() {
-        this.initData();
-        __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.getWarehouse({}, resp => {
-            console.log(resp);
-            this.warehouseSelection = resp.value.values;
+        this.getData();
+        var $this = this;
+        __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/warehouse/queryWarehouses",
+            dataType: 'jsonp'
+        }).then(resp => {
+            $this.warehouseSelection = resp.value.values;
         });
     },
-    activated() {}
+    activated() {},
+    computed: {
+        data() {
+            const self = this;
+            return self.tableData.filter(function (d) {
+                return d;
+            });
+        }
+    },
+    methods: {
+        handleCurrentChange(val) {
+            this.cur_page = val;
+            this.getData();
+        },
+        getData() {
+            let self = this;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialsStock',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.cur_page,
+                    materialCode: self.$data.query.materialCode,
+                    warehouseCode: self.$data.query.warehouseCode,
+                    stockType: self.$data.query.stockType
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.tableData = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                // self.$notify({
+                //     title:'请求数据',message:'请求完成',duration:1000,position: 'bottom-right'
+                // });
+                self.$data.loadingState = false;
+            });
+        },
+        search() {
+            this.tableData = [];
+            this.getData();
+        },
+        formatStockType(row, column) {
+            return row.stockType == 1 ? "总库" : "分库";
+        },
+        filterTag(value, row) {
+            return row.tag === value;
+        },
+        diaobo(index, item) {
+            // this.$message('编辑第'+(index+1)+'行');
+            //console.log(row)
+            this.$router.push({ path: "/diaoboPage", query: { stockId: item.id } });
+            // this.$data.showOutStock=true;
+        },
+        handleEdit(index, row) {
+            this.$message('编辑第' + (index + 1) + '行');
+        },
+        handleDelete(index, row) {
+            this.$message.error('删除第' + (index + 1) + '行');
+        },
+        delAll() {
+            const self = this,
+                  length = self.multipleSelection.length;
+            let str = '';
+            self.del_list = self.del_list.concat(self.multipleSelection);
+            for (let i = 0; i < length; i++) {
+                str += self.multipleSelection[i].name + ' ';
+            }
+            self.$message.error('删除了' + str);
+            self.multipleSelection = [];
+        },
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
+        },
+        handleSelect(item) {
+            this.$data.query.name = item.value;
+        },
+        querySearch(queryString, cb) {
+            var data = [];
+            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.search({ w: queryString }, resp => {
+                data = resp.values;
+            });
+            cb(data);
+        },
+        remoteMethod(query) {
+            if (query !== '') {
+                this.loading = true;
+                setTimeout(() => {
+                    this.loading = false;
+                    __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.search({ w: query }, resp => {
+                        this.materialSelection = resp.value;
+                    });
+                }, 200);
+            } else {
+                this.materialSelection = [];
+            }
+        }
+    }
 });
 
 /***/ }),
 
-/***/ 678:
+/***/ 670:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(87)(undefined);
@@ -12241,90 +12328,56 @@ exports = module.exports = __webpack_require__(87)(undefined);
 
 
 // module
-exports.push([module.i, ".table-simple[data-v-53985ce8]{font-size:0}.table-simple label[data-v-53985ce8]{width:90px;color:#99a9bf;background-color:red}.table-simple .el-form-item[data-v-53985ce8]{margin-right:0;margin-bottom:0;width:50%}.table-simple .el-form-item2[data-v-53985ce8]{width:90%}.el-form-item-button[data-v-53985ce8]{margin-top:10px;margin-left:20%;width:90%}.input-width-short[data-v-53985ce8]{width:150px}", ""]);
+exports.push([module.i, ".handle-box[data-v-00e3dfd9]{margin-bottom:20px}.handle-select[data-v-00e3dfd9]{width:120px}.handle-input[data-v-00e3dfd9]{width:300px;display:inline-block}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 701:
+/***/ 689:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('div', {
-    staticClass: "crumbs"
-  }, [_c('el-breadcrumb', {
-    attrs: {
-      "separator": "/"
-    }
-  }, [_c('el-breadcrumb-item', [_c('i', {
-    staticClass: "el-icon-date"
-  }), _vm._v(" 进销存管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("入库")])], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "form-box"
-  }, [_c('el-form', {
-    ref: "form",
-    staticClass: "table-simple",
-    attrs: {
-      "inline": true,
-      "label-width": "80px"
-    }
-  }, [_c('el-form-item', {
-    attrs: {
-      "label": "原料名称"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialName))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "原料编码"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialCode))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "当前库存"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "已用数量"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.usedStock))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "库存类型"
-    }
-  }, [_c('span', [_vm._v(_vm._s(_vm.stockTypeName))])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "是否拆分"
-    }
-  }, [_c('span', [_vm._v("否")])]), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "入库数量"
-    }
-  }, [_c('el-input', {
-    staticClass: "input-width-short",
-    model: {
-      value: (_vm.inStockAmt),
-      callback: function($$v) {
-        _vm.inStockAmt = $$v
-      },
-      expression: "inStockAmt"
-    }
-  }, [_c('template', {
-    attrs: {
-      "slot": "append"
-    },
-    slot: "append"
-  }, [_vm._v(_vm._s(_vm.item.stockUnit))])], 2)], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "仓库"
-    }
+  return _c('div', {
+    staticClass: "table"
+  }, [_c('div', {
+    staticClass: "handle-box"
   }, [_c('el-select', {
     attrs: {
-      "placeholder": "请选择"
+      "filterable": "",
+      "clearable": "",
+      "remote": "",
+      "reserve-keyword": "",
+      "placeholder": "请输入关键词",
+      "remote-method": _vm.remoteMethod
     },
     model: {
-      value: (_vm.warehouseCode),
+      value: (_vm.query.materialCode),
       callback: function($$v) {
-        _vm.warehouseCode = $$v
+        _vm.$set(_vm.query, "materialCode", $$v)
       },
-      expression: "warehouseCode"
+      expression: "query.materialCode"
+    }
+  }, _vm._l((_vm.materialSelection), function(item) {
+    return _c('el-option', {
+      key: item.code,
+      attrs: {
+        "label": item.name,
+        "value": item.code
+      }
+    })
+  })), _vm._v(" "), _c('el-select', {
+    attrs: {
+      "clearable": "",
+      "placeholder": "仓库"
+    },
+    model: {
+      value: (_vm.query.warehouseCode),
+      callback: function($$v) {
+        _vm.$set(_vm.query, "warehouseCode", $$v)
+      },
+      expression: "query.warehouseCode"
     }
   }, _vm._l((_vm.warehouseSelection), function(item) {
     return _c('el-option', {
@@ -12334,39 +12387,126 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         "value": item.warehouseCode
       }
     })
-  }))], 1), _vm._v(" "), _c('el-form-item', {
-    staticClass: "el-form-item-button"
-  }, [_c('el-button', {
+  })), _vm._v(" "), _c('el-button', {
     attrs: {
-      "type": "primary"
+      "type": "primary",
+      "icon": "search"
     },
     on: {
-      "click": _vm.onSubmit
+      "click": _vm.search
     }
-  }, [_vm._v("提交")]), _vm._v(" "), _c('span', {
+  }, [_vm._v("搜索")])], 1), _vm._v(" "), _c('el-table', {
+    directives: [{
+      name: "loading",
+      rawName: "v-loading",
+      value: (_vm.loadingState),
+      expression: "loadingState"
+    }],
     staticStyle: {
-      "margin-right": "20px"
+      "width": "100%"
+    },
+    attrs: {
+      "data": _vm.data,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
     }
-  }), _vm._v(" "), _c('el-button', {
+  }, [_c('el-table-column', {
+    attrs: {
+      "type": "expand"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(props) {
+        return [_vm._v("\n             【待实现】展示" + _vm._s(props.row.materialName) + "最近几条调拨记录\n            ")]
+      }
+    }])
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "materialCode",
+      "label": "原料编码",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "materialName",
+      "label": "原料名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "currStock",
+      "label": "当前库存",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "usedStock",
+      "label": "已用数量",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseName",
+      "label": "仓库",
+      "width": "200"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "modifier",
+      "label": "修改人",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "100"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.diaobo(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("调拨")])]
+      }
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
+    },
     on: {
-      "click": _vm.onBack
+      "current-change": _vm.handleCurrentChange
     }
-  }, [_vm._v("取消")])], 1)], 1)], 1)])
+  })], 1)], 1)
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 719:
+/***/ 711:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(678);
+var content = __webpack_require__(670);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("417be5c0", content, true);
+var update = __webpack_require__(199)("c8b83bc8", content, true);
 
 /***/ })
 

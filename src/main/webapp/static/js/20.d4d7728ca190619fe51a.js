@@ -1,13 +1,13 @@
-webpackJsonp([21],{
+webpackJsonp([20],{
 
-/***/ 525:
+/***/ 527:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(667),
+  __webpack_require__(669),
   /* template */
-  __webpack_require__(694),
+  __webpack_require__(709),
   /* scopeId */
   null,
   /* cssModules */
@@ -29,16 +29,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* global Symbol
 !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(542),
 	__webpack_require__(529),
-	__webpack_require__(628),
+	__webpack_require__(627),
 	__webpack_require__(559),
 	__webpack_require__(587),
 	__webpack_require__(589),
 	__webpack_require__(556),
 	__webpack_require__(553),
-	__webpack_require__(629),
+	__webpack_require__(628),
 	__webpack_require__(555),
 	__webpack_require__(588),
-	__webpack_require__(627),
+	__webpack_require__(626),
 	__webpack_require__(536),
 	__webpack_require__(564)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( arr, document, getProto, slice, concat, push, indexOf,
@@ -519,7 +519,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 /***/ 530:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(624) ], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(623) ], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	"use strict";
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -814,12 +814,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(528),
 	__webpack_require__(529),
 	__webpack_require__(534),
-	__webpack_require__(597),
+	__webpack_require__(596),
 	__webpack_require__(561),
 	__webpack_require__(562),
 
 	__webpack_require__(531),
-	__webpack_require__(595),
+	__webpack_require__(594),
 	__webpack_require__(551),
 	__webpack_require__(538),
 	__webpack_require__(584) // jQuery.param
@@ -2829,8 +2829,8 @@ return jQuery;
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(556),
+	__webpack_require__(624),
 	__webpack_require__(625),
-	__webpack_require__(626),
 	__webpack_require__(586),
 	__webpack_require__(533),
 
@@ -3496,7 +3496,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(578),
 	__webpack_require__(579),
 	__webpack_require__(577),
-	__webpack_require__(621),
+	__webpack_require__(620),
 
 	__webpack_require__(532),
 	__webpack_require__(576),
@@ -4434,7 +4434,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(574),
 	__webpack_require__(568),
 	__webpack_require__(532),
-	__webpack_require__(607),
+	__webpack_require__(606),
 
 	__webpack_require__(531),
 	__webpack_require__(552),
@@ -4442,7 +4442,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(540),
 	__webpack_require__(543),
 	__webpack_require__(541),
-	__webpack_require__(612)
+	__webpack_require__(611)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document, rcssNum, rnothtmlwhite, cssExpand, isHiddenWithinTree, swap,
 	adjustCSS, dataPriv, showHide ) {
 
@@ -5587,34 +5587,34 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(540),
 	__webpack_require__(545),
 	__webpack_require__(538),
-	__webpack_require__(609),
-	__webpack_require__(565),
 	__webpack_require__(608),
+	__webpack_require__(565),
+	__webpack_require__(607),
 	__webpack_require__(552),
-	__webpack_require__(623),
-	__webpack_require__(599),
+	__webpack_require__(622),
+	__webpack_require__(598),
 	__webpack_require__(539),
+	__webpack_require__(614),
 	__webpack_require__(615),
-	__webpack_require__(616),
 	__webpack_require__(543),
-	__webpack_require__(620),
-	__webpack_require__(630),
+	__webpack_require__(619),
+	__webpack_require__(629),
 	__webpack_require__(541),
-	__webpack_require__(606),
+	__webpack_require__(605),
 	__webpack_require__(584),
 	__webpack_require__(537),
-	__webpack_require__(598),
-	__webpack_require__(596),
+	__webpack_require__(597),
+	__webpack_require__(595),
+	__webpack_require__(592),
 	__webpack_require__(593),
-	__webpack_require__(594),
-	__webpack_require__(614),
-	__webpack_require__(550),
 	__webpack_require__(613),
-	__webpack_require__(622),
-	__webpack_require__(611),
+	__webpack_require__(550),
+	__webpack_require__(612),
+	__webpack_require__(621),
 	__webpack_require__(610),
-	__webpack_require__(618),
-	__webpack_require__(619)
+	__webpack_require__(609),
+	__webpack_require__(617),
+	__webpack_require__(618)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery ) {
 
 "use strict";
@@ -5836,7 +5836,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(529),
-	__webpack_require__(604),
+	__webpack_require__(603),
 	__webpack_require__(538)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document ) {
 
@@ -7049,7 +7049,7 @@ const http = {
 
 
 
-const login = {
+const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
@@ -7060,12 +7060,7 @@ const login = {
 			df.resolve(resp);
 		});
 		return df;
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["d"] = login;
-
-
-const store = {
+	},
 	getAllStoreList() {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		http.jsonp('/store/getAllStore').then(resp => {
@@ -7103,12 +7098,7 @@ const store = {
 			df.reject(resp);
 		});
 		return df;
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["b"] = store;
-
-
-const recipes = {
+	},
 	addRecipes(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
@@ -7134,41 +7124,20 @@ const recipes = {
 	},
 	queryRecipesByCode(code) {
 		return http.jsonp2("/recipes/queryRecipesByCode", { recipesCode: code });
-	}
-};
-/* harmony export (immutable) */ __webpack_exports__["c"] = recipes;
-
-
-const busi = {
+	},
 	queryMaterialsStockHistory(data) {
 		return http.jsonp2("/busi/queryMaterialsStockHistory", data);
+	},
+	queryMaterialsStockById(id) {
+		return http.jsonp2("/busi/queryMaterialsStockById", { id: id });
 	}
 };
-/* unused harmony export busi */
+/* harmony export (immutable) */ __webpack_exports__["b"] = api;
 
 
 /***/ }),
 
 /***/ 591:
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(631),
-  /* template */
-  null,
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 592:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -9448,7 +9417,7 @@ if ( true ) {
 
 /***/ }),
 
-/***/ 593:
+/***/ 592:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9558,13 +9527,13 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 /***/ }),
 
-/***/ 594:
+/***/ 593:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(546),
-	__webpack_require__(603),
+	__webpack_require__(602),
 	__webpack_require__(537),
 	__webpack_require__(540),
 	__webpack_require__(543),
@@ -9642,7 +9611,7 @@ jQuery.fn.load = function( url, params, callback ) {
 
 /***/ }),
 
-/***/ 595:
+/***/ 594:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9680,7 +9649,7 @@ return jQuery.parseXML;
 
 /***/ }),
 
-/***/ 596:
+/***/ 595:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9765,7 +9734,7 @@ jQuery.ajaxTransport( "script", function( s ) {
 
 /***/ }),
 
-/***/ 597:
+/***/ 596:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -9778,7 +9747,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 
 /***/ }),
 
-/***/ 598:
+/***/ 597:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -9955,15 +9924,15 @@ jQuery.ajaxTransport( function( options ) {
 
 /***/ }),
 
-/***/ 599:
+/***/ 598:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
-	__webpack_require__(600),
+	__webpack_require__(599),
 	__webpack_require__(563),
-	__webpack_require__(601),
-	__webpack_require__(602)
+	__webpack_require__(600),
+	__webpack_require__(601)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery ) {
 
 "use strict";
@@ -9976,7 +9945,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 600:
+/***/ 599:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10125,7 +10094,7 @@ jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) 
 
 /***/ }),
 
-/***/ 601:
+/***/ 600:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10307,7 +10276,7 @@ jQuery.fn.extend( {
 
 /***/ }),
 
-/***/ 602:
+/***/ 601:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10505,7 +10474,7 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 
 /***/ }),
 
-/***/ 603:
+/***/ 602:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10515,7 +10484,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 	__webpack_require__(577),
 
 	// This is the only module that needs core/support
-	__webpack_require__(605)
+	__webpack_require__(604)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, document, rsingleTag, buildFragment, support ) {
 
 "use strict";
@@ -10578,7 +10547,7 @@ return jQuery.parseHTML;
 
 /***/ }),
 
-/***/ 604:
+/***/ 603:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10599,7 +10568,7 @@ jQuery.readyException = function( error ) {
 
 /***/ }),
 
-/***/ 605:
+/***/ 604:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10627,7 +10596,7 @@ return support;
 
 /***/ }),
 
-/***/ 606:
+/***/ 605:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10650,7 +10619,7 @@ jQuery.expr.pseudos.visible = function( elem ) {
 
 /***/ }),
 
-/***/ 607:
+/***/ 606:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10763,7 +10732,7 @@ return showHide;
 
 /***/ }),
 
-/***/ 608:
+/***/ 607:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10950,7 +10919,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 609:
+/***/ 608:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -10979,7 +10948,7 @@ jQuery.Deferred.exceptionHook = function( error, stack ) {
 
 /***/ }),
 
-/***/ 610:
+/***/ 609:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11027,7 +10996,7 @@ jQuery.nodeName = nodeName;
 
 /***/ }),
 
-/***/ 611:
+/***/ 610:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11091,7 +11060,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 612:
+/***/ 611:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11222,7 +11191,7 @@ jQuery.fx.step = {};
 
 /***/ }),
 
-/***/ 613:
+/***/ 612:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11245,7 +11214,7 @@ jQuery.expr.pseudos.animated = function( elem ) {
 
 /***/ }),
 
-/***/ 614:
+/***/ 613:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11275,7 +11244,7 @@ jQuery.each( [
 
 /***/ }),
 
-/***/ 615:
+/***/ 614:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11312,13 +11281,13 @@ jQuery.fn.extend( {
 
 /***/ }),
 
-/***/ 616:
+/***/ 615:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
 	__webpack_require__(532),
-	__webpack_require__(617),
+	__webpack_require__(616),
 
 	__webpack_require__(539),
 	__webpack_require__(551)
@@ -11375,7 +11344,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 617:
+/***/ 616:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11394,7 +11363,7 @@ return support;
 
 /***/ }),
 
-/***/ 618:
+/***/ 617:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11429,7 +11398,7 @@ if ( true ) {
 
 /***/ }),
 
-/***/ 619:
+/***/ 618:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11471,7 +11440,7 @@ if ( !noGlobal ) {
 
 /***/ }),
 
-/***/ 620:
+/***/ 619:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11502,7 +11471,7 @@ return jQuery._evalUrl;
 
 /***/ }),
 
-/***/ 621:
+/***/ 620:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11545,7 +11514,7 @@ return support;
 
 /***/ }),
 
-/***/ 622:
+/***/ 621:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11782,7 +11751,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 623:
+/***/ 622:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11814,12 +11783,12 @@ return jQuery.fn.delay;
 
 /***/ }),
 
-/***/ 624:
+/***/ 623:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	__webpack_require__(528),
-	__webpack_require__(592)
+	__webpack_require__(591)
 ], __WEBPACK_AMD_DEFINE_RESULT__ = function( jQuery, Sizzle ) {
 
 "use strict";
@@ -11841,7 +11810,7 @@ jQuery.escapeSelector = Sizzle.escape;
 
 /***/ }),
 
-/***/ 625:
+/***/ 624:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11871,7 +11840,7 @@ return function( elem, dir, until ) {
 
 /***/ }),
 
-/***/ 626:
+/***/ 625:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -11896,7 +11865,7 @@ return function( n, elem ) {
 
 /***/ }),
 
-/***/ 627:
+/***/ 626:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11911,7 +11880,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 628:
+/***/ 627:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
@@ -11924,7 +11893,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 
 /***/ }),
 
-/***/ 629:
+/***/ 628:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -11939,7 +11908,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 630:
+/***/ 629:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
@@ -12024,7 +11993,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 631:
+/***/ 630:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12107,18 +12076,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 667:
+/***/ 631:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(630),
+  /* template */
+  null,
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 669:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(560);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue__ = __webpack_require__(631);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_config_vue__);
-//
-//
-//
 //
 //
 //
@@ -12161,11 +12146,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function () {
         return {
             form: {
-                sid: this.$route.query.sid,
-                storeCode: this.$route.query.storeCode,
-                storeName: '',
-                storeAddr: '',
-                storeManager: '',
+                id: '',
+                warehouseCode: this.$route.query.warehouseCode,
+                warehouseName: '',
+                warehouseAddr: '',
+                warehouseManager: '',
                 managerPhone: '',
                 managerEmail: ''
             }
@@ -12175,9 +12160,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         onSubmit() {
             var $data = this.$data;
-            //this.$message.success('提交成功！');
             __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/addStore",
+                url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/warehouse/saveWarehouse",
                 data: this.$data.form,
                 dataType: 'jsonp'
             }).then(resp => {
@@ -12191,16 +12175,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     mounted() {
         __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-            url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/getStoreByCode",
-            data: { storeCode: this.$data.form.storeCode },
+            url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/warehouse/queryWarehouseByCode",
+            data: { warehouseCode: this.$data.form.warehouseCode },
             dataType: 'jsonp'
         }).then(resp => {
             if (resp && resp.value) {
                 var v = resp.value;
-                this.$data.form.storeCode = v.storeCode;
-                this.$data.form.storeName = v.storeName;
-                this.$data.form.storeAddr = v.storeAddr;
-                this.$data.form.storeManager = v.storeManager;
+                this.$data.form.id = v.id;
+                this.$data.form.warehouseCode = v.warehouseCode;
+                this.$data.form.warehouseName = v.warehouseName;
+                this.$data.form.warehouseAddr = v.warehouseAddr;
+                this.$data.form.warehouseManager = v.warehouseManager;
                 this.$data.form.managerPhone = v.managerPhone;
                 this.$data.form.managerEmail = v.managerEmail;
             }
@@ -12210,7 +12195,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 694:
+/***/ 709:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -12222,7 +12207,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-breadcrumb-item', [_c('i', {
     staticClass: "el-icon-date"
-  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("门店管理")])], 1)], 1), _vm._v(" "), _c('div', {
+  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("仓库管理")])], 1)], 1), _vm._v(" "), _c('div', {
     staticClass: "form-box"
   }, [_c('el-form', {
     ref: "form",
@@ -12235,14 +12220,14 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-input', {
     attrs: {
-      "placeholder": "门店名称"
+      "placeholder": "仓库名称"
     },
     model: {
-      value: (_vm.form.storeName),
+      value: (_vm.form.warehouseName),
       callback: function($$v) {
-        _vm.$set(_vm.form, "storeName", $$v)
+        _vm.$set(_vm.form, "warehouseName", $$v)
       },
-      expression: "form.storeName"
+      expression: "form.warehouseName"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
@@ -12250,29 +12235,14 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-input', {
     attrs: {
-      "placeholder": "门店地址"
+      "placeholder": "仓库地址"
     },
     model: {
-      value: (_vm.form.storeAddr),
+      value: (_vm.form.warehouseAddr),
       callback: function($$v) {
-        _vm.$set(_vm.form, "storeAddr", $$v)
+        _vm.$set(_vm.form, "warehouseAddr", $$v)
       },
-      expression: "form.storeAddr"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "默认仓库"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "默认仓库"
-    },
-    model: {
-      value: (_vm.form.defaultWarehouse),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "defaultWarehouse", $$v)
-      },
-      expression: "form.defaultWarehouse"
+      expression: "form.warehouseAddr"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
@@ -12283,11 +12253,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "placeholder": "负责人"
     },
     model: {
-      value: (_vm.form.storeManager),
+      value: (_vm.form.warehouseManager),
       callback: function($$v) {
-        _vm.$set(_vm.form, "storeManager", $$v)
+        _vm.$set(_vm.form, "warehouseManager", $$v)
       },
-      expression: "form.storeManager"
+      expression: "form.warehouseManager"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
@@ -12326,7 +12296,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     on: {
       "click": _vm.onSubmit
     }
-  }, [_vm._v("新增")]), _vm._v(" "), _c('el-button', {
+  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
     on: {
       "click": _vm.onCancel
     }
