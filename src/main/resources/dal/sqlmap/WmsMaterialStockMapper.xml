@@ -3,17 +3,23 @@
 <mapper namespace="com.xjh.dao.mapper.WmsMaterialStockMapper">
 	<update id="useStock">
 		update wms_material_stock
-		   set curr_stock = curr_stock - #{stockChgAmt},
-		   	   used_stock = used_stock + #{stockChgAmt}
+		set curr_stock = curr_stock - #{stockChgAmt},
+		used_stock = used_stock + #{stockChgAmt}
+		<if test="operator!=null and operator!=''">
+			,modifier = #{operator}
+		</if>
 		where material_code = #{materialCode}
-		  and warehouse_code in ( #{warehouseCode},'WH0000')
+		and warehouse_code in ( #{warehouseCode},'WH0000')
 	</update>
-	
+
 	<update id="increaseStock">
 		update wms_material_stock
-		   set curr_stock = curr_stock + #{stockChgAmt}
+		set curr_stock = curr_stock + #{stockChgAmt}
+		<if test="operator!=null and operator!=''">
+			,modifier = #{operator}
+		</if>
 		where material_code = #{materialCode}
-		  and warehouse_code in (#{warehouseCode},'WH0000')
+		and warehouse_code in (#{warehouseCode},'WH0000')
 	</update>
-	
+
 </mapper>

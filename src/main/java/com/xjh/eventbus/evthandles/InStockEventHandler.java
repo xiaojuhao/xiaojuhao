@@ -44,7 +44,7 @@ public class InStockEventHandler implements InitializingBean {
 				stock.setStockUnit(material.getStockUnit());
 				stock.setMaterialName(material.getMaterialName());
 				stock.setWarehouseName(warehouse.getWarehouseName());
-				TkMappers.inst().getWarehouseMapper().insert(warehouse);
+				TkMappers.inst().getMaterialStockMapper().insert(stock);
 				//history
 				WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
 				history.setMaterialCode(e.getMaterialCode());
@@ -64,7 +64,7 @@ public class InStockEventHandler implements InitializingBean {
 			hisotry.setMaterialCode(e.getMaterialCode());
 			hisotry.setStoreCode(e.getStoreCode());
 			hisotry.setMaterialName(material.getMaterialName());
-			hisotry.setOpType("out_stock");
+			hisotry.setOpType("in_stock");
 			hisotry.setWarehouseCode(warehouse.getWarehouseCode());
 			hisotry.setCurrStock(stock.getCurrStock());
 			hisotry.setStockChg(-1 * e.getInstockAmt());

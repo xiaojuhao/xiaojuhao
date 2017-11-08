@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -294,6 +295,7 @@ public class BusinessController {
 		history.setStockChg(prevStock - realStock.doubleValue());
 		history.setOpType("correct");
 		history.setOperator(user.getUserCode());
+		history.setGmtCreated(new Date());
 		history.setRemark(String.format("库存盘点,%s=>%s", prevStock, realStock));
 		this.stockHistoryMapper.insert(history);
 		return ResultBaseBuilder.succ().data(stock).rb(request);
