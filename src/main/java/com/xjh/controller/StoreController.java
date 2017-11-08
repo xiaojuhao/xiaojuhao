@@ -29,48 +29,22 @@ public class StoreController {
 	@Resource
 	SequenceService sequenceService;
 	
-	@RequestMapping(value="/addStore", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value="/saveStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object addStore(){
+	public Object saveStore(){
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if(user == null){
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		String storeName = request.getParameter("storeName");
-		String storeAddr = request.getParameter("storeAddr");
-		String storeManager = request.getParameter("storeManager");
-		String managerPhone = request.getParameter("managerPhone");
-		String managerEmail = request.getParameter("managerEmail");
-		long val = sequenceService.next("wms_store");
-		String storeCode = "MD"+StringUtils.leftPad(val+"", 4, "0");
-		WmsStoreDO store = new WmsStoreDO();
-		store.setStoreName(storeName);
-		store.setStoreCode(storeCode);
-		store.setStoreAddr(storeAddr);
-		store.setStoreManager(storeManager);
-		store.setManagerEmail(managerEmail);
-		store.setManagerPhone(managerPhone);
-		ResultBase<WmsStoreDO> rs = storeService.addStore(store);
-		return ResultBaseBuilder.wrap(rs).rb(request);
-	}
-	@RequestMapping(value="/updateStore", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object updateStore(){
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if(user == null){
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		if(id == null){
-			return ResultBaseBuilder.fails("入参错误").rb(request);
-		}
-		String storeName = request.getParameter("storeName");
-		String storeAddr = request.getParameter("storeAddr");
-		String storeManager = request.getParameter("storeManager");
-		String managerPhone = request.getParameter("managerPhone");
-		String managerEmail = request.getParameter("managerEmail");
-		long val = sequenceService.next("wms_store");
-		String storeCode = "M"+StringUtils.leftPad(val+"", 3, "0");
+		Long id = CommonUtils.getLong(request, "id");
+		String storeName = CommonUtils.get(request, "storeName");
+		String storeAddr = CommonUtils.get(request, "storeAddr");
+		String storeCode = CommonUtils.get(request, "storeCode");
+		String storeManager = CommonUtils.get(request, "storeManager");
+		String managerPhone = CommonUtils.get(request, "managerPhone");
+		String managerEmail = CommonUtils.get(request, "managerEmail");
+		String defaultWarehouse = CommonUtils.get(request, "defaultWarehouse");
+		
 		WmsStoreDO store = new WmsStoreDO();
 		store.setId(id);
 		store.setStoreName(storeName);
@@ -79,9 +53,18 @@ public class StoreController {
 		store.setStoreManager(storeManager);
 		store.setManagerEmail(managerEmail);
 		store.setManagerPhone(managerPhone);
-		ResultBase<Integer> rs = storeService.updateStore(store);
+		store.setDefaultWarehouse(defaultWarehouse);
+		ResultBase<WmsStoreDO> rs = null;
+		if(StringUtils.isBlank(storeCode)){
+			long val = sequenceService.next("wms_store");
+			storeCode = "MD"+StringUtils.leftPad(val+"", 4, "0");
+			rs = storeService.addStore(store);
+		}else{
+			rs = storeService.updateStore(store);
+		}
 		return ResultBaseBuilder.wrap(rs).rb(request);
 	}
+
 	@RequestMapping(value="/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getAllStore(){

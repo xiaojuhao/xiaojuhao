@@ -1,15 +1,19 @@
-webpackJsonp([21],{
+webpackJsonp([14],{
 
-/***/ 525:
+/***/ 512:
 /***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(726)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(667),
+  __webpack_require__(653),
   /* template */
-  __webpack_require__(694),
+  __webpack_require__(710),
   /* scopeId */
-  null,
+  "data-v-f1f382f0",
   /* cssModules */
   null
 )
@@ -7053,13 +7057,21 @@ const http = {
 const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: config.server + '/user/login',
-			data: data,
-			dataType: 'jsonp'
-		}).then(resp => {
-			df.resolve(resp);
-		});
+		try {
+			__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+				url: config.server + '/user/login',
+				data: data,
+				dataType: 'jsonp'
+			}).then(resp => {
+				df.resolve(resp);
+			});
+		} catch (e) {
+			df.reject({
+				code: 400,
+				message: '网络异常'
+			});
+		}
+
 		return df;
 	},
 	getAllStoreList() {
@@ -7138,6 +7150,13 @@ const api = {
 			pageSize: 1000
 		};
 		return http.jsonp2("/busi/queryMaterials", data);
+	},
+	queryRecipesFormula(recipesCode) {
+		let data = { recipesCode: recipesCode };
+		return http.jsonp2("/recipes/queryRecipesFormula", data);
+	},
+	getAllWarehouse() {
+		return http.jsonp2("/warehouse/queryWarehouses", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -12103,15 +12122,22 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 667:
+/***/ 653:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(560);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue__ = __webpack_require__(631);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(631);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(560);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -12156,57 +12182,78 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function () {
         return {
-            form: {
-                sid: this.$route.query.sid,
-                storeCode: this.$route.query.storeCode,
-                storeName: '',
-                storeAddr: '',
-                storeManager: '',
-                managerPhone: '',
-                managerEmail: ''
-            }
-
+            item: {},
+            diaoboAmt: 0,
+            allWarehouse: [],
+            toWarehouseCode: ''
         };
     },
     methods: {
         onSubmit() {
-            var $data = this.$data;
-            //this.$message.success('提交成功！');
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/addStore",
-                data: this.$data.form,
+            var self = this;
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/busi/diaobo",
+                data: {
+                    materialCode: self.item.materialCode,
+                    diaoboAmt: self.diaoboAmt,
+                    warehouseCode: self.item.warehouseCode,
+                    toStoreCode: self.toStoreCode
+                },
                 dataType: 'jsonp'
-            }).then(resp => {
-                this.$message("新增成功");
-                this.$router.go(-1);
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                self.$router.go(-1);
             });
         },
-        onCancel() {
+        onBack() {
             this.$router.go(-1);
+        },
+        initData() {
+            var stockId = this.$route.query.stockId;
+            var $data = this;
+            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryMaterialsStockById(stockId, resp => {
+                $data.item = resp.value;
+            });
+        }
+    },
+    computed: {
+        warehouseSelection: function (p) {
+            return this.allWarehouse.filter(d => {
+                //过滤拨出仓库
+                if (d.warehouseCode != this.item.warehouseCode) {
+                    return d;
+                }
+            });
         }
     },
     mounted() {
-        __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-            url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/getStoreByCode",
-            data: { storeCode: this.$data.form.storeCode },
-            dataType: 'jsonp'
-        }).then(resp => {
-            if (resp && resp.value) {
-                var v = resp.value;
-                this.$data.form.storeCode = v.storeCode;
-                this.$data.form.storeName = v.storeName;
-                this.$data.form.storeAddr = v.storeAddr;
-                this.$data.form.storeManager = v.storeManager;
-                this.$data.form.managerPhone = v.managerPhone;
-                this.$data.form.managerEmail = v.managerEmail;
-            }
-        });
-    }
+        this.initData();
+        __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.getWarehouse({}, resp => this.allWarehouse = resp.value.values);
+    },
+    activated() {}
 });
 
 /***/ }),
 
-/***/ 694:
+/***/ 685:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(87)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".table-simple[data-v-f1f382f0]{font-size:0}.table-simple label[data-v-f1f382f0]{width:90px;color:#99a9bf;background-color:red}.table-simple .el-form-item[data-v-f1f382f0]{margin-right:0;margin-bottom:0;width:50%}.table-simple .el-form-item2[data-v-f1f382f0]{width:90%}.el-form-item-button[data-v-f1f382f0]{margin-top:10px;margin-left:20%;width:90%}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 710:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -12218,116 +12265,99 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-breadcrumb-item', [_c('i', {
     staticClass: "el-icon-date"
-  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("门店管理")])], 1)], 1), _vm._v(" "), _c('div', {
+  }), _vm._v(" 进销存管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("调拨")])], 1)], 1), _vm._v(" "), _c('div', {
     staticClass: "form-box"
   }, [_c('el-form', {
     ref: "form",
+    staticClass: "table-simple",
     attrs: {
+      "inline": true,
       "label-width": "80px"
     }
   }, [_c('el-form-item', {
     attrs: {
-      "label": "门店名称"
+      "label": "原料名称"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "原料编码"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialCode))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "当前库存"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "仓库"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.warehouseName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "调拨数量"
     }
   }, [_c('el-input', {
-    attrs: {
-      "placeholder": "门店名称"
-    },
     model: {
-      value: (_vm.form.storeName),
+      value: (_vm.diaoboAmt),
       callback: function($$v) {
-        _vm.$set(_vm.form, "storeName", $$v)
+        _vm.diaoboAmt = $$v
       },
-      expression: "form.storeName"
+      expression: "diaoboAmt"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "label": "门店地址"
+      "label": "拨出仓库"
     }
-  }, [_c('el-input', {
+  }, [_c('el-select', {
     attrs: {
-      "placeholder": "门店地址"
+      "placeholder": "请选择"
     },
     model: {
-      value: (_vm.form.storeAddr),
+      value: (_vm.toWarehouseCode),
       callback: function($$v) {
-        _vm.$set(_vm.form, "storeAddr", $$v)
+        _vm.toWarehouseCode = $$v
       },
-      expression: "form.storeAddr"
+      expression: "toWarehouseCode"
     }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "默认仓库"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "默认仓库"
-    },
-    model: {
-      value: (_vm.form.defaultWarehouse),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "defaultWarehouse", $$v)
-      },
-      expression: "form.defaultWarehouse"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "负责人"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "负责人"
-    },
-    model: {
-      value: (_vm.form.storeManager),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "storeManager", $$v)
-      },
-      expression: "form.storeManager"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "负责人手机"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "负责人手机"
-    },
-    model: {
-      value: (_vm.form.managerPhone),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "managerPhone", $$v)
-      },
-      expression: "form.managerPhone"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "负责人邮箱"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "负责人邮箱"
-    },
-    model: {
-      value: (_vm.form.managerEmail),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "managerEmail", $$v)
-      },
-      expression: "form.managerEmail"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+  }, _vm._l((_vm.warehouseSelection), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
+      attrs: {
+        "label": item.warehouseName,
+        "value": item.warehouseCode
+      }
+    })
+  }))], 1), _vm._v(" "), _c('el-form-item', {
+    staticClass: "el-form-item-button"
+  }, [_c('el-button', {
     attrs: {
       "type": "primary"
     },
     on: {
       "click": _vm.onSubmit
     }
-  }, [_vm._v("新增")]), _vm._v(" "), _c('el-button', {
+  }, [_vm._v("提交")]), _vm._v(" "), _c('span', {
+    staticStyle: {
+      "margin-right": "20px"
+    }
+  }), _vm._v(" "), _c('el-button', {
     on: {
-      "click": _vm.onCancel
+      "click": _vm.onBack
     }
   }, [_vm._v("取消")])], 1)], 1)], 1)])
 },staticRenderFns: []}
+
+/***/ }),
+
+/***/ 726:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(685);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(199)("8a0e5354", content, true);
 
 /***/ })
 

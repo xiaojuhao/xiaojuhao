@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -412,7 +413,18 @@ public class CommonUtils {
 		}
 		return json;
 	}
-
+	public static JSONArray parseJSONArray(String jsonStr) {
+		JSONArray json = null;
+		try {
+			json = JSON.parseArray(jsonStr);
+		} catch (Exception ex) {
+			log.error("", ex);
+		}
+		if (json == null) {
+			json = new JSONArray();
+		}
+		return json;
+	}
 	/**
 	 * email加密显示
 	 * 

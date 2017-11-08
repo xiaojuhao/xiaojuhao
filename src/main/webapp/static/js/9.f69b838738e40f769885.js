@@ -1,4 +1,4 @@
-webpackJsonp([6,11],{
+webpackJsonp([9,11],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
@@ -23,20 +23,20 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 521:
+/***/ 517:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(724)
+__webpack_require__(716)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(663),
+  __webpack_require__(659),
   /* template */
-  __webpack_require__(707),
+  __webpack_require__(697),
   /* scopeId */
-  "data-v-881b0d2e",
+  "data-v-3ac2caf4",
   /* cssModules */
   null
 )
@@ -7080,13 +7080,21 @@ const http = {
 const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: config.server + '/user/login',
-			data: data,
-			dataType: 'jsonp'
-		}).then(resp => {
-			df.resolve(resp);
-		});
+		try {
+			__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+				url: config.server + '/user/login',
+				data: data,
+				dataType: 'jsonp'
+			}).then(resp => {
+				df.resolve(resp);
+			});
+		} catch (e) {
+			df.reject({
+				code: 400,
+				message: '网络异常'
+			});
+		}
+
 		return df;
 	},
 	getAllStoreList() {
@@ -7165,6 +7173,13 @@ const api = {
 			pageSize: 1000
 		};
 		return http.jsonp2("/busi/queryMaterials", data);
+	},
+	queryRecipesFormula(recipesCode) {
+		let data = { recipesCode: recipesCode };
+		return http.jsonp2("/recipes/queryRecipesFormula", data);
+	},
+	getAllWarehouse() {
+		return http.jsonp2("/warehouse/queryWarehouses", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -13043,7 +13058,7 @@ var update = __webpack_require__(199)("0479b6cf", content, true);
 
 /***/ }),
 
-/***/ 663:
+/***/ 659:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13054,6 +13069,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__OutStock_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery__ = __webpack_require__(560);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_jquery__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -13099,18 +13136,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             cur_page: 1,
             pageSize: 5,
             totalRows: 0,
-            multipleSelection: [],
-            select_cate: '',
-            select_word: '',
             loadingState: false,
-            del_list: [],
-            is_search: false,
+            warehouseSelection: [],
             query: {
-                materialCode: '',
-                stockType: '',
-                storeCode: ''
+                code: '',
+                name: ''
             },
-            storeSelection: [],
             showOutStock: false
         };
     },
@@ -13121,11 +13152,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.getData();
         var $this = this;
         __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
-            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/store/getAllStore",
+            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/warehouse/queryWarehouses",
             dataType: 'jsonp'
         }).then(resp => {
             console.log(resp);
-            $this.storeSelection = resp.value.values;
+            $this.warehouseSelection = resp.value.values;
         });
     },
     activated() {
@@ -13146,12 +13177,40 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         getData() {
             let self = this;
-            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryUsers(null, resp => {
-                console.log(resp);
-                self.tableData = resp.value.values;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialsStock',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.cur_page,
+                    materialCode: self.$data.query.materialCode,
+                    warehouseCode: self.$data.query.warehouseCode,
+                    stockType: '2'
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.tableData = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                // self.$notify({
+                //     title:'请求数据',message:'请求完成',duration:1000,position: 'bottom-right'
+                // });
+                self.$data.loadingState = false;
             });
         },
         search() {
+            this.cur_page = 1;
             this.tableData = [];
             this.getData();
         },
@@ -13161,11 +13220,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         filterTag(value, row) {
             return row.tag === value;
         },
-        update(index, item) {
-            this.$message.error('修改功能尚未实现');
+        correctStock(index, item) {
+            this.$prompt("请输入【" + item.materialName + "-" + item.materialCode + "】的真实库存", '判断库存', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputPattern: /^\d+(\.\d{1,2})?$/,
+                inputErrorMessage: '库存数字不正确'
+            }).then(({ value }) => {
+                __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
+                    url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/busi/correctStock",
+                    data: {
+                        id: item.id,
+                        materialCode: item.materialCode,
+                        realStock: value
+                    },
+                    dataType: 'jsonp'
+                }).then(resp => {
+                    item.currStock = resp.value.currStock;
+                    this.$message({ type: 'success', message: "库存盘点成功" });
+                }).fail(resp => {
+                    console.log('fails');
+                });
+            }).catch(() => {
+                //取消操作     
+            });
         },
-        resetpassword(index, item) {
-            this.$message.error('重置密码功能尚未实现');
+        instock(index, item) {
+            this.$router.push({ path: "/inStock", query: { stockId: item.id } });
         },
         handleEdit(index, row) {
             this.$message('编辑第' + (index + 1) + '行');
@@ -13203,7 +13284,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 683:
+/***/ 675:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(87)(undefined);
@@ -13211,20 +13292,67 @@ exports = module.exports = __webpack_require__(87)(undefined);
 
 
 // module
-exports.push([module.i, ".handle-box[data-v-881b0d2e]{margin-bottom:20px}.handle-select[data-v-881b0d2e]{width:120px}.handle-input[data-v-881b0d2e]{width:300px;display:inline-block}", ""]);
+exports.push([module.i, ".handle-box[data-v-3ac2caf4]{margin-bottom:20px}.handle-select[data-v-3ac2caf4]{width:120px}.handle-input[data-v-3ac2caf4]{width:300px;display:inline-block}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 707:
+/***/ 697:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "table"
-  }, [_c('el-table', {
+  }, [_c('div', {
+    staticClass: "handle-box"
+  }, [_c('el-autocomplete', {
+    staticClass: "inline-input",
+    attrs: {
+      "fetch-suggestions": _vm.querySearch,
+      "placeholder": "原料名称",
+      "trigger-on-focus": false
+    },
+    on: {
+      "select": _vm.handleSelect
+    },
+    model: {
+      value: (_vm.query.name),
+      callback: function($$v) {
+        _vm.$set(_vm.query, "name", $$v)
+      },
+      expression: "query.name"
+    }
+  }), _vm._v(" "), _c('el-select', {
+    attrs: {
+      "clearable": "",
+      "placeholder": "仓库"
+    },
+    model: {
+      value: (_vm.query.warehouseCode),
+      callback: function($$v) {
+        _vm.$set(_vm.query, "warehouseCode", $$v)
+      },
+      expression: "query.warehouseCode"
+    }
+  }, _vm._l((_vm.warehouseSelection), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
+      attrs: {
+        "label": item.warehouseName,
+        "value": item.warehouseCode
+      }
+    })
+  })), _vm._v(" "), _c('el-button', {
+    attrs: {
+      "type": "primary",
+      "icon": "search"
+    },
+    on: {
+      "click": _vm.search
+    }
+  }, [_vm._v("搜索")])], 1), _vm._v(" "), _c('el-table', {
     directives: [{
       name: "loading",
       rawName: "v-loading",
@@ -13243,29 +13371,51 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-table-column', {
     attrs: {
-      "prop": "userCode",
-      "label": "用户编码",
+      "prop": "materialCode",
+      "label": "原料编码",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "materialName",
+      "label": "原料名称",
       "width": "120"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
-      "prop": "userName",
-      "label": "用户名称"
+      "prop": "currStock",
+      "label": "当前库存",
+      "width": "100"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
-      "prop": "userRole",
-      "label": "角色"
+      "prop": "usedStock",
+      "label": "已用数量",
+      "width": "100"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
-      "prop": "status",
-      "label": "用户状态"
+      "prop": "stockUnit",
+      "label": "库存单位",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "warehouseName",
+      "label": "仓库",
+      "width": "200"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "modifier",
+      "label": "修改人",
+      "width": "100"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
       "label": "操作",
-      "width": "250"
+      "fixed": "right",
+      "width": "150"
     },
     scopedSlots: _vm._u([{
       key: "default",
@@ -13277,49 +13427,43 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           },
           on: {
             "click": function($event) {
-              _vm.update(scope.$index, scope.row)
+              _vm.correctStock(scope.$index, scope.row)
             }
           }
-        }, [_vm._v("修改")]), _vm._v(" "), _c('el-button', {
-          attrs: {
-            "size": "small",
-            "type": "primary"
-          },
-          on: {
-            "click": function($event) {
-              _vm.resetpassword(scope.$index, scope.row)
-            }
-          }
-        }, [_vm._v("重置密码")])]
+        }, [_vm._v("盘点库存")])]
       }
     }])
   })], 1), _vm._v(" "), _c('div', {
     staticClass: "pagination"
   }, [_c('el-pagination', {
     attrs: {
+      "current-page": _vm.cur_page,
       "layout": "prev, pager, next",
       "total": _vm.totalRows,
       "page-size": _vm.pageSize
     },
     on: {
-      "current-change": _vm.handleCurrentChange
+      "current-change": _vm.handleCurrentChange,
+      "update:currentPage": function($event) {
+        _vm.cur_page = $event
+      }
     }
   })], 1)], 1)
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 724:
+/***/ 716:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(683);
+var content = __webpack_require__(675);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("4ce11ef9", content, true);
+var update = __webpack_require__(199)("ffbe0b26", content, true);
 
 /***/ })
 

@@ -7,7 +7,7 @@ import com.xjh.dao.dataobject.WmsStoreDO;
 public interface StoreService {
 	public ResultBase<WmsStoreDO> addStore(WmsStoreDO storeDO);
 	
-	public ResultBase<Integer> updateStore(WmsStoreDO storeDO);
+	public ResultBase<WmsStoreDO> updateStore(WmsStoreDO storeDO);
 	
 	public PageResult<WmsStoreDO> queryStore(WmsStoreDO example);
 	

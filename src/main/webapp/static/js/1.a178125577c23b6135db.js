@@ -1,4 +1,4 @@
-webpackJsonp([4,11],{
+webpackJsonp([1,4,11,17],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
@@ -37,6 +37,48 @@ var Component = __webpack_require__(198)(
   __webpack_require__(645),
   /* scopeId */
   "data-v-6eff4f49",
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 508:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(646)
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(641),
+  /* template */
+  __webpack_require__(644),
+  /* scopeId */
+  "data-v-67028873",
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 523:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(665),
+  /* template */
+  __webpack_require__(705),
+  /* scopeId */
+  null,
   /* cssModules */
   null
 )
@@ -7080,13 +7122,21 @@ const http = {
 const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: config.server + '/user/login',
-			data: data,
-			dataType: 'jsonp'
-		}).then(resp => {
-			df.resolve(resp);
-		});
+		try {
+			__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+				url: config.server + '/user/login',
+				data: data,
+				dataType: 'jsonp'
+			}).then(resp => {
+				df.resolve(resp);
+			});
+		} catch (e) {
+			df.reject({
+				code: 400,
+				message: '网络异常'
+			});
+		}
+
 		return df;
 	},
 	getAllStoreList() {
@@ -7165,6 +7215,13 @@ const api = {
 			pageSize: 1000
 		};
 		return http.jsonp2("/busi/queryMaterials", data);
+	},
+	queryRecipesFormula(recipesCode) {
+		let data = { recipesCode: recipesCode };
+		return http.jsonp2("/recipes/queryRecipesFormula", data);
+	},
+	getAllWarehouse() {
+		return http.jsonp2("/warehouse/queryWarehouses", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -13277,6 +13334,107 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
+/***/ 641:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(590);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data() {
+        return {
+            storeSelection: [],
+            recipesSelection: [],
+            storeCode: '',
+            recipesList: [{}]
+        };
+    },
+    methods: {
+        onCancel() {
+            this.$router.go(-1);
+        },
+        onSubmit() {
+            this.$message.error("还未实现");
+        },
+        addRows() {
+            this.$data.recipesList.push({});
+        },
+        removeRows(index) {
+            this.$data.recipesList.splice(index, 1);
+        }
+    },
+    mounted() {
+        var $data = this.$data;
+        __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].getAllStoreList().then(resp => {
+            $data.storeSelection = resp;
+        });
+
+        __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].queryAllRecipes().then(resp => {
+            $data.recipesSelection = resp;
+        });
+    }
+});
+
+/***/ }),
+
+/***/ 642:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(87)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".form-box[data-v-67028873]{margin-top:20px}.border-table[data-v-67028873]{border-collapse:collapse;border:none}.border-table td[data-v-67028873],.border-table th[data-v-67028873]{border:1px solid #000}.el-input[data-v-67028873]{width:150px}", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ 643:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13289,6 +13447,111 @@ exports.push([module.i, ".handle-box[data-v-6eff4f49]{margin-bottom:20px;margin-
 
 // exports
 
+
+/***/ }),
+
+/***/ 644:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('div', {
+    staticClass: "form-box"
+  }, [_c('el-form', {
+    ref: "form",
+    attrs: {
+      "label-width": "80px"
+    }
+  }, [_c('el-form-item', {
+    attrs: {
+      "label": "门店"
+    }
+  }, [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择"
+    },
+    model: {
+      value: (_vm.storeCode),
+      callback: function($$v) {
+        _vm.storeCode = $$v
+      },
+      expression: "storeCode"
+    }
+  }, _vm._l((_vm.storeSelection), function(item) {
+    return _c('el-option', {
+      key: item.storeCode,
+      attrs: {
+        "label": item.storeCode + '-' + item.storeName,
+        "value": item.storeCode
+      }
+    })
+  })), _vm._v(" "), _c('el-button', {
+    attrs: {
+      "type": "primary",
+      "icon": "plus"
+    },
+    on: {
+      "click": _vm.addRows
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', _vm._l((_vm.recipesList), function(item, index) {
+    return _c('div', [_c('el-select', {
+      attrs: {
+        "placeholder": "请选择"
+      },
+      model: {
+        value: (item.recipesCode),
+        callback: function($$v) {
+          _vm.$set(item, "recipesCode", $$v)
+        },
+        expression: "item.recipesCode"
+      }
+    }, _vm._l((_vm.recipesSelection), function(item) {
+      return _c('el-option', {
+        key: item.recipesCode,
+        attrs: {
+          "label": item.recipesCode + '-' + item.recipesName,
+          "value": item.recipesCode
+        }
+      })
+    })), _vm._v(" "), _c('el-input', {
+      attrs: {
+        "placeholder": "请输入份数"
+      },
+      model: {
+        value: (item.num),
+        callback: function($$v) {
+          _vm.$set(item, "num", $$v)
+        },
+        expression: "item.num"
+      }
+    }, [_c('template', {
+      attrs: {
+        "slot": "prepend"
+      },
+      slot: "prepend"
+    }, [_vm._v("份数")])], 2), _vm._v(" "), _c('el-button', {
+      attrs: {
+        "type": "primary",
+        "icon": "minus"
+      },
+      on: {
+        "click": function($event) {
+          _vm.removeRows(index)
+        }
+      }
+    })], 1)
+  })), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+    attrs: {
+      "type": "primary"
+    },
+    on: {
+      "click": _vm.onSubmit
+    }
+  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
+    on: {
+      "click": _vm.onCancel
+    }
+  }, [_vm._v("取消")])], 1)], 1)], 1)])
+},staticRenderFns: []}
 
 /***/ }),
 
@@ -13459,6 +13722,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
 /***/ }),
 
+/***/ 646:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(642);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(199)("5f38c596", content, true);
+
+/***/ }),
+
 /***/ 647:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13470,6 +13747,78 @@ if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var update = __webpack_require__(199)("786f65ab", content, true);
+
+/***/ }),
+
+/***/ 665:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__inventoryOutByMaterial__ = __webpack_require__(507);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__inventoryOutByMaterial___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__inventoryOutByMaterial__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__inventoryOutByRecipes__ = __webpack_require__(508);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__inventoryOutByRecipes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__inventoryOutByRecipes__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data() {
+        return {
+            radio: 1,
+            currentView: __WEBPACK_IMPORTED_MODULE_1__inventoryOutByRecipes___default.a
+        };
+    },
+    methods: {
+        change(i) {
+            if (i == 1) {
+                this.$data.currentView = __WEBPACK_IMPORTED_MODULE_1__inventoryOutByRecipes___default.a;
+            } else {
+                this.$data.currentView = __WEBPACK_IMPORTED_MODULE_0__inventoryOutByMaterial___default.a;
+            }
+        }
+    }
+});
+
+/***/ }),
+
+/***/ 705:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('el-radio-group', {
+    on: {
+      "change": _vm.change
+    },
+    model: {
+      value: (_vm.radio),
+      callback: function($$v) {
+        _vm.radio = $$v
+      },
+      expression: "radio"
+    }
+  }, [_c('el-radio', {
+    attrs: {
+      "label": 1
+    }
+  }, [_vm._v("按菜单出库")]), _vm._v(" "), _c('el-radio', {
+    attrs: {
+      "label": 2
+    }
+  }, [_vm._v("按原料出库")])], 1), _vm._v(" "), _c(_vm.currentView, {
+    tag: "component"
+  })], 1)
+},staticRenderFns: []}
 
 /***/ })
 

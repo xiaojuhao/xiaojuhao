@@ -1,15 +1,42 @@
-webpackJsonp([2],{
+webpackJsonp([3,11],{
 
-/***/ 509:
+/***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(639)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(649),
+  __webpack_require__(636),
   /* template */
-  __webpack_require__(699),
+  __webpack_require__(638),
   /* scopeId */
-  null,
+  "data-v-38481101",
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 524:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(715)
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(666),
+  /* template */
+  __webpack_require__(696),
+  /* scopeId */
+  "data-v-36b93086",
   /* cssModules */
   null
 )
@@ -7053,13 +7080,21 @@ const http = {
 const api = {
 	signin(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: config.server + '/user/login',
-			data: data,
-			dataType: 'jsonp'
-		}).then(resp => {
-			df.resolve(resp);
-		});
+		try {
+			__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+				url: config.server + '/user/login',
+				data: data,
+				dataType: 'jsonp'
+			}).then(resp => {
+				df.resolve(resp);
+			});
+		} catch (e) {
+			df.reject({
+				code: 400,
+				message: '网络异常'
+			});
+		}
+
 		return df;
 	},
 	getAllStoreList() {
@@ -7138,6 +7173,13 @@ const api = {
 			pageSize: 1000
 		};
 		return http.jsonp2("/busi/queryMaterials", data);
+	},
+	queryRecipesFormula(recipesCode) {
+		let data = { recipesCode: recipesCode };
+		return http.jsonp2("/recipes/queryRecipesFormula", data);
+	},
+	getAllWarehouse() {
+		return http.jsonp2("/warehouse/queryWarehouses", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -12768,13 +12810,266 @@ function plural(ms, n, name) {
 
 /***/ }),
 
-/***/ 648:
+/***/ 636:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(590);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function () {
+        return {
+            item: {},
+            outStockAmt: 0,
+            storeCode: '',
+            storeSelection: []
+        };
+    },
+    methods: {
+        onSubmit() {
+            var $this = this;
+            __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].outstock({
+                id: this.$route.query.stockId,
+                materialCode: $this.item.materialCode,
+                warehouseCode: $this.item.warehouseCode,
+                outstockAmt: $this.outStockAmt,
+                storeCode: $this.storeCode
+            }).then(resp => {
+                $this.$message("出库成功");
+                $this.$router.go(-1);
+            }).fail(resp => {
+                $this.$message.error(resp.message);
+            });
+        },
+        onBack() {
+            this.$router.go(-1);
+        },
+        initData() {
+            var jsonp = __webpack_require__(634);
+            var $data = this;
+            __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].queryMaterialsStockById(this.$route.query.stockId).then(value => {
+                $data.item = value;
+            });
+            __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].getAllStoreList().then(value => {
+                $data.storeSelection = value;
+            });
+        }
+    },
+    computed: {
+        stockTypeName: function () {
+            if (this.item.stockType && this.item.stockType == 1) {
+                return '总库';
+            } else {
+                return '分库';
+            }
+        }
+    },
+    mounted() {
+        this.initData();
+    },
+    activated() {}
+});
+
+/***/ }),
+
+/***/ 637:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(87)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".table-simple[data-v-38481101]{font-size:0}.table-simple label[data-v-38481101]{width:90px;color:#99a9bf;background-color:red}.table-simple .el-form-item[data-v-38481101]{margin-right:0;margin-bottom:0;width:50%}.table-simple .el-form-item2[data-v-38481101]{width:90%}.el-form-item-button[data-v-38481101]{margin-top:10px;margin-left:20%;width:90%}.input-width-short[data-v-38481101]{width:150px}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 638:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('div', {
+    staticClass: "crumbs"
+  }, [_c('el-breadcrumb', {
+    attrs: {
+      "separator": "/"
+    }
+  }, [_c('el-breadcrumb-item', [_c('i', {
+    staticClass: "el-icon-date"
+  }), _vm._v(" 进销存管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("出库")])], 1)], 1), _vm._v(" "), _c('div', {
+    staticClass: "form-box"
+  }, [_c('el-form', {
+    ref: "form",
+    staticClass: "table-simple",
+    attrs: {
+      "inline": true,
+      "label-width": "80px"
+    }
+  }, [_c('el-form-item', {
+    attrs: {
+      "label": "原料名称"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "原料编码"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialCode))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "当前库存"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "已用数量"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.usedStock))])]), _vm._v(" "), _c('el-form-item', {
+    staticClass: "el-form-item2",
+    attrs: {
+      "label": "库存类型"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.stockTypeName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "出库数量"
+    }
+  }, [_c('el-input', {
+    staticClass: "input-width-short",
+    model: {
+      value: (_vm.outStockAmt),
+      callback: function($$v) {
+        _vm.outStockAmt = $$v
+      },
+      expression: "outStockAmt"
+    }
+  }, [_c('template', {
+    attrs: {
+      "slot": "append"
+    },
+    slot: "append"
+  }, [_vm._v(_vm._s(_vm.item.stockUnit))])], 2)], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "门店"
+    }
+  }, [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择"
+    },
+    model: {
+      value: (_vm.storeCode),
+      callback: function($$v) {
+        _vm.storeCode = $$v
+      },
+      expression: "storeCode"
+    }
+  }, _vm._l((_vm.storeSelection), function(item) {
+    return _c('el-option', {
+      key: item.storeCode,
+      attrs: {
+        "label": item.storeCode + '-' + item.storeName,
+        "value": item.storeCode
+      }
+    })
+  }))], 1), _vm._v(" "), _c('el-form-item', {
+    staticClass: "el-form-item-button"
+  }, [_c('el-button', {
+    attrs: {
+      "type": "primary"
+    },
+    on: {
+      "click": _vm.onSubmit
+    }
+  }, [_vm._v("提交")]), _vm._v(" "), _c('span', {
+    staticStyle: {
+      "margin-right": "20px"
+    }
+  }), _vm._v(" "), _c('el-button', {
+    on: {
+      "click": _vm.onBack
+    }
+  }, [_vm._v("取消")])], 1)], 1)], 1)])
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 639:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(637);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(199)("0479b6cf", content, true);
+
+/***/ }),
+
+/***/ 666:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(631);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue__ = __webpack_require__(506);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__OutStock_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery__ = __webpack_require__(560);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_bus__ = __webpack_require__(590);
 //
 //
 //
@@ -12791,190 +13086,115 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data() {
         return {
-            name: 'unknown',
-            sideBarOppened: false
+            url: './static/vuetable.json',
+            tableData: [],
+            pageNo: 1,
+            pageSize: 20,
+            totalRows: 0,
+            loadingState: false,
+            queryList: [],
+            allWarehouse: []
         };
-    },
-    computed: {
-        username() {
-            let username = localStorage.getItem('ms_username');
-            return username ? username : this.name;
-        }
     },
     methods: {
-        handleCommand(command) {
-            if (command == 'loginout') {
-                var jsonp = __webpack_require__(634);
-                var url = __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/user/logout';
-                jsonp(url, null, function (err, resp) {});
-                localStorage.removeItem('ms_username');
-                this.$router.push('/login');
-            }
+        handleCurrentChange(val) {
+            this.pageNo = val;
+            this.queryData();
+        },
+        queryData() {
+            this.queryList = [];
+            this.totalRows = 0;
+            let self = this;
+            self.$data.loadingState = true;
+            __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/store/getAllStore',
+                data: {
+                    pageSize: self.$data.pageSize,
+                    pageNo: self.$data.pageNo
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                var value = resp.value;
+                if (!value) {
+                    self.$message.error("服务端没有返回数据");
+                    return;
+                }
+                self.queryList = value.values;
+                self.totalRows = value.totalRows;
+            }).fail(function (resp) {
+                self.$message.error("请求出错");
+            }).done(function (resp) {
+                self.$data.loadingState = false;
+            });
+        },
+        edit(index, item) {
+            this.$router.push({ path: "/storeManagePage", query: { storeCode: item && item.storeCode } });
+        },
+        formatWarehouse(item) {
+            console.log(item);
+            let wh = this.warehouseMap[item.defaultWarehouse];
+            return wh && wh.warehouseName;
         }
-    }
-});
-
-/***/ }),
-
-/***/ 649:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Header_vue__ = __webpack_require__(687);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Header_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Header_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Sidebar_vue__ = __webpack_require__(688);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Sidebar_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__Sidebar_vue__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    components: {
-        vHead: __WEBPACK_IMPORTED_MODULE_0__Header_vue___default.a, vSidebar: __WEBPACK_IMPORTED_MODULE_1__Sidebar_vue___default.a
-    }
-});
-
-/***/ }),
-
-/***/ 650:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(200);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
-        return {
-            items: [{
-                icon: 'el-icon-menu',
-                index: 'indexPage',
-                title: '首页'
-            }, {
-                icon: 'el-icon-setting',
-                index: '2',
-                title: '系统管理',
-                subs: [{
-                    index: 'userManage',
-                    title: '用户管理'
-                }, {
-                    index: 'roleManage',
-                    title: '角色管理'
-                }, {
-                    index: 'sysConfig',
-                    title: '系统设置'
-                }]
-            }, {
-                icon: 'el-icon-setting',
-                index: '3',
-                title: '基础信息管理',
-                subs: [{
-                    index: 'materialManage',
-                    title: '原料管理'
-                }, {
-                    index: 'recipesManage',
-                    title: '菜品管理'
-                }, {
-                    index: 'warehouseManage',
-                    title: '仓库管理'
-                }, {
-                    index: 'storeManage',
-                    title: '门店管理'
-                }]
-            }, {
-                icon: 'el-icon-menu',
-                index: '4',
-                title: '进销存管理',
-                subs: [{
-                    index: 'inventoryOut',
-                    title: '出库管理'
-                }, {
-                    index: 'inventoryIn',
-                    title: '入库管理'
-                }, {
-                    index: 'pandian',
-                    title: '库存盘点'
-                }, {
-                    index: 'baosun',
-                    title: '原料报损'
-                }, {
-                    index: 'diaobo',
-                    title: '库存调拨'
-                }]
-            }, {
-                icon: 'el-icon-menu',
-                index: '5',
-                title: '报表',
-                subs: [{
-                    index: 'reportOfStock',
-                    title: '库存报表'
-                }]
-            }, {
-                icon: 'el-icon-menu',
-                index: '6',
-                title: '任务管理',
-                subs: [{
-                    index: 'waitingTask',
-                    title: '待处理任务'
-                }, {
-                    index: 'myTask',
-                    title: '我的申请'
-                }]
-            }]
-        };
     },
-    created: function () {},
+    mounted() {
+        __WEBPACK_IMPORTED_MODULE_3__common_bus__["b" /* api */].getAllWarehouse().then(page => {
+            this.$data.allWarehouse = page.values;
+        });
+        this.queryData();
+    },
     computed: {
-        onRoutes() {
-            return this.$route.path.replace('/', '');
+        warehouseMap() {
+            let map = {};
+            this.$data.allWarehouse.forEach(item => {
+                map[item.warehouseCode] = item;
+            });
+            return map;
         }
     }
 });
 
 /***/ }),
 
-/***/ 672:
+/***/ 674:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(87)(undefined);
@@ -12982,207 +13202,153 @@ exports = module.exports = __webpack_require__(87)(undefined);
 
 
 // module
-exports.push([module.i, ".header[data-v-1e5b606c]{position:relative;box-sizing:border-box;width:100%;height:70px;font-size:22px;line-height:70px;color:#fff}.header .logo[data-v-1e5b606c]{float:left;width:250px;text-align:center}.user-info[data-v-1e5b606c]{float:right;padding-right:50px;font-size:16px;color:#fff}.user-info .el-dropdown-link[data-v-1e5b606c]{position:relative;display:inline-block;padding-left:50px;color:#fff;cursor:pointer;vertical-align:middle}.user-info .user-logo[data-v-1e5b606c]{position:absolute;left:0;top:15px;width:40px;height:40px;border-radius:50%}.el-dropdown-menu__item[data-v-1e5b606c]{text-align:center}", ""]);
+exports.push([module.i, ".handle-box[data-v-36b93086]{margin-bottom:20px}.handle-select[data-v-36b93086]{width:120px}.handle-input[data-v-36b93086]{width:300px;display:inline-block}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 680:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(87)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, ".sidebar[data-v-65efe922]{display:block;position:absolute;width:250px;left:0;top:70px;bottom:0;background:#2e363f}.sidebar>ul[data-v-65efe922]{height:100%}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 686:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "static/img/img.2aab7b4.jpg";
-
-/***/ }),
-
-/***/ 687:
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(713)
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(648),
-  /* template */
-  __webpack_require__(693),
-  /* scopeId */
-  "data-v-1e5b606c",
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 688:
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(721)
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(650),
-  /* template */
-  __webpack_require__(703),
-  /* scopeId */
-  "data-v-65efe922",
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 693:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ 696:
+/***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "header"
+    staticClass: "table"
   }, [_c('div', {
-    staticClass: "logo"
-  }, [_vm._v("后台管理系统")]), _vm._v(" "), _c('div', {
-    staticClass: "user-info"
-  }, [_c('el-dropdown', {
+    staticClass: "handle-box"
+  }, [_c('el-button', {
     attrs: {
-      "trigger": "click"
+      "round": ""
     },
     on: {
-      "command": _vm.handleCommand
+      "click": function($event) {
+        _vm.queryData()
+      }
     }
-  }, [_c('span', {
-    staticClass: "el-dropdown-link"
-  }, [_c('img', {
-    staticClass: "user-logo",
-    attrs: {
-      "src": __webpack_require__(686)
+  }, [_vm._v("查询列表")]), _vm._v(" "), _c('div', {
+    staticStyle: {
+      "position": "relative",
+      "float": "right"
     }
-  }), _vm._v("\n                " + _vm._s(_vm.username) + "\n            ")]), _vm._v(" "), _c('el-dropdown-menu', {
+  }, [_c('el-button', {
     attrs: {
-      "slot": "dropdown"
+      "round": ""
     },
-    slot: "dropdown"
-  }, [_c('el-dropdown-item', {
-    attrs: {
-      "command": "loginout"
-    }
-  }, [_vm._v("退出")])], 1)], 1)], 1)])
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 699:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "wrapper"
-  }, [_c('v-head'), _vm._v(" "), _c('v-sidebar'), _vm._v(" "), _c('div', {
-    staticClass: "content"
-  }, [_c('transition', {
-    attrs: {
-      "name": "move",
-      "mode": "out-in"
-    }
-  }, [_c('router-view')], 1)], 1)], 1)
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 703:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "sidebar"
-  }, [_c('el-menu', {
-    staticClass: "el-menu-vertical-demo",
-    attrs: {
-      "default-active": _vm.onRoutes,
-      "theme": "dark",
-      "unique-opened": "",
-      "router": ""
-    }
-  }, [_vm._l((_vm.items), function(item) {
-    return [(item.subs) ? [_c('el-submenu', {
-      attrs: {
-        "index": item.index
+    on: {
+      "click": function($event) {
+        _vm.edit()
       }
-    }, [_c('template', {
-      attrs: {
-        "slot": "title"
-      },
-      slot: "title"
-    }, [_c('i', {
-      class: item.icon
-    }), _vm._v(_vm._s(item.title))]), _vm._v(" "), _vm._l((item.subs), function(subItem, i) {
-      return _c('el-menu-item', {
-        key: i,
-        attrs: {
-          "index": subItem.index
-        }
-      }, [_vm._v(_vm._s(subItem.title) + "\n                    ")])
-    })], 2)] : [_c('el-menu-item', {
-      attrs: {
-        "index": item.index
+    }
+  }, [_vm._v("增加新门店")])], 1)], 1), _vm._v(" "), _c('el-table', {
+    directives: [{
+      name: "loading",
+      rawName: "v-loading",
+      value: (_vm.loadingState),
+      expression: "loadingState"
+    }],
+    staticStyle: {
+      "width": "100%"
+    },
+    attrs: {
+      "data": _vm.queryList,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
+    }
+  }, [_c('el-table-column', {
+    attrs: {
+      "prop": "storeCode",
+      "label": "门店编码",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeName",
+      "label": "门店名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "defaultWarehouse",
+      "label": "默认仓库",
+      "width": "150",
+      "formatter": _vm.formatWarehouse
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeManager",
+      "label": "负责人",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "storeAddr",
+      "label": "门店地址",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerPhone",
+      "label": "负责人手机",
+      "width": "130"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "managerEmail",
+      "label": "负责人邮箱",
+      "width": "220"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "100"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.edit(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("编辑")])]
       }
-    }, [_c('i', {
-      class: item.icon
-    }), _vm._v(_vm._s(item.title) + "\n                ")])]]
-  })], 2)], 1)
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
+    },
+    on: {
+      "current-change": _vm.handleCurrentChange
+    }
+  })], 1)], 1)
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 713:
+/***/ 715:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(672);
+var content = __webpack_require__(674);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("3ad29ecc", content, true);
-
-/***/ }),
-
-/***/ 721:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(680);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(199)("2516572a", content, true);
+var update = __webpack_require__(199)("2e18af7c", content, true);
 
 /***/ })
 

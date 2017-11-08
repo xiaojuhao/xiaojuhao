@@ -29,12 +29,12 @@ public class StoreServiceImpl implements StoreService {
 		return ResultBaseBuilder.succ().data(storeDO).rb();
 	}
 
-	public ResultBase<Integer> updateStore(WmsStoreDO storeDO) {
+	public ResultBase<WmsStoreDO> updateStore(WmsStoreDO storeDO) {
 		if (CommonUtils.isAnyBlank(storeDO.getStoreCode(), storeDO.getStoreName())) {
 			return ResultBaseBuilder.fails("入参错误").rb();
 		}
-		int i = storeMapper.updateByPrimaryKeySelective(storeDO);
-		return ResultBaseBuilder.succ().data(i).rb();
+		storeMapper.updateByPrimaryKeySelective(storeDO);
+		return ResultBaseBuilder.succ().data(storeDO).rb();
 
 	}
 
