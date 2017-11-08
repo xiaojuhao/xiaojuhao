@@ -42,10 +42,4 @@ public class IndexController {
 		menus.add(sysconfig);
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
-	@RequestMapping(value = "/initMaterials", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object initMaterials(){
-		materialService.initMaterials();
-		return ResultBaseBuilder.succ().rb(request);
-	}
 }

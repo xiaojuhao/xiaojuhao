@@ -82,11 +82,11 @@ public class BusinessController {
 			String materialCode = "M" + StringUtils.leftPad(nextVal + "", 5, '0');
 			material.setMaterialCode(materialCode);
 			material.setStatus(1);
-			this.materialService.addMaterial(material);
+			this.materialService.insertMaterial(material);
 		} else {
 			this.materialService.updateMaterial(material);
 		}
-		materialService.initMaterials();
+		materialService.initMaterialStock(material.getMaterialCode());
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

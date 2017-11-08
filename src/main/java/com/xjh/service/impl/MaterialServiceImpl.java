@@ -29,8 +29,10 @@ public class MaterialServiceImpl implements MaterialService {
 	TkWmsMaterialStockMapper tkWmsMaterialStockMapper;
 
 	@Override
-	public ResultBase<Boolean> initMaterials() {
-		List<WmsMaterialDO> materials = tkWmsMaterialMapper.selectAll();
+	public ResultBase<Boolean> initMaterialStock(String materialCode) {
+		WmsMaterialDO example = new WmsMaterialDO();
+		example.setMaterialCode(materialCode);
+		List<WmsMaterialDO> materials = tkWmsMaterialMapper.select(example);
 		for (WmsMaterialDO m : materials) {
 			WmsMaterialStockDO stock = new WmsMaterialStockDO();
 			stock.setMaterialCode(m.getMaterialCode());
@@ -73,23 +75,11 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public int addMaterial(WmsMaterialDO example) {
+	public int insertMaterial(WmsMaterialDO example) {
 		if (example == null) {
 			return 0;
 		}
 		int i = tkWmsMaterialMapper.insert(example);
-		if (i > 0) {
-			WmsMaterialStockDO stock = new WmsMaterialStockDO();
-			stock.setMaterialCode(example.getMaterialCode());
-			stock.setMaterialName(example.getMaterialName());
-			stock.setStockUnit(example.getStockUnit());
-			stock.setStockType("1");
-			stock.setWarehouseCode("WH0000");
-			stock.setWarehouseName("总库");
-			stock.setCurrStock(0D);
-			stock.setUsedStock(0D);
-			tkWmsMaterialStockMapper.insert(stock);
-		}
 		return i;
 	}
 	@Override
