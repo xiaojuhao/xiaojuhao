@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.dao.dataobject.WmsSessionDO;
 import com.xjh.dao.dataobject.WmsUserDO;
-import com.xjh.service.Mappers;
+import com.xjh.service.TkMappers;
 
 public class AccountUtils {
 	public static WmsUserDO getLoginUser(HttpServletRequest request) {
@@ -20,7 +20,7 @@ public class AccountUtils {
 		}
 		WmsSessionDO record = new WmsSessionDO();
 		record.setSessionId(loginSessionKey);
-		WmsSessionDO session = Mappers.inst().getSessionMapper().selectOne(record);
+		WmsSessionDO session = TkMappers.inst().getSessionMapper().selectOne(record);
 		if (session == null) {
 			return null;
 		}
@@ -31,7 +31,7 @@ public class AccountUtils {
 		}
 		WmsUserDO user = new WmsUserDO();
 		user.setUserCode(userCode);
-		user = Mappers.inst().getUserMapper().selectOne(user);
+		user = TkMappers.inst().getUserMapper().selectOne(user);
 		return user;
 	}
 }

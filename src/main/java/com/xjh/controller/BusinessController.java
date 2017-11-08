@@ -21,12 +21,14 @@ import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
-import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
+import com.xjh.eventbus.BusCruise;
+import com.xjh.eventbus.evthandles.InStockEvent;
+import com.xjh.eventbus.evthandles.OutStockEvent;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.vo.WmsMaterialStockVo;
@@ -206,42 +208,25 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		if (id == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String outstockAmtStr = CommonUtils.get(request, "outstockAmt");
 		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
 		String storeCode = CommonUtils.get(request, "storeCode");
+		String warehouseCode = CommonUtils.get(request, "warehouseCode");
 		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		// 查询数据库
-		WmsMaterialStockDO t = new WmsMaterialStockDO();
-		t.setId(id);
-		t.setMaterialCode(materialCode);
-		WmsMaterialStockDO stock = stockMapper.selectOne(t);
-		if (stock == null) {
-			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		if(StringUtils.isAnyBlank(materialCode,warehouseCode)){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		// 更新库存
-		stock.setCurrStock(stock.getCurrStock() - outstockAmt.doubleValue());
-		stock.setUsedStock(stock.getUsedStock() + outstockAmt.doubleValue());
-		stock.setModifier(user.getUserCode());
-		this.stockMapper.updateByPrimaryKeySelective(stock);
-		// 记录history
-		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
-		history.setMaterialCode(stock.getMaterialCode());
-		history.setMaterialName(stock.getMaterialName());
-		history.setCurrStock(stock.getCurrStock());
-		history.setWarehouseCode(stock.getWarehouseCode());
-		history.setStockChg(outstockAmt.doubleValue());
-		history.setOpType("out_stock");
-		history.setRemark("出库");
-		history.setStoreCode(storeCode);
-		history.setOperator(user.getUserCode());
-		this.stockHistoryMapper.insert(history);
+		// 提交事件
+		OutStockEvent event = new OutStockEvent();
+		event.setMaterialCode(materialCode);
+		event.setWarehouseCode(warehouseCode);
+		event.setOutstockAmt(outstockAmt.doubleValue());
+		event.setOperator(user.getUserCode());
+		event.setStoreCode(storeCode);
+		BusCruise.post(event);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -262,58 +247,12 @@ public class BusinessController {
 		if (CommonUtils.isAnyBlank(materialCode, warehouseCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		WmsMaterialDO material = new WmsMaterialDO();
-		material.setMaterialCode(materialCode);
-		material = tkWmsMaterialMapper.selectOne(material);
-		if (material == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		WmsWarehouseDO warehouse = new WmsWarehouseDO();
-		warehouse.setWarehouseCode(warehouseCode);
-		warehouse = this.warehouseMapper.selectOne(warehouse);
-		if (warehouse == null) {
-			return ResultBaseBuilder.fails("仓库信息缺失").rb(request);
-		}
-		// 查询数据库
-		WmsMaterialStockDO t = new WmsMaterialStockDO();
-		t.setMaterialCode(materialCode);
-		t.setWarehouseCode(warehouseCode);
-		t.setStockType("2");
-		WmsMaterialStockDO stock = stockMapper.selectOne(t);
-		if (stock == null) {
-			// return
-			// ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
-			t.setMaterialName(material.getMaterialName());
-			t.setWarehouseName(warehouse.getWarehouseName());
-			t.setCurrStock(0D);
-			t.setUsedStock(0D);
-			stockMapper.insert(t);
-			stock = t;
-		}
-		WmsMaterialStockDO zk = new WmsMaterialStockDO();
-		zk.setMaterialCode(materialCode);
-		zk.setStockType("1");
-		zk.setWarehouseCode("WH0000");
-		zk.setWarehouseName("总库");
-		zk = this.stockMapper.selectOne(zk);
-		zk.setCurrStock(zk.getCurrStock() + instockAmt.doubleValue());
-		zk.setModifier(user.getUserCode());
-		this.stockMapper.updateByPrimaryKey(zk);
-		// 更新库存（分库）
-		stock.setCurrStock(stock.getCurrStock() + instockAmt.doubleValue());
-		stock.setModifier(user.getUserCode());
-		this.stockMapper.updateByPrimaryKeySelective(stock);
-		// 记录history
-		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
-		history.setMaterialCode(stock.getMaterialCode());
-		history.setMaterialName(stock.getMaterialName());
-		history.setCurrStock(stock.getCurrStock());
-		history.setWarehouseCode(warehouseCode);
-		history.setStockChg(-instockAmt.doubleValue());
-		history.setOpType("in_stock");
-		history.setRemark("入库");
-		history.setOperator(user.getUserCode());
-		this.stockHistoryMapper.insert(history);
+		InStockEvent event = new InStockEvent();
+		event.setMaterialCode(materialCode);
+		event.setWarehouseCode(warehouseCode);
+		event.setInstockAmt(instockAmt.doubleValue());
+		event.setOperator(user.getUserCode());
+		BusCruise.post(event);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

@@ -24,18 +24,18 @@ import com.xjh.service.vo.WmsMaterialVo;
 @Service
 public class MaterialServiceImpl implements MaterialService {
 	@Resource
-	TkWmsMaterialMapper wmsMaterialMapper;
+	TkWmsMaterialMapper tkWmsMaterialMapper;
 	@Resource
-	TkWmsMaterialStockMapper wmsMaterialStockMapper;
+	TkWmsMaterialStockMapper tkWmsMaterialStockMapper;
 
 	@Override
 	public ResultBase<Boolean> initMaterials() {
-		List<WmsMaterialDO> materials = wmsMaterialMapper.selectAll();
+		List<WmsMaterialDO> materials = tkWmsMaterialMapper.selectAll();
 		for (WmsMaterialDO m : materials) {
 			WmsMaterialStockDO stock = new WmsMaterialStockDO();
 			stock.setMaterialCode(m.getMaterialCode());
 			stock.setStockType("1");
-			List<WmsMaterialStockDO> stocks = wmsMaterialStockMapper.select(stock);
+			List<WmsMaterialStockDO> stocks = tkWmsMaterialStockMapper.select(stock);
 			if (stocks == null || stocks.size() == 0) {
 				WmsMaterialStockDO insert = new WmsMaterialStockDO();
 				CommonUtils.copyPropertiesQuietly(insert, m);
@@ -44,7 +44,7 @@ public class MaterialServiceImpl implements MaterialService {
 				insert.setStockType("1");
 				insert.setCurrStock(0D);
 				insert.setUsedStock(0D);
-				this.wmsMaterialStockMapper.insert(insert);
+				this.tkWmsMaterialStockMapper.insert(insert);
 			}
 		}
 		return ResultBaseBuilder.succ().data(true).rb();
@@ -56,9 +56,9 @@ public class MaterialServiceImpl implements MaterialService {
 		if (example == null) {
 			example = new WmsMaterialDO();
 		}
-		int totalRows = this.wmsMaterialMapper.selectCount(example);
+		int totalRows = this.tkWmsMaterialMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
-		List<WmsMaterialDO> list = wmsMaterialMapper.select(example);
+		List<WmsMaterialDO> list = tkWmsMaterialMapper.select(example);
 		List<WmsMaterialVo> ret = new ArrayList<>();
 		for (WmsMaterialDO dd : list) {
 			WmsMaterialVo vo = new WmsMaterialVo();
@@ -77,7 +77,7 @@ public class MaterialServiceImpl implements MaterialService {
 		if (example == null) {
 			return 0;
 		}
-		int i = wmsMaterialMapper.insert(example);
+		int i = tkWmsMaterialMapper.insert(example);
 		if (i > 0) {
 			WmsMaterialStockDO stock = new WmsMaterialStockDO();
 			stock.setMaterialCode(example.getMaterialCode());
@@ -88,7 +88,7 @@ public class MaterialServiceImpl implements MaterialService {
 			stock.setWarehouseName("总库");
 			stock.setCurrStock(0D);
 			stock.setUsedStock(0D);
-			wmsMaterialStockMapper.insert(stock);
+			tkWmsMaterialStockMapper.insert(stock);
 		}
 		return i;
 	}
@@ -97,7 +97,7 @@ public class MaterialServiceImpl implements MaterialService {
 		if (example == null) {
 			return 0;
 		}
-		int i = this.wmsMaterialMapper.updateByPrimaryKeySelective(example);
+		int i = this.tkWmsMaterialMapper.updateByPrimaryKeySelective(example);
 		return i;
 	}
 	@Override
@@ -107,10 +107,10 @@ public class MaterialServiceImpl implements MaterialService {
 		if (example == null) {
 			example = new WmsMaterialStockDO();
 		}
-		int totalRows = this.wmsMaterialStockMapper.selectCount(example);
+		int totalRows = this.tkWmsMaterialStockMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		PageHelper.orderBy("id");
-		List<WmsMaterialStockDO> list = wmsMaterialStockMapper.select(example);
+		List<WmsMaterialStockDO> list = tkWmsMaterialStockMapper.select(example);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
 		for (WmsMaterialStockDO dd : list) {
 			WmsMaterialStockVo vo = new WmsMaterialStockVo();

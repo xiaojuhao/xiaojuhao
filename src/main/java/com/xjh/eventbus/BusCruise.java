@@ -1,4 +1,4 @@
-package com.xjh.event;
+package com.xjh.eventbus;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -15,7 +15,10 @@ public class BusCruise {
 		bus1.register(handler);
 		bus2.register(handler);
 	}
-
+	/**
+	 * 同步提交
+	 * @param event
+	 */
 	public static void post(IEvent event) {
 		post(event, false);// 同步处理
 	}

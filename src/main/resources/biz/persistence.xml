@@ -21,7 +21,9 @@
 		<!--         <property name="password" value="123456"></property> -->
 
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
-		<property name="url" value="jdbc:mysql://localhost:3306/wms?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=GMT"></property>
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/wms?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=GMT">
+		</property>
 		<property name="username" value="root"></property>
 		<property name="password" value="123456"></property>
 	</bean>
@@ -38,9 +40,7 @@
 			<array>
 				<bean class="com.github.pagehelper.PageHelper">
 					<property name="properties">
-						<value>
-							dialect=mysql
-						</value>
+						<value>dialect=mysql</value>
 					</property>
 				</bean>
 			</array>
@@ -48,6 +48,9 @@
 	</bean>
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.xjh.dao.mapper" />
 	</bean>
 	<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.xjh.dao.tkmapper" />
