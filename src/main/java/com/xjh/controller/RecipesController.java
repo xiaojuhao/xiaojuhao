@@ -31,6 +31,7 @@ public class RecipesController {
 		if(user == null){
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String formula = request.getParameter("formulaJson");
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String recipesName = CommonUtils.get(request, "recipesName");
 		WmsRecipesDO recipes = new WmsRecipesDO();

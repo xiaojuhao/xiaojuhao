@@ -7043,8 +7043,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 const config = {
-	server: 'http://47.104.25.105:80/xiaojuhao/'
+	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
+	server: "http://47.104.25.105:80/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7157,6 +7158,13 @@ const api = {
 	},
 	queryMaterialsStockById(id) {
 		return http.jsonp2("/busi/queryMaterialsStockById", { id: id });
+	},
+	queryAllMaterials() {
+		let data = {
+			pageNo: 1,
+			pageSize: 1000
+		};
+		return http.jsonp2("/busi/queryMaterials", data);
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -12282,7 +12290,7 @@ function load() {
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
   if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = __webpack_require__.i({"NODE_ENV":"production"}).DEBUG;
+    r = __webpack_require__.i({"NODE_ENV":"production","REMOTE_SERVER":"http://47.104.25.105:80/xiaojuhao/"}).DEBUG;
   }
 
   return r;

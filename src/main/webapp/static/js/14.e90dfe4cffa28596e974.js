@@ -1,19 +1,19 @@
-webpackJsonp([18],{
+webpackJsonp([14],{
 
-/***/ 519:
+/***/ 512:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(725)
+__webpack_require__(726)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(661),
+  __webpack_require__(653),
   /* template */
-  __webpack_require__(708),
+  __webpack_require__(710),
   /* scopeId */
-  null,
+  "data-v-f1f382f0",
   /* cssModules */
   null
 )
@@ -7020,8 +7020,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 const config = {
-	server: 'http://47.104.25.105:80/xiaojuhao/'
+	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
+	server: "http://47.104.25.105:80/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7134,6 +7135,13 @@ const api = {
 	},
 	queryMaterialsStockById(id) {
 		return http.jsonp2("/busi/queryMaterialsStockById", { id: id });
+	},
+	queryAllMaterials() {
+		let data = {
+			pageNo: 1,
+			pageSize: 1000
+		};
+		return http.jsonp2("/busi/queryMaterials", data);
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = api;
@@ -11997,12 +12005,117 @@ return jQuery;
 
 /***/ }),
 
-/***/ 661:
+/***/ 630:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(590);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(560);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bus__ = __webpack_require__(590);
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	server: __WEBPACK_IMPORTED_MODULE_1__bus__["a" /* config */].server,
+	getAllStore: function (cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/store/getAllStore",
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	queryMaterialsStockById: function (stockId, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/busi/queryMaterialsStockById",
+			data: { 'id': stockId },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouse: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouseByCode: function (code, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: { warehouseCode: code },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	login: function (data, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/login",
+			data: data,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	queryUsers: function (userDO, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/queryUsers",
+			data: userDO,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	search: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/s/w",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	}
+});
+
+/***/ }),
+
+/***/ 631:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(630),
+  /* template */
+  null,
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 653:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(631);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(560);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
 //
 //
 //
@@ -12048,62 +12161,69 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function () {
         return {
-            form: {
-                id: '',
-                recipesCode: this.$route.query.code,
-                recipesName: '',
-                formula: [{ id: 1 }, { id: 2 }, {}, {}]
-            },
-            allMaterials: [{ label: '鱼头', value: '00001' }, { label: '鱼肉', value: '00002' }, { label: '葱', value: '00003' }, { label: '大蒜', value: '00004' }, { label: '耗油', value: '00005' }]
+            item: {},
+            diaoboAmt: 0,
+            allWarehouse: [],
+            toWarehouseCode: ''
         };
     },
     methods: {
         onSubmit() {
-            var $data = this.$data;
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].addRecipes({
-                recipesCode: $data.form.recipesCode,
-                recipesName: $data.form.recipesName
-            }).then(resp => {
-                //console.log(resp)
-                this.$message("操作成功");
-                this.$router.go(-1);
+            var self = this;
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/busi/diaobo",
+                data: {
+                    materialCode: self.item.materialCode,
+                    diaoboAmt: self.diaoboAmt,
+                    warehouseCode: self.item.warehouseCode,
+                    toStoreCode: self.toStoreCode
+                },
+                dataType: 'jsonp'
+            }).then(function (resp) {
+                if (resp.code != 200) {
+                    self.$message.error(resp.message);
+                    return;
+                }
+                self.$router.go(-1);
             });
         },
-        onCancel() {
+        onBack() {
             this.$router.go(-1);
         },
-        formulaChange(item) {
-            //console.log(item)
-            this.$data.allMaterials.forEach((val, index, arr) => {
-                if (val.value == item.dropdown) {
-                    val.disabled = true;
+        initData() {
+            var stockId = this.$route.query.stockId;
+            var $data = this;
+            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryMaterialsStockById(stockId, resp => {
+                $data.item = resp.value;
+            });
+        }
+    },
+    computed: {
+        warehouseSelection: function (p) {
+            return this.allWarehouse.filter(d => {
+                //过滤拨出仓库
+                if (d.warehouseCode != this.item.warehouseCode) {
+                    return d;
                 }
             });
         }
     },
     mounted() {
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["b" /* api */].queryRecipesByCode(this.$data.form.recipesCode).then(resp => {
-            this.$data.form.recipesName = resp.recipesName;
-        });
-    }
+        this.initData();
+        __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.getWarehouse({}, resp => this.allWarehouse = resp.value.values);
+    },
+    activated() {}
 });
 
 /***/ }),
 
-/***/ 684:
+/***/ 685:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(87)(undefined);
@@ -12111,14 +12231,14 @@ exports = module.exports = __webpack_require__(87)(undefined);
 
 
 // module
-exports.push([module.i, ".border-table{border-collapse:collapse;border:none}.border-table td,.border-table th{border:1px solid #000}", ""]);
+exports.push([module.i, ".table-simple[data-v-f1f382f0]{font-size:0}.table-simple label[data-v-f1f382f0]{width:90px;color:#99a9bf;background-color:red}.table-simple .el-form-item[data-v-f1f382f0]{margin-right:0;margin-bottom:0;width:50%}.table-simple .el-form-item2[data-v-f1f382f0]{width:90%}.el-form-item-button[data-v-f1f382f0]{margin-top:10px;margin-left:20%;width:90%}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 708:
+/***/ 710:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -12130,108 +12250,99 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-breadcrumb-item', [_c('i', {
     staticClass: "el-icon-date"
-  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("菜品管理")])], 1)], 1), _vm._v(" "), _c('div', {
+  }), _vm._v(" 进销存管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("调拨")])], 1)], 1), _vm._v(" "), _c('div', {
     staticClass: "form-box"
   }, [_c('el-form', {
     ref: "form",
+    staticClass: "table-simple",
     attrs: {
+      "inline": true,
       "label-width": "80px"
     }
   }, [_c('el-form-item', {
     attrs: {
-      "label": "菜品名称"
+      "label": "原料名称"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "原料编码"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.materialCode))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "当前库存"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "仓库"
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.warehouseName))])]), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "调拨数量"
     }
   }, [_c('el-input', {
-    attrs: {
-      "placeholder": "菜品名称"
-    },
     model: {
-      value: (_vm.form.recipesName),
+      value: (_vm.diaoboAmt),
       callback: function($$v) {
-        _vm.$set(_vm.form, "recipesName", $$v)
+        _vm.diaoboAmt = $$v
       },
-      expression: "form.recipesName"
+      expression: "diaoboAmt"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "label": "菜品代码"
+      "label": "拨出仓库"
     }
-  }, [_c('el-input', {
+  }, [_c('el-select', {
     attrs: {
-      "disabled": "",
-      "placeholder": "菜品代码"
+      "placeholder": "请选择"
     },
     model: {
-      value: (_vm.form.recipesCode),
+      value: (_vm.toWarehouseCode),
       callback: function($$v) {
-        _vm.$set(_vm.form, "recipesCode", $$v)
+        _vm.toWarehouseCode = $$v
       },
-      expression: "form.recipesCode"
+      expression: "toWarehouseCode"
     }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "配方"
-    }
-  }, [_c('table', {
-    staticClass: "border-table",
-    staticStyle: {
-      "width": "100%"
-    }
-  }, [_c('tr', [_c('th', [_vm._v("ID")]), _vm._v(" "), _c('th', [_vm._v("食材")]), _vm._v(" "), _c('th', [_vm._v("数量")]), _vm._v(" "), _c('th', [_vm._v("操作")])]), _vm._v(" "), _vm._l((_vm.form.formula), function(ff) {
-    return _c('tr', [_c('td', [_vm._v(_vm._s(ff.id))]), _vm._v(" "), _c('td', [_c('el-select', {
+  }, _vm._l((_vm.warehouseSelection), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
       attrs: {
-        "filterable": "",
-        "placeholder": "请选择"
-      },
-      on: {
-        "change": function($event) {
-          _vm.formulaChange(ff)
-        }
-      },
-      model: {
-        value: (ff.dropdown),
-        callback: function($$v) {
-          _vm.$set(ff, "dropdown", $$v)
-        },
-        expression: "ff.dropdown"
+        "label": item.warehouseName,
+        "value": item.warehouseCode
       }
-    }, _vm._l((_vm.allMaterials), function(item) {
-      return _c('el-option', {
-        key: item.value,
-        attrs: {
-          "label": item.label,
-          "value": item.value,
-          "disabled": item.disabled
-        }
-      })
-    }))], 1), _vm._v(" "), _c('td', [_vm._v(_vm._s(ff.dropdown))]), _vm._v(" "), _c('td', [_vm._v("330623***********9")])])
-  })], 2)]), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+    })
+  }))], 1), _vm._v(" "), _c('el-form-item', {
+    staticClass: "el-form-item-button"
+  }, [_c('el-button', {
     attrs: {
       "type": "primary"
     },
     on: {
       "click": _vm.onSubmit
     }
-  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
+  }, [_vm._v("提交")]), _vm._v(" "), _c('span', {
+    staticStyle: {
+      "margin-right": "20px"
+    }
+  }), _vm._v(" "), _c('el-button', {
     on: {
-      "click": _vm.onCancel
+      "click": _vm.onBack
     }
   }, [_vm._v("取消")])], 1)], 1)], 1)])
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 725:
+/***/ 726:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(684);
+var content = __webpack_require__(685);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("f2477278", content, true);
+var update = __webpack_require__(199)("8a0e5354", content, true);
 
 /***/ })
 
