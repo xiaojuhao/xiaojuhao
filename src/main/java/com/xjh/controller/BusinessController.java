@@ -21,7 +21,9 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
@@ -32,6 +34,7 @@ import com.xjh.eventbus.evthandles.InStockEvent;
 import com.xjh.eventbus.evthandles.OutStockEvent;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
+import com.xjh.service.TkMappers;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
@@ -50,7 +53,7 @@ public class BusinessController {
 	TkWmsStoreMapper storeMapper;
 	@Resource
 	TkWmsWarehouseMapper warehouseMapper;
-	
+
 	@Resource
 	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
@@ -217,7 +220,7 @@ public class BusinessController {
 		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		if(StringUtils.isAnyBlank(materialCode,warehouseCode)){
+		if (StringUtils.isAnyBlank(materialCode, warehouseCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		// 提交事件
@@ -309,9 +312,40 @@ public class BusinessController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String materialCode = CommonUtils.get(request, "materialCode");// 调拨材料
-		String storeCode = CommonUtils.get(request, "storeCode");// 拨出门店
-		String toStoreCode = CommonUtils.get(request, "toStoreCode");// 拨入门店
+		String fromWarehouseCode = CommonUtils.get(request, "fromWarehouseCode");// 拨出门店
+		String toWarehouseCode = CommonUtils.get(request, "toWarehouseCode");// 拨入门店
 		Double diaoboAmt = CommonUtils.getDbl(request, "diaoboAmt", null);
+		if (diaoboAmt == null || CommonUtils.isAnyBlank(fromWarehouseCode, toWarehouseCode, materialCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsWarehouseDO fromWarehouse = new WmsWarehouseDO();
+		fromWarehouse.setWarehouseCode(fromWarehouseCode);
+		fromWarehouse = TkMappers.inst().getWarehouseMapper().selectOne(fromWarehouse);
+		WmsWarehouseDO toWarehouse = new WmsWarehouseDO();
+		toWarehouse.setWarehouseCode(toWarehouseCode);
+		toWarehouse = TkMappers.inst().getWarehouseMapper().selectOne(toWarehouse);
+		if (fromWarehouse == null || toWarehouse == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		// 出库事件
+		OutStockEvent outevent = new OutStockEvent();
+		outevent.setMaterialCode(materialCode);
+		outevent.setWarehouseCode(fromWarehouse.getWarehouseCode());
+		outevent.setOutstockAmt(diaoboAmt);
+		outevent.setOperator(user.getUserCode());
+		outevent.setRemark("调拨出库");
+		// 入库事件
+		InStockEvent inevent = new InStockEvent();
+		inevent.setMaterialCode(materialCode);
+		inevent.setWarehouseCode(toWarehouse.getWarehouseCode());
+		inevent.setInstockAmt(diaoboAmt);
+		inevent.setOperator(user.getUserCode());
+		inevent.setRemark("调拨入库");
+		//
+		BusCruise.post(outevent, true);
+		BusCruise.post(inevent, true);
+		outevent.await(2000);
+		inevent.await(2000);
 
 		return ResultBaseBuilder.succ().msg("调拨成功").rb(request);
 	}
