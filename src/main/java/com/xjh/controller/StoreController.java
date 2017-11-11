@@ -58,6 +58,7 @@ public class StoreController {
 		if(StringUtils.isBlank(storeCode)){
 			long val = sequenceService.next("wms_store");
 			storeCode = "MD"+StringUtils.leftPad(val+"", 4, "0");
+			store.setStoreCode(storeCode);
 			rs = storeService.addStore(store);
 		}else{
 			rs = storeService.updateStore(store);
