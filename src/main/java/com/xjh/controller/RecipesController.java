@@ -48,6 +48,10 @@ public class RecipesController {
 		recipes.setRecipesName(recipesName);
 		this.recipesService.saveRecipes(recipes);
 		//
+		recipesCode = recipes.getRecipesCode();
+		if(StringUtils.isBlank(recipesCode)){
+			return ResultBaseBuilder.fails("保存失败").rb(request);
+		}
 		JSONArray arr = CommonUtils.parseJSONArray(formula);
 		List<WmsRecipesFormulaDO> formulas = new ArrayList<>();
 		for (int i = 0; i < arr.size(); i++) {
