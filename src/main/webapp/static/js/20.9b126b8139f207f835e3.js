@@ -1,19 +1,19 @@
-webpackJsonp([18],{
+webpackJsonp([20],{
 
-/***/ 525:
+/***/ 514:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(730)
+__webpack_require__(737)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(680),
+  __webpack_require__(669),
   /* template */
-  __webpack_require__(710),
+  __webpack_require__(719),
   /* scopeId */
-  "data-v-36b93086",
+  "data-v-6d7059c0",
   /* cssModules */
   null
 )
@@ -7023,7 +7023,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7036,6 +7036,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12041,7 +12042,7 @@ return jQuery;
 
 /***/ }),
 
-/***/ 680:
+/***/ 669:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12067,74 +12068,60 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
+    data: function () {
         return {
-            loadingState: false,
-            queryList: [],
-            allWarehouse: []
+            ruleForm: {
+                username: '',
+                password: ''
+            },
+            rules: {
+                username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+            },
+            tips: '输入用户名和密码'
         };
     },
     methods: {
-        queryData() {
-            this.queryList = [];
-            this.totalRows = 0;
-            let self = this;
-            self.$data.loadingState = true;
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].getAllStoreList().then(values => {
-                self.queryList = values;
-            }).fail(resp => {
-                this.$message.error(resp.message);
-            }).done(() => {
-                self.$data.loadingState = false;
+        submitForm(formName) {
+            const self = this;
+            self.$refs[formName].validate(valid => {
+                if (valid) {
+                    self.$data.tips = "登录中.....";
+                    var data = {
+                        userCode: self.$data.ruleForm.username,
+                        password: self.$data.ruleForm.password
+                    };
+                    __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].signin(data).then(resp => {
+                        if (resp.code != 200) {
+                            self.$data.tips = resp.message;
+                        } else {
+                            self.$data.tips = "登录成功";
+                            var userinfo = resp.value;
+                            localStorage.setItem('ms_username', userinfo.userName);
+                            self.$router.push('/home');
+                        }
+                    }).fail(resp => {
+                        console.log(resp);
+                    });
+                    return true;
+                } else {
+                    return false;
+                }
             });
-        },
-        edit(index, item) {
-            this.$router.push({ path: "/storeManagePage", query: { storeCode: item && item.storeCode } });
-        },
-        formatWarehouse(item) {
-            let wh = this.warehouseMap[item.defaultWarehouse];
-            return wh && wh.warehouseName;
         }
     },
     mounted() {
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].getAllWarehouse().then(page => {
-            this.$data.allWarehouse = page.values;
-        });
-        this.queryData();
-    },
-    computed: {
-        warehouseMap() {
-            let map = {};
-            this.$data.allWarehouse.forEach(item => {
-                map[item.warehouseCode] = item;
-            });
-            return map;
-        }
+        //console.log(process.env)
+        //console.log(this)
     }
 });
 
 /***/ }),
 
-/***/ 688:
+/***/ 695:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(86)(undefined);
@@ -12142,142 +12129,101 @@ exports = module.exports = __webpack_require__(86)(undefined);
 
 
 // module
-exports.push([module.i, ".handle-box[data-v-36b93086]{margin-bottom:20px}.handle-select[data-v-36b93086]{width:120px}.handle-input[data-v-36b93086]{width:300px;display:inline-block}", ""]);
+exports.push([module.i, ".login-wrap[data-v-6d7059c0]{position:relative;width:100%;height:100%}.ms-title[data-v-6d7059c0]{position:absolute;top:50%;width:100%;margin-top:-230px;text-align:center;font-size:30px;color:#fff}.ms-login[data-v-6d7059c0]{position:absolute;left:50%;top:50%;width:300px;height:160px;margin:-150px 0 0 -190px;padding:40px;border-radius:5px;background:#fff}.login-btn[data-v-6d7059c0]{text-align:center}.login-btn button[data-v-6d7059c0]{width:100%;height:36px}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 710:
+/***/ 719:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "table"
+    staticClass: "login-wrap"
   }, [_c('div', {
-    staticClass: "handle-box"
+    staticClass: "ms-title"
+  }, [_vm._v("后台管理系统")]), _vm._v(" "), _c('div', {
+    staticClass: "ms-login"
+  }, [_c('el-form', {
+    ref: "ruleForm",
+    staticClass: "demo-ruleForm",
+    attrs: {
+      "model": _vm.ruleForm,
+      "rules": _vm.rules,
+      "label-width": "0px"
+    }
+  }, [_c('el-form-item', {
+    attrs: {
+      "prop": "username"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "placeholder": "username"
+    },
+    model: {
+      value: (_vm.ruleForm.username),
+      callback: function($$v) {
+        _vm.$set(_vm.ruleForm, "username", $$v)
+      },
+      expression: "ruleForm.username"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "prop": "password"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "type": "password",
+      "placeholder": "password"
+    },
+    nativeOn: {
+      "keyup": function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
+        _vm.submitForm('ruleForm')
+      }
+    },
+    model: {
+      value: (_vm.ruleForm.password),
+      callback: function($$v) {
+        _vm.$set(_vm.ruleForm, "password", $$v)
+      },
+      expression: "ruleForm.password"
+    }
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "login-btn"
   }, [_c('el-button', {
     attrs: {
-      "round": ""
+      "type": "primary"
     },
     on: {
       "click": function($event) {
-        _vm.queryData()
+        _vm.submitForm('ruleForm')
       }
     }
-  }, [_vm._v("刷新数据")]), _vm._v(" "), _c('div', {
+  }, [_vm._v("登录")])], 1), _vm._v(" "), _c('p', {
     staticStyle: {
-      "position": "relative",
-      "float": "right"
+      "font-size": "12px",
+      "line-height": "30px",
+      "color": "#999"
     }
-  }, [_c('el-button', {
-    attrs: {
-      "round": ""
-    },
-    on: {
-      "click": function($event) {
-        _vm.edit()
-      }
-    }
-  }, [_vm._v("增加新门店")])], 1)], 1), _vm._v(" "), _c('el-table', {
-    directives: [{
-      name: "loading",
-      rawName: "v-loading",
-      value: (_vm.loadingState),
-      expression: "loadingState"
-    }],
-    staticStyle: {
-      "width": "100%"
-    },
-    attrs: {
-      "data": _vm.queryList,
-      "border": "",
-      "element-loading-text": "拼命加载中",
-      "element-loading-spinner": "el-icon-loading",
-      "element-loading-background": "rgb(0, 0, 0, 0.8)"
-    }
-  }, [_c('el-table-column', {
-    attrs: {
-      "prop": "storeCode",
-      "label": "门店编码",
-      "width": "120"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "storeName",
-      "label": "门店名称",
-      "width": "150"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "defaultWarehouse",
-      "label": "默认仓库",
-      "width": "150",
-      "formatter": _vm.formatWarehouse
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "storeManager",
-      "label": "负责人",
-      "width": "120"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "storeAddr",
-      "label": "门店地址",
-      "width": "150"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "managerPhone",
-      "label": "负责人手机",
-      "width": "130"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "managerEmail",
-      "label": "负责人邮箱",
-      "width": "220"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "label": "操作",
-      "fixed": "right",
-      "width": "100"
-    },
-    scopedSlots: _vm._u([{
-      key: "default",
-      fn: function(scope) {
-        return [_c('el-button', {
-          attrs: {
-            "size": "small",
-            "type": "primary"
-          },
-          on: {
-            "click": function($event) {
-              _vm.edit(scope.$index, scope.row)
-            }
-          }
-        }, [_vm._v("编辑")])]
-      }
-    }])
-  })], 1)], 1)
+  }, [_vm._v("Tips : " + _vm._s(_vm.tips))])], 1)], 1)])
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 730:
+/***/ 737:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(688);
+var content = __webpack_require__(695);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("2e18af7c", content, true);
+var update = __webpack_require__(199)("2ed0e602", content, true);
 
 /***/ })
 

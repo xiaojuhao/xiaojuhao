@@ -1,19 +1,15 @@
-webpackJsonp([19],{
+webpackJsonp([23],{
 
-/***/ 521:
+/***/ 516:
 /***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(729)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(676),
+  __webpack_require__(671),
   /* template */
-  __webpack_require__(709),
+  __webpack_require__(706),
   /* scopeId */
-  "data-v-23f5ab62",
+  null,
   /* cssModules */
   null
 )
@@ -7023,7 +7019,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7036,6 +7032,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12041,335 +12038,442 @@ return jQuery;
 
 /***/ }),
 
-/***/ 676:
+/***/ 631:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(591);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(561);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bus__ = __webpack_require__(591);
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
+	server: __WEBPACK_IMPORTED_MODULE_1__bus__["b" /* config */].server,
+	getAllStore: function (cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/store/getAllStore",
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	queryMaterialsStockById: function (stockId, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/busi/queryMaterialsStockById",
+			data: { 'id': stockId },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouse: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouseByCode: function (code, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: { warehouseCode: code },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	login: function (data, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/login",
+			data: data,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	queryUsers: function (userDO, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/queryUsers",
+			data: userDO,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	search: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/s/w",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	}
+});
+
+/***/ }),
+
+/***/ 632:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(631),
+  /* template */
+  null,
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 671:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue__ = __webpack_require__(632);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(561);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function () {
         return {
-            tableData: [],
-            cur_page: 1,
-            pageSize: 5,
-            totalRows: 0,
-            loadingState: false,
-            query: {
-                materialCode: ''
+            form: {
+                id: this.$route.query.mid,
+                materialName: '',
+                materialCode: '',
+                utilizationRatio: 100,
+                stockUnit: '',
+                canSplit: '',
+                searchKey: '',
+                formulaStr: '',
+                storageLifeUnit: '',
+                storageLifeNum: '',
+                splitMaterials: [{ id: 1, name: 'aaaaaaa' }, { id: 2, name: 'bbbbbbb' }]
             },
-            showOutStock: false
+            rules: {}
         };
     },
-    mounted() {
-        this.getData();
-    },
-    computed: {
-        data() {
-            const self = this;
-            return self.tableData.filter(function (d) {
-                return d;
-            });
-        }
-    },
     methods: {
-        handleCurrentChange(val) {
-            this.cur_page = val;
-            this.getData();
-        },
-        getData() {
+        onSubmit() {
             let self = this;
-            self.$data.loadingState = true;
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryMaterialsStockPage({
-                pageSize: self.$data.pageSize,
-                pageNo: self.$data.cur_page,
-                materialCode: self.$data.materialCode,
-                storeCode: 'M000',
-                stockType: '1'
-            }).then(page => {
-                page.values.forEach(item => item.fenku = []);
-                self.tableData = page.values;
-                self.totalRows = page.totalRows;
-            }).fail(resp => {
-                self.$message.error("请求出错");
-            }).done(() => {
-                self.$data.loadingState = false;
+            this.$data.form.formulaStr = JSON.stringify(this.$data.form.formula);
+            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/addMaterials',
+                data: this.$data.form,
+                dataType: 'jsonp'
+            }).then(resp => {
+                self.$message.success("操作成功");
+                self.$router.go(-1);
             });
         },
-        search() {
-            this.tableData = [];
-            this.cur_page = 1;
-            this.getData();
-        },
-        handleSelect(item) {
-            this.$data.query.name = item.value;
-        },
-        querySearch(queryString, cb) {
-            var data = [];
-            data.push({ id: 1, value: 'aaaaa' });
-            data.push({ id: 2, value: 'bbbbb' });
-            data.push({ id: 3, value: 'ccccc' });
-            console.log(this.$data.query);
-            cb(data);
-        },
-        expand(row, expanded) {
-            if (!expanded) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryAllFenkuMaterialsStock(row.materialCode).then(list => {
-                row.fenku = list;
-            });
-        },
-        getUtilizationRatio(row) {
-            return 100;
-        },
-        exportxls() {
-            this.$message("导出EXCEL报表");
+        onCancel() {
+            this.$router.go(-1);
         }
+    },
+    computed: {},
+    created() {},
+    mounted() {
+        let form = this.$data.form;
+        __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
+            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialById',
+            data: { id: this.$data.form.id },
+            dataType: 'jsonp'
+        }).then(resp => {
+            if (resp.code == 200 && resp.value) {
+                let re = /(\d+)(\w)/ig;
+                let v = resp.value;
+                form.materialName = v.materialName;
+                form.materialCode = v.materialCode;
+                form.stockUnit = v.stockUnit;
+                form.searchKey = v.searchKey;
+                form.canSplit = v.canSplit;
+                form.utilizationRatio = v.utilizationRatio;
+                let r = re.exec(v.storageLife);
+                if (r) {
+                    form.storageLifeNum = r[1];
+                    form.storageLifeUnit = r[2];
+                }
+                console.log(form.storageLifeNum);
+            }
+        });
     }
 });
 
 /***/ }),
 
-/***/ 687:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(86)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, ".handle-box[data-v-23f5ab62]{margin-bottom:20px}.handle-select[data-v-23f5ab62]{width:120px}.handle-input[data-v-23f5ab62]{width:300px;display:inline-block}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 709:
+/***/ 706:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "table"
-  }, [_c('div', {
-    staticClass: "handle-box"
-  }, [_c('el-autocomplete', {
-    staticClass: "inline-input",
+  return _c('div', [_c('div', {
+    staticClass: "crumbs"
+  }, [_c('el-breadcrumb', {
     attrs: {
-      "fetch-suggestions": _vm.querySearch,
-      "placeholder": "原料编码",
-      "trigger-on-focus": false
-    },
-    on: {
-      "select": _vm.handleSelect
+      "separator": "/"
+    }
+  }, [_c('el-breadcrumb-item', [_c('i', {
+    staticClass: "el-icon-date"
+  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("原料管理")])], 1)], 1), _vm._v(" "), _c('div', {
+    staticClass: "form-box"
+  }, [_c('el-form', {
+    ref: "form",
+    attrs: {
+      "label-width": "80px"
+    }
+  }, [_c('el-form-item', {
+    attrs: {
+      "label": "原料名称"
+    }
+  }, [_c('el-input', {
+    model: {
+      value: (_vm.form.materialName),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "materialName", $$v)
+      },
+      expression: "form.materialName"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "原料编码"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "disabled": "",
+      "placehoder": "自动生成"
     },
     model: {
-      value: (_vm.query.materialCode),
+      value: (_vm.form.materialCode),
       callback: function($$v) {
-        _vm.$set(_vm.query, "materialCode", $$v)
+        _vm.$set(_vm.form, "materialCode", $$v)
       },
-      expression: "query.materialCode"
+      expression: "form.materialCode"
     }
-  }), _vm._v(" "), _c('el-button', {
+  })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "type": "primary",
-      "icon": "search"
-    },
-    on: {
-      "click": _vm.search
+      "label": "利用率(%)"
     }
-  }, [_vm._v("搜索")])], 1), _vm._v(" "), _c('el-table', {
-    directives: [{
-      name: "loading",
-      rawName: "v-loading",
-      value: (_vm.loadingState),
-      expression: "loadingState"
-    }],
+  }, [_c('el-slider', {
+    attrs: {
+      "min": 50,
+      "max": 100,
+      "show-input": true
+    },
+    model: {
+      value: (_vm.form.utilizationRatio),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "utilizationRatio", $$v)
+      },
+      expression: "form.utilizationRatio"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "保质期"
+    }
+  }, [_c('el-input', {
     staticStyle: {
-      "width": "100%"
+      "width": "160px"
+    },
+    model: {
+      value: (_vm.form.storageLifeNum),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "storageLifeNum", $$v)
+      },
+      expression: "form.storageLifeNum"
+    }
+  }, [_c('el-select', {
+    staticStyle: {
+      "width": "80px"
     },
     attrs: {
-      "data": _vm.data,
-      "border": ""
+      "slot": "append",
+      "placeholder": "请选择"
+    },
+    slot: "append",
+    model: {
+      value: (_vm.form.storageLifeUnit),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "storageLifeUnit", $$v)
+      },
+      expression: "form.storageLifeUnit"
+    }
+  }, [_c('el-option', {
+    attrs: {
+      "label": "小时",
+      "value": "H"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    attrs: {
+      "label": "天",
+      "value": "D"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    attrs: {
+      "label": "月",
+      "value": "M"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    attrs: {
+      "label": "年",
+      "value": "Y"
+    }
+  })], 1)], 1)], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "单位"
+    }
+  }, [_c('el-select', {
+    staticStyle: {
+      "width": "160px"
+    },
+    attrs: {
+      "placeholder": "请选择"
+    },
+    model: {
+      value: (_vm.form.stockUnit),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "stockUnit", $$v)
+      },
+      expression: "form.stockUnit"
+    }
+  }, [_c('el-option', {
+    key: "A",
+    attrs: {
+      "label": "个",
+      "value": "个"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    key: "KG",
+    attrs: {
+      "label": "千克",
+      "value": "千克"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    key: "G",
+    attrs: {
+      "label": "克",
+      "value": "克"
+    }
+  })], 1)], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "是否可拆"
+    }
+  }, [_c('el-switch', {
+    attrs: {
+      "on-text": "是",
+      "off-text": "否",
+      "on-value": "Y",
+      "off-value": "N"
+    },
+    model: {
+      value: (_vm.form.canSplit),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "canSplit", $$v)
+      },
+      expression: "form.canSplit"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "搜索短语"
+    }
+  }, [_c('el-input', {
+    model: {
+      value: (_vm.form.searchKey),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "searchKey", $$v)
+      },
+      expression: "form.searchKey"
+    }
+  })], 1), _vm._v(" "), _c('el-row', [_c('el-col', [_c('el-form-item', [_c('el-button', {
+    attrs: {
+      "type": "primary"
     },
     on: {
-      "expand": _vm.expand
+      "click": _vm.onSubmit
     }
-  }, [_c('el-table-column', {
+  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
     attrs: {
-      "type": "expand"
-    },
-    scopedSlots: _vm._u([{
-      key: "default",
-      fn: function(props) {
-        return [_c('el-table', {
-          attrs: {
-            "data": props.row.fenku,
-            "show-header": "false"
-          }
-        }, [_c('el-table-column', {
-          attrs: {
-            "prop": "warehouseCode",
-            "width": "100"
-          }
-        }), _vm._v(" "), _c('el-table-column', {
-          attrs: {
-            "prop": "warehouseName",
-            "width": "120"
-          }
-        }), _vm._v(" "), _c('el-table-column', {
-          attrs: {
-            "prop": "currStock",
-            "width": "120"
-          }
-        }), _vm._v(" "), _c('el-table-column', {
-          attrs: {
-            "prop": "usedStock",
-            "width": "120"
-          }
-        })], 1)]
-      }
-    }])
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "materialName",
-      "label": "原料名称",
-      "width": "220"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "currStock",
-      "label": "当前库存(总)",
-      "width": "120"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "usedStock",
-      "label": "已使用量(总)",
-      "width": "120"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "label": "利用率(%)",
-      "width": "120",
-      "formatter": _vm.getUtilizationRatio
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "stockUnit",
-      "label": "库存单位",
-      "width": "100"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "modifier",
-      "label": "修改人",
-      "width": ""
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "label": "操作",
-      "fixed": "right",
-      "width": "100"
-    },
-    scopedSlots: _vm._u([{
-      key: "default",
-      fn: function(scope) {
-        return [_c('el-button', {
-          attrs: {
-            "size": "small",
-            "type": "primary"
-          },
-          on: {
-            "click": function($event) {
-              _vm.exportxls(scope.$index, scope.row)
-            }
-          }
-        }, [_vm._v("导出报表")])]
-      }
-    }])
-  })], 1), _vm._v(" "), _c('div', {
-    staticClass: "pagination"
-  }, [_c('el-pagination', {
-    attrs: {
-      "layout": "prev, pager, next",
-      "total": _vm.totalRows,
-      "page-size": _vm.pageSize
+      "type": "primary"
     },
     on: {
-      "current-change": _vm.handleCurrentChange
+      "click": _vm.onCancel
     }
-  })], 1)], 1)
+  }, [_vm._v("取消")])], 1)], 1)], 1)], 1)], 1)])
 },staticRenderFns: []}
-
-/***/ }),
-
-/***/ 729:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(687);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(199)("e24d6b56", content, true);
 
 /***/ })
 

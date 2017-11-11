@@ -1,19 +1,15 @@
-webpackJsonp([20],{
+webpackJsonp([8],{
 
-/***/ 514:
+/***/ 517:
 /***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(737)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(669),
+  __webpack_require__(672),
   /* template */
-  __webpack_require__(719),
+  __webpack_require__(717),
   /* scopeId */
-  "data-v-6d7059c0",
+  null,
   /* cssModules */
   null
 )
@@ -7023,7 +7019,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7036,6 +7032,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12041,14 +12038,155 @@ return jQuery;
 
 /***/ }),
 
-/***/ 669:
+/***/ 641:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(642),
+  /* template */
+  __webpack_require__(643),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 642:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ["excludes", "value", "context"],
+  data() {
+    return {
+      allValues: [],
+      valuesShow: [],
+      selectedCode: ''
+    };
+  },
+  mounted() {
+    this.initData();
+  },
+  watch: {
+    value(nval, oval) {
+      this.initData();
+    }
+  },
+  methods: {
+    setValue() {
+      this.$emit("input", this.$props.context, this.selectedCode);
+    },
+    initData() {
+      let $data = this.$data;
+      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].getAllStoreList().then(value => {
+        $data.allValues = value;
+        $data.selectedCode = this.$props.value;
+      });
+    },
+    enterkey(e) {},
+    filterMethod(input) {
+      let $data = this.$data;
+      setTimeout(() => {
+        $data.valuesShow = $data.allValues.filter(item => {
+          var key = [item.storeCode, item.storeName, item.searchKey].join(',');
+          if (key.indexOf(input) >= 0) {
+            return true;
+          }
+          return false;
+        });
+      }, 10);
+    },
+    visualChange(visible) {
+      if (visible) {
+        this.$data.valuesShow = this.$data.allValues.filter(item => {
+          if (this.excludesMap[item.storeCode]) {
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+  },
+  computed: {
+    excludesMap() {
+      let map = {};
+      this.$props.excludes && this.$props.excludes.forEach(item => {
+        map[item] = 1;
+      });
+      return map;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ 643:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择",
+      "filterable": "",
+      "filter-method": _vm.filterMethod
+    },
+    on: {
+      "change": _vm.setValue,
+      "visible-change": _vm.visualChange
+    },
+    model: {
+      value: (_vm.selectedCode),
+      callback: function($$v) {
+        _vm.selectedCode = $$v
+      },
+      expression: "selectedCode"
+    }
+  }, _vm._l((_vm.valuesShow), function(item) {
+    return _c('el-option', {
+      key: item.storeCode,
+      attrs: {
+        "label": item.storeName,
+        "value": item.storeCode
+      }
+    })
+  }))], 1)
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 644:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
 //
 //
 //
@@ -12070,159 +12208,510 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data: function () {
+  props: ["excludes", "value", "context"],
+  data() {
+    return {
+      allValues: [],
+      valuesShow: [],
+      selectedCode: ''
+    };
+  },
+  mounted() {
+    this.initData();
+  },
+  watch: {
+    value(nval, oval) {
+      this.initData();
+    }
+  },
+  methods: {
+    setValue() {
+      this.$emit("input", this.$props.context, this.selectedCode);
+    },
+    initData() {
+      let $data = this.$data;
+      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].queryAllRecipes().then(value => {
+        $data.allValues = value;
+        $data.selectedCode = this.$props.value;
+      });
+    },
+    enterkey(e) {},
+    filterMethod(input) {
+      let $data = this.$data;
+      setTimeout(() => {
+        $data.valuesShow = $data.allValues.filter(item => {
+          var key = [item.recipesCode, item.recipesName, item.searchKey].join(',');
+          if (key.indexOf(input) >= 0) {
+            return true;
+          }
+          return false;
+        });
+      }, 10);
+    },
+    visualChange(visible) {
+      if (visible) {
+        this.$data.valuesShow = this.$data.allValues.filter(item => {
+          if (this.excludesMap[item.recipesCode]) {
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+  },
+  computed: {
+    excludesMap() {
+      let map = {};
+      this.$props.excludes && this.$props.excludes.forEach(item => {
+        map[item] = 1;
+      });
+      return map;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ 645:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	data() {
+		return {
+			allValues: [],
+			valuesShow: [],
+			selectedCode: ''
+		};
+	},
+	mounted() {
+		let $data = this.$data;
+		__WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].getAllWarehouse().then(value => {
+			$data.allValues = value.values;
+		});
+	},
+	methods: {
+		setValue() {
+			this.$emit("setValue", this.selectedCode);
+		},
+		filterMethod(input) {
+			let $data = this.$data;
+			setTimeout(() => {
+				$data.valuesShow = $data.allValues.filter(item => {
+					var key = item.searchKey;
+					if (!key || key.indexOf(input) >= 0) {
+						return true;
+					}
+					return false;
+				});
+			}, 10);
+		},
+		visualChange(visible) {
+			if (visible) this.$data.valuesShow = this.$data.allValues;
+		}
+	}
+});
+
+/***/ }),
+
+/***/ 646:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(644),
+  /* template */
+  __webpack_require__(648),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 647:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(645),
+  /* template */
+  __webpack_require__(649),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 648:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择",
+      "filterable": "",
+      "filter-method": _vm.filterMethod
+    },
+    on: {
+      "change": _vm.setValue,
+      "visible-change": _vm.visualChange
+    },
+    nativeOn: {
+      "keyup": function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
+        _vm.enterkey($event)
+      }
+    },
+    model: {
+      value: (_vm.selectedCode),
+      callback: function($$v) {
+        _vm.selectedCode = $$v
+      },
+      expression: "selectedCode"
+    }
+  }, _vm._l((_vm.valuesShow), function(item) {
+    return _c('el-option', {
+      key: item.recipesCode,
+      attrs: {
+        "label": item.recipesName,
+        "value": item.recipesCode
+      }
+    })
+  }))], 1)
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 649:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择"
+    },
+    on: {
+      "change": _vm.setValue,
+      "visible-change": _vm.visualChange
+    },
+    model: {
+      value: (_vm.selectedCode),
+      callback: function($$v) {
+        _vm.selectedCode = $$v
+      },
+      expression: "selectedCode"
+    }
+  }, _vm._l((_vm.allValues), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
+      attrs: {
+        "label": item.warehouseName,
+        "value": item.warehouseCode
+      }
+    })
+  }))], 1)
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 650:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ["excludes", "value", "context"],
+  data() {
+    return {
+      allValues: [],
+      valuesShow: [],
+      selectedCode: ''
+    };
+  },
+  mounted() {
+    this.initData();
+  },
+  watch: {
+    value(nval, oval) {
+      this.initData();
+    }
+  },
+  methods: {
+    setValue() {
+      this.$emit("input", this.$props.context, this.selectedCode);
+    },
+    initData() {
+      let $data = this.$data;
+      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].queryAllMaterials().then(value => {
+        $data.allValues = value.values;
+        $data.selectedCode = this.$props.value;
+      });
+    },
+    enterkey(e) {
+      console.log(e);
+    },
+    filterMethod(input) {
+      let $data = this.$data;
+      setTimeout(() => {
+        $data.valuesShow = $data.allValues.filter(item => {
+          var key = [item.materialCode, item.materialName, item.searchKey].join(',');
+          if (key.indexOf(input) >= 0) {
+            return true;
+          }
+          return false;
+        });
+      }, 10);
+    },
+    visualChange(visible) {
+      if (visible) {
+        this.$data.valuesShow = this.$data.allValues.filter(item => {
+          if (this.excludesMap[item.materialCode]) {
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+  },
+  computed: {
+    excludesMap() {
+      let map = {};
+      this.$props.excludes && this.$props.excludes.forEach(item => {
+        map[item] = 1;
+      });
+      return map;
+    }
+  }
+});
+
+/***/ }),
+
+/***/ 655:
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(198)(
+  /* script */
+  __webpack_require__(650),
+  /* template */
+  __webpack_require__(656),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 656:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择",
+      "filterable": "",
+      "filter-method": _vm.filterMethod
+    },
+    on: {
+      "change": _vm.setValue,
+      "visible-change": _vm.visualChange
+    },
+    nativeOn: {
+      "keyup": function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
+        _vm.enterkey($event)
+      }
+    },
+    model: {
+      value: (_vm.selectedCode),
+      callback: function($$v) {
+        _vm.selectedCode = $$v
+      },
+      expression: "selectedCode"
+    }
+  }, _vm._l((_vm.valuesShow), function(item) {
+    return _c('el-option', {
+      key: item.materialCode,
+      attrs: {
+        "label": item.materialName + '-' + item.materialCode,
+        "value": item.materialCode
+      }
+    })
+  }))], 1)
+},staticRenderFns: []}
+
+/***/ }),
+
+/***/ 672:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_StoreSelection__ = __webpack_require__(641);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_StoreSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_StoreSelection__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection__ = __webpack_require__(655);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection__ = __webpack_require__(646);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection__ = __webpack_require__(647);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data() {
         return {
-            ruleForm: {
-                username: '',
-                password: ''
-            },
-            rules: {
-                username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
-            },
-            tips: '输入用户名和密码'
+            msg: 'ASSDDSDS vcvcvc',
+            excludes: ["aaaa", "bbbb", "ccccc"]
         };
     },
-    methods: {
-        submitForm(formName) {
-            const self = this;
-            self.$refs[formName].validate(valid => {
-                if (valid) {
-                    self.$data.tips = "登录中.....";
-                    var data = {
-                        userCode: self.$data.ruleForm.username,
-                        password: self.$data.ruleForm.password
-                    };
-                    __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].signin(data).then(resp => {
-                        if (resp.code != 200) {
-                            self.$data.tips = resp.message;
-                        } else {
-                            self.$data.tips = "登录成功";
-                            var userinfo = resp.value;
-                            localStorage.setItem('ms_username', userinfo.userName);
-                            self.$router.push('/home');
-                        }
-                    }).fail(resp => {
-                        console.log(resp);
-                    });
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-        }
+    components: {
+        StoreSelection: __WEBPACK_IMPORTED_MODULE_0__common_StoreSelection___default.a,
+        MaterialSelection: __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection___default.a,
+        RecipesSelection: __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection___default.a,
+        WarehouseSelection: __WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection___default.a
     },
-    mounted() {
-        //console.log(process.env)
-        //console.log(this)
+    methods: {
+        setValue(code) {
+            this.$data.excludes.push(code);
+        }
     }
 });
 
 /***/ }),
 
-/***/ 695:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(86)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, ".login-wrap[data-v-6d7059c0]{position:relative;width:100%;height:100%}.ms-title[data-v-6d7059c0]{position:absolute;top:50%;width:100%;margin-top:-230px;text-align:center;font-size:30px;color:#fff}.ms-login[data-v-6d7059c0]{position:absolute;left:50%;top:50%;width:300px;height:160px;margin:-150px 0 0 -190px;padding:40px;border-radius:5px;background:#fff}.login-btn[data-v-6d7059c0]{text-align:center}.login-btn button[data-v-6d7059c0]{width:100%;height:36px}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 719:
+/***/ 717:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "login-wrap"
-  }, [_c('div', {
-    staticClass: "ms-title"
-  }, [_vm._v("后台管理系统")]), _vm._v(" "), _c('div', {
-    staticClass: "ms-login"
-  }, [_c('el-form', {
-    ref: "ruleForm",
-    staticClass: "demo-ruleForm",
+  return _c('div', [_c('MaterialSelection', {
     attrs: {
-      "model": _vm.ruleForm,
-      "rules": _vm.rules,
-      "label-width": "0px"
-    }
-  }, [_c('el-form-item', {
-    attrs: {
-      "prop": "username"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "username"
-    },
-    model: {
-      value: (_vm.ruleForm.username),
-      callback: function($$v) {
-        _vm.$set(_vm.ruleForm, "username", $$v)
-      },
-      expression: "ruleForm.username"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "prop": "password"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "type": "password",
-      "placeholder": "password"
-    },
-    nativeOn: {
-      "keyup": function($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
-        _vm.submitForm('ruleForm')
-      }
-    },
-    model: {
-      value: (_vm.ruleForm.password),
-      callback: function($$v) {
-        _vm.$set(_vm.ruleForm, "password", $$v)
-      },
-      expression: "ruleForm.password"
-    }
-  })], 1), _vm._v(" "), _c('div', {
-    staticClass: "login-btn"
-  }, [_c('el-button', {
-    attrs: {
-      "type": "primary"
+      "excludes": _vm.excludes,
+      "initValue": "M00003"
     },
     on: {
-      "click": function($event) {
-        _vm.submitForm('ruleForm')
-      }
+      "setValue": _vm.setValue
     }
-  }, [_vm._v("登录")])], 1), _vm._v(" "), _c('p', {
-    staticStyle: {
-      "font-size": "12px",
-      "line-height": "30px",
-      "color": "#999"
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes,
+      "initValue": "M00003"
+    },
+    on: {
+      "setValue": _vm.setValue
     }
-  }, [_vm._v("Tips : " + _vm._s(_vm.tips))])], 1)], 1)])
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  }), _vm._v(" "), _c('MaterialSelection', {
+    attrs: {
+      "excludes": _vm.excludes
+    },
+    on: {
+      "setValue": _vm.setValue
+    }
+  })], 1)
 },staticRenderFns: []}
-
-/***/ }),
-
-/***/ 737:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(695);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(199)("2ed0e602", content, true);
 
 /***/ })
 

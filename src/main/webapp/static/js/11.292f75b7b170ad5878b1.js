@@ -1,4 +1,4 @@
-webpackJsonp([5,11],{
+webpackJsonp([11],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
@@ -14,29 +14,6 @@ var Component = __webpack_require__(198)(
   __webpack_require__(639),
   /* scopeId */
   "data-v-38481101",
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 519:
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(733)
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(674),
-  /* template */
-  __webpack_require__(714),
-  /* scopeId */
-  "data-v-48e8fabe",
   /* cssModules */
   null
 )
@@ -7046,7 +7023,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7059,6 +7036,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12064,108 +12042,6 @@ return jQuery;
 
 /***/ }),
 
-/***/ 631:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(561);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bus__ = __webpack_require__(591);
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	server: __WEBPACK_IMPORTED_MODULE_1__bus__["b" /* config */].server,
-	getAllStore: function (cb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/store/getAllStore",
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		});
-	},
-	queryMaterialsStockById: function (stockId, cb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/busi/queryMaterialsStockById",
-			data: { 'id': stockId },
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		});
-	},
-	getWarehouse: function (param, cb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/warehouse/queryWarehouses",
-			data: param,
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		});
-	},
-	getWarehouseByCode: function (code, cb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/warehouse/queryWarehouses",
-			data: { warehouseCode: code },
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		});
-	},
-	login: function (data, cb, fcb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/user/login",
-			data: data,
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		}).fail(resp => {
-			fcb && fcb(resp);
-		});
-	},
-	queryUsers: function (userDO, cb, fcb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/user/queryUsers",
-			data: userDO,
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		}).fail(resp => {
-			fcb && fcb(resp);
-		});
-	},
-	search: function (param, cb) {
-		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-			url: this.server + "/s/w",
-			data: param,
-			dataType: 'jsonp'
-		}).then(resp => {
-			cb && cb(resp);
-		});
-	}
-});
-
-/***/ }),
-
-/***/ 632:
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(631),
-  /* template */
-  null,
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
 /***/ 633:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12326,7 +12202,7 @@ function load() {
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
   if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = __webpack_require__.i({"NODE_ENV":"production","REMOTE_SERVER":"http://47.104.25.105:80/xiaojuhao/"}).DEBUG;
+    r = __webpack_require__.i({"NODE_ENV":"production","REMOTE_SERVER":"http://114.67.230.153/xiaojuhao/"}).DEBUG;
   }
 
   return r;
@@ -13076,315 +12952,6 @@ if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var update = __webpack_require__(199)("0479b6cf", content, true);
-
-/***/ }),
-
-/***/ 674:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus_js__ = __webpack_require__(591);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue__ = __webpack_require__(632);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_config_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__OutStock_vue__ = __webpack_require__(506);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__OutStock_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__OutStock_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery__ = __webpack_require__(561);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_jquery__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
-        return {
-            url: './static/vuetable.json',
-            tableData: [],
-            pageNo: 1,
-            pageSize: 5,
-            totalRows: 0,
-            loadingState: false,
-            queryCond: {
-                materialCode: ''
-            },
-            queryList: []
-        };
-    },
-    created() {},
-    mounted() {
-        this.queryData();
-    },
-    activated() {},
-    computed: {},
-    methods: {
-        handleCurrentChange(val) {
-            this.pageNo = val;
-            this.queryData();
-        },
-        queryData() {
-            let self = this;
-            self.$data.loadingState = true;
-            __WEBPACK_IMPORTED_MODULE_0__common_bus_js__["a" /* api */].queryRecipesPage({
-                recipesCode: ''
-            }).then(page => {
-                self.$data.totalRows = page.totalRows;
-                Object.keys(page.values).forEach(index => {
-                    let item = page.values[index];
-                    item.formulas = '';
-                    self.$data.queryList.push(item);
-                });
-            }).done(() => {
-                self.$data.loadingState = false;
-            });
-        },
-        search() {
-            this.queryList = [];
-            this.queryData();
-        },
-        handleSelectionChange(val) {
-            this.multipleSelection = val;
-        },
-        handleSelect(item) {
-            this.$data.query.name = item.value;
-        },
-        querySearch(queryString, cb) {
-            var data = [];
-            data.push({ id: 1, value: 'aaaaa' });
-            data.push({ id: 2, value: 'bbbbb' });
-            data.push({ id: 3, value: 'ccccc' });
-            console.log(this.$data.query);
-            cb(data);
-        },
-        edit(index, item) {
-            this.$router.push({ path: "/recipesManagePage", query: { code: item && item.recipesCode } });
-        },
-        expand(row, expanded) {
-            if (expanded) {
-                __WEBPACK_IMPORTED_MODULE_0__common_bus_js__["a" /* api */].queryRecipesFormula(row.recipesCode).then(values => {
-                    row.formulas = values;
-                });
-            }
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 691:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(86)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, ".handle-box[data-v-48e8fabe]{margin-bottom:20px}.handle-select[data-v-48e8fabe]{width:120px}.handle-input[data-v-48e8fabe]{width:300px;display:inline-block}.el-row[data-v-48e8fabe]{margin-bottom:4px;&:last-child{margin-bottom:0}}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 714:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "table"
-  }, [_c('div', {
-    staticClass: "handle-box"
-  }, [_c('el-autocomplete', {
-    staticClass: "inline-input",
-    attrs: {
-      "fetch-suggestions": _vm.querySearch,
-      "placeholder": "菜品编码",
-      "trigger-on-focus": false
-    },
-    on: {
-      "select": _vm.handleSelect
-    },
-    model: {
-      value: (_vm.queryCond.materialCode),
-      callback: function($$v) {
-        _vm.$set(_vm.queryCond, "materialCode", $$v)
-      },
-      expression: "queryCond.materialCode"
-    }
-  }), _vm._v(" "), _c('el-button', {
-    attrs: {
-      "type": "primary",
-      "icon": "search"
-    },
-    on: {
-      "click": _vm.search
-    }
-  }, [_vm._v("搜索")]), _vm._v(" "), _c('div', {
-    staticStyle: {
-      "position": "relative",
-      "float": "right"
-    }
-  }, [_c('el-button', {
-    attrs: {
-      "round": ""
-    },
-    on: {
-      "click": function($event) {
-        _vm.edit()
-      }
-    }
-  }, [_vm._v("增加菜品")])], 1)], 1), _vm._v(" "), _c('el-table', {
-    directives: [{
-      name: "loading",
-      rawName: "v-loading",
-      value: (_vm.loadingState),
-      expression: "loadingState"
-    }],
-    staticStyle: {
-      "width": "100%"
-    },
-    attrs: {
-      "data": _vm.queryList,
-      "border": "",
-      "element-loading-text": "拼命加载中",
-      "element-loading-spinner": "el-icon-loading",
-      "element-loading-background": "rgb(0, 0, 0, 0.8)"
-    },
-    on: {
-      "expand": _vm.expand
-    }
-  }, [_c('el-table-column', {
-    attrs: {
-      "type": "expand"
-    },
-    scopedSlots: _vm._u([{
-      key: "default",
-      fn: function(props) {
-        return _vm._l((props.row.formulas), function(item) {
-          return _c('el-row', [_c('el-col', {
-            attrs: {
-              "span": 3
-            }
-          }, [_vm._v(_vm._s(item.materialName))]), _vm._v(" "), _c('el-col', {
-            attrs: {
-              "span": 1
-            }
-          }, [_vm._v(_vm._s(item.materialAmt))]), _vm._v(" "), _c('el-col', {
-            attrs: {
-              "span": 1
-            }
-          }, [_vm._v(_vm._s(item.materialUnit))])], 1)
-        })
-      }
-    }])
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "recipesCode",
-      "label": "菜品编码",
-      "width": "120"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "recipesName",
-      "label": "菜品名称",
-      "width": ""
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "label": "操作",
-      "width": "120"
-    },
-    scopedSlots: _vm._u([{
-      key: "default",
-      fn: function(scope) {
-        return [_c('el-button', {
-          attrs: {
-            "size": "small",
-            "type": "primary"
-          },
-          on: {
-            "click": function($event) {
-              _vm.edit(scope.$index, scope.row)
-            }
-          }
-        }, [_vm._v("编辑")])]
-      }
-    }])
-  })], 1), _vm._v(" "), _c('div', {
-    staticClass: "pagination"
-  }, [_c('el-pagination', {
-    attrs: {
-      "layout": "prev, pager, next",
-      "total": _vm.totalRows,
-      "page-size": _vm.pageSize
-    },
-    on: {
-      "current-change": _vm.handleCurrentChange
-    }
-  })], 1)], 1)
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 733:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(691);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(199)("43c1387e", content, true);
 
 /***/ })
 

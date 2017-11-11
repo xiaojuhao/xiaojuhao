@@ -1,4 +1,4 @@
-webpackJsonp([7,11],{
+webpackJsonp([4,11],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
@@ -23,20 +23,20 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 515:
+/***/ 522:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(738)
+__webpack_require__(739)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(670),
+  __webpack_require__(677),
   /* template */
-  __webpack_require__(721),
+  __webpack_require__(722),
   /* scopeId */
-  "data-v-7cc52745",
+  "data-v-881b0d2e",
   /* cssModules */
   null
 )
@@ -7046,7 +7046,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7059,6 +7059,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12326,7 +12327,7 @@ function load() {
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
   if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = __webpack_require__.i({"NODE_ENV":"production","REMOTE_SERVER":"http://47.104.25.105:80/xiaojuhao/"}).DEBUG;
+    r = __webpack_require__.i({"NODE_ENV":"production","REMOTE_SERVER":"http://114.67.230.153/xiaojuhao/"}).DEBUG;
   }
 
   return r;
@@ -13079,7 +13080,7 @@ var update = __webpack_require__(199)("0479b6cf", content, true);
 
 /***/ }),
 
-/***/ 670:
+/***/ 677:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13123,19 +13124,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -13145,85 +13133,93 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             url: './static/vuetable.json',
             tableData: [],
-            pageNo: 1,
+            cur_page: 1,
             pageSize: 5,
             totalRows: 0,
+            multipleSelection: [],
+            select_cate: '',
+            select_word: '',
             loadingState: false,
-            queryCond: {
-                materialCode: ''
+            del_list: [],
+            is_search: false,
+            query: {
+                materialCode: '',
+                stockType: '',
+                storeCode: ''
             },
-            queryList: []
+            storeSelection: [],
+            showOutStock: false
         };
     },
-    created() {},
-    mounted() {
-        this.queryData();
+    created() {
+        console.log('created......');
     },
-    activated() {},
+    mounted() {
+        this.getData();
+        var $this = this;
+        __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
+            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/store/getAllStore",
+            dataType: 'jsonp'
+        }).then(resp => {
+            console.log(resp);
+            $this.storeSelection = resp.value.values;
+        });
+    },
+    activated() {
+        console.log("activated......");
+    },
     computed: {
-        canshow() {
-            return true;
+        data() {
+            const self = this;
+            return self.tableData.filter(function (d) {
+                return d;
+            });
         }
     },
     methods: {
         handleCurrentChange(val) {
-            this.pageNo = val;
-            this.queryData();
+            this.cur_page = val;
+            this.getData();
         },
-        formatStorageLife(row) {
-            let re = /(\d+)(\w)/ig;
-            let r = re.exec(row.storageLife);
-            let ret = "";
-            if (r) {
-                ret = r[1];
-                switch (r[2]) {
-                    case "D":
-                        ret = ret + "天";break;
-                    case "H":
-                        ret = ret + "小时";break;
-                    case "Y":
-                        ret = ret + "年";break;
-                    case "M":
-                        ret = ret + "月";break;
-                }
-            }
-            return ret;
-        },
-        queryData() {
+        getData() {
             let self = this;
-            self.$data.loadingState = true;
-            __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterials',
-                data: {
-                    pageSize: self.$data.pageSize,
-                    pageNo: self.$data.pageNo,
-                    materialCode: self.$data.materialCode
-                },
-                dataType: 'jsonp'
-            }).then(function (resp) {
-                if (resp.code != 200) {
-                    self.$message.error(resp.message);
-                    return;
-                }
-                var value = resp.value;
-                if (!value) {
-                    self.$message.error("服务端没有返回数据");
-                    return;
-                }
-                self.queryList = value.values;
-                self.totalRows = value.totalRows;
-            }).fail(function (resp) {
-                self.$message.error("请求出错");
-            }).done(function (resp) {
-                // self.$notify({
-                //     title:'请求数据',message:'请求完成',duration:1000,position: 'bottom-right'
-                // });
-                self.$data.loadingState = false;
+            __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.queryUsers(null, resp => {
+                console.log(resp);
+                self.tableData = resp.value.values;
             });
         },
         search() {
-            this.queryList = [];
-            this.queryData();
+            this.tableData = [];
+            this.getData();
+        },
+        formatStockType(row, column) {
+            return row.stockType == 1 ? "总库" : "分库";
+        },
+        filterTag(value, row) {
+            return row.tag === value;
+        },
+        update(index, item) {
+            this.$message.error('修改功能尚未实现');
+        },
+        resetpassword(index, item) {
+            this.$message.error('重置密码功能尚未实现');
+        },
+        handleEdit(index, row) {
+            this.$message('编辑第' + (index + 1) + '行');
+        },
+        handleDelete(index, row) {
+            this.$message.error('删除第' + (index + 1) + '行');
+        },
+        delAll() {
+            const self = this,
+                  length = self.multipleSelection.length;
+            let str = '';
+            self.del_list = self.del_list.concat(self.multipleSelection);
+            for (let i = 0; i < length; i++) {
+                str += self.multipleSelection[i].name + ' ';
+            }
+            self.$message.error('删除了' + str);
+            self.multipleSelection = [];
         },
         handleSelectionChange(val) {
             this.multipleSelection = val;
@@ -13238,16 +13234,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             data.push({ id: 3, value: 'ccccc' });
             console.log(this.$data.query);
             cb(data);
-        },
-        edit(index, item) {
-            this.$router.push({ path: "/materialManagePage", query: { mid: item && item.id } });
         }
     }
 });
 
 /***/ }),
 
-/***/ 696:
+/***/ 697:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(86)(undefined);
@@ -13255,61 +13248,20 @@ exports = module.exports = __webpack_require__(86)(undefined);
 
 
 // module
-exports.push([module.i, ".handle-box[data-v-7cc52745]{margin-bottom:20px}.handle-select[data-v-7cc52745]{width:120px}.handle-input[data-v-7cc52745]{width:300px;display:inline-block}", ""]);
+exports.push([module.i, ".handle-box[data-v-881b0d2e]{margin-bottom:20px}.handle-select[data-v-881b0d2e]{width:120px}.handle-input[data-v-881b0d2e]{width:300px;display:inline-block}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 721:
+/***/ 722:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "table"
-  }, [_c('div', {
-    staticClass: "handle-box"
-  }, [_c('el-autocomplete', {
-    staticClass: "inline-input",
-    attrs: {
-      "fetch-suggestions": _vm.querySearch,
-      "placeholder": "原料编码",
-      "trigger-on-focus": false
-    },
-    on: {
-      "select": _vm.handleSelect
-    },
-    model: {
-      value: (_vm.queryCond.materialCode),
-      callback: function($$v) {
-        _vm.$set(_vm.queryCond, "materialCode", $$v)
-      },
-      expression: "queryCond.materialCode"
-    }
-  }), _vm._v(" "), _c('el-button', {
-    attrs: {
-      "type": "primary",
-      "icon": "search"
-    },
-    on: {
-      "click": _vm.search
-    }
-  }, [_vm._v("搜索")]), _vm._v(" "), _c('div', {
-    staticStyle: {
-      "position": "relative",
-      "float": "right"
-    }
-  }, [_c('el-button', {
-    attrs: {
-      "round": ""
-    },
-    on: {
-      "click": function($event) {
-        _vm.edit()
-      }
-    }
-  }, [_vm._v("增加原料")])], 1)], 1), _vm._v(" "), _c('el-table', {
+  }, [_c('el-table', {
     directives: [{
       name: "loading",
       rawName: "v-loading",
@@ -13320,7 +13272,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "width": "100%"
     },
     attrs: {
-      "data": _vm.queryList,
+      "data": _vm.data,
       "border": "",
       "element-loading-text": "拼命加载中",
       "element-loading-spinner": "el-icon-loading",
@@ -13328,46 +13280,29 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-table-column', {
     attrs: {
-      "prop": "materialCode",
-      "label": "原料编码",
-      "width": "150"
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "materialName",
-      "label": "原料名称",
-      "width": "200"
-    }
-  }), _vm._v(" "), (_vm.canshow) ? _c('el-table-column', {
-    attrs: {
-      "prop": "utilizationRatio",
-      "label": "利用率(%)",
-      "width": "120"
-    }
-  }) : _vm._e(), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "storageLife",
-      "label": "保质期",
-      "width": "120",
-      "formatter": _vm.formatStorageLife
-    }
-  }), _vm._v(" "), _c('el-table-column', {
-    attrs: {
-      "prop": "stockUnit",
-      "label": "库存单位",
+      "prop": "userCode",
+      "label": "用户编码",
       "width": "120"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
-      "prop": "canSplit",
-      "label": "是否可拆",
-      "width": "120"
+      "prop": "userName",
+      "label": "用户名称"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "userRole",
+      "label": "角色"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "status",
+      "label": "用户状态"
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
       "label": "操作",
-      "fixed": "right",
-      "width": "100"
+      "width": "250"
     },
     scopedSlots: _vm._u([{
       key: "default",
@@ -13379,10 +13314,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           },
           on: {
             "click": function($event) {
-              _vm.edit(scope.$index, scope.row)
+              _vm.update(scope.$index, scope.row)
             }
           }
-        }, [_vm._v("编辑")])]
+        }, [_vm._v("修改")]), _vm._v(" "), _c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.resetpassword(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("重置密码")])]
       }
     }])
   })], 1), _vm._v(" "), _c('div', {
@@ -13401,17 +13346,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
 /***/ }),
 
-/***/ 738:
+/***/ 739:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(696);
+var content = __webpack_require__(697);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("fde64e5e", content, true);
+var update = __webpack_require__(199)("4ce11ef9", content, true);
 
 /***/ })
 

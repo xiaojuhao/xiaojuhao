@@ -1,19 +1,15 @@
-webpackJsonp([10],{
+webpackJsonp([22],{
 
-/***/ 508:
+/***/ 526:
 /***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(659)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(652),
+  __webpack_require__(681),
   /* template */
-  __webpack_require__(657),
+  __webpack_require__(708),
   /* scopeId */
-  "data-v-67028873",
+  null,
   /* cssModules */
   null
 )
@@ -7023,7 +7019,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 const config = {
 	//server:'http://47.104.25.105:80/xiaojuhao/'
 	//server:'http://localhost:8080/'
-	server: "http://47.104.25.105:80/xiaojuhao/"
+	server: "http://114.67.230.153/xiaojuhao/"
 };
 const http = {
 	jsonp(uri, data) {
@@ -7036,6 +7032,7 @@ const http = {
 		return df;
 	},
 	jsonp2(uri, data) {
+		console.log(window.location);
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
 			url: config.server + uri,
@@ -12041,14 +12038,97 @@ return jQuery;
 
 /***/ }),
 
-/***/ 641:
+/***/ 631:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(561);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bus__ = __webpack_require__(591);
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	server: __WEBPACK_IMPORTED_MODULE_1__bus__["b" /* config */].server,
+	getAllStore: function (cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/store/getAllStore",
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	queryMaterialsStockById: function (stockId, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/busi/queryMaterialsStockById",
+			data: { 'id': stockId },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouse: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	getWarehouseByCode: function (code, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/warehouse/queryWarehouses",
+			data: { warehouseCode: code },
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	},
+	login: function (data, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/login",
+			data: data,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	queryUsers: function (userDO, cb, fcb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/user/queryUsers",
+			data: userDO,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		}).fail(resp => {
+			fcb && fcb(resp);
+		});
+	},
+	search: function (param, cb) {
+		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+			url: this.server + "/s/w",
+			data: param,
+			dataType: 'jsonp'
+		}).then(resp => {
+			cb && cb(resp);
+		});
+	}
+});
+
+/***/ }),
+
+/***/ 632:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(642),
+  __webpack_require__(631),
   /* template */
-  __webpack_require__(643),
+  null,
   /* scopeId */
   null,
   /* cssModules */
@@ -12060,290 +12140,17 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 642:
+/***/ 681:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(561);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue__ = __webpack_require__(632);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_config_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_bus__ = __webpack_require__(591);
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["excludes", "value", "context"],
-  data() {
-    return {
-      allValues: [],
-      valuesShow: [],
-      selectedCode: ''
-    };
-  },
-  mounted() {
-    this.initData();
-  },
-  watch: {
-    value(nval, oval) {
-      this.initData();
-    }
-  },
-  methods: {
-    setValue() {
-      this.$emit("input", this.$props.context, this.selectedCode);
-    },
-    initData() {
-      let $data = this.$data;
-      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].getAllStoreList().then(value => {
-        $data.allValues = value;
-        $data.selectedCode = this.$props.value;
-      });
-    },
-    enterkey(e) {},
-    filterMethod(input) {
-      let $data = this.$data;
-      setTimeout(() => {
-        $data.valuesShow = $data.allValues.filter(item => {
-          var key = [item.storeCode, item.storeName, item.searchKey].join(',');
-          if (key.indexOf(input) >= 0) {
-            return true;
-          }
-          return false;
-        });
-      }, 10);
-    },
-    visualChange(visible) {
-      if (visible) {
-        this.$data.valuesShow = this.$data.allValues.filter(item => {
-          if (this.excludesMap[item.storeCode]) {
-            return false;
-          }
-          return true;
-        });
-      }
-    }
-  },
-  computed: {
-    excludesMap() {
-      let map = {};
-      this.$props.excludes && this.$props.excludes.forEach(item => {
-        map[item] = 1;
-      });
-      return map;
-    }
-  }
-});
-
-/***/ }),
-
-/***/ 643:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('el-select', {
-    attrs: {
-      "placeholder": "请选择",
-      "filterable": "",
-      "filter-method": _vm.filterMethod
-    },
-    on: {
-      "change": _vm.setValue,
-      "visible-change": _vm.visualChange
-    },
-    model: {
-      value: (_vm.selectedCode),
-      callback: function($$v) {
-        _vm.selectedCode = $$v
-      },
-      expression: "selectedCode"
-    }
-  }, _vm._l((_vm.valuesShow), function(item) {
-    return _c('el-option', {
-      key: item.storeCode,
-      attrs: {
-        "label": item.storeName,
-        "value": item.storeCode
-      }
-    })
-  }))], 1)
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 644:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(591);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["excludes", "value", "context"],
-  data() {
-    return {
-      allValues: [],
-      valuesShow: [],
-      selectedCode: ''
-    };
-  },
-  mounted() {
-    this.initData();
-  },
-  watch: {
-    value(nval, oval) {
-      this.initData();
-    }
-  },
-  methods: {
-    setValue() {
-      this.$emit("input", this.$props.context, this.selectedCode);
-    },
-    initData() {
-      let $data = this.$data;
-      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].queryAllRecipes().then(value => {
-        $data.allValues = value;
-        $data.selectedCode = this.$props.value;
-      });
-    },
-    enterkey(e) {},
-    filterMethod(input) {
-      let $data = this.$data;
-      setTimeout(() => {
-        $data.valuesShow = $data.allValues.filter(item => {
-          var key = [item.recipesCode, item.recipesName, item.searchKey].join(',');
-          if (key.indexOf(input) >= 0) {
-            return true;
-          }
-          return false;
-        });
-      }, 10);
-    },
-    visualChange(visible) {
-      if (visible) {
-        this.$data.valuesShow = this.$data.allValues.filter(item => {
-          if (this.excludesMap[item.recipesCode]) {
-            return false;
-          }
-          return true;
-        });
-      }
-    }
-  },
-  computed: {
-    excludesMap() {
-      let map = {};
-      this.$props.excludes && this.$props.excludes.forEach(item => {
-        map[item] = 1;
-      });
-      return map;
-    }
-  }
-});
-
-/***/ }),
-
-/***/ 646:
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(644),
-  /* template */
-  __webpack_require__(648),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 648:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('el-select', {
-    attrs: {
-      "placeholder": "请选择",
-      "filterable": "",
-      "filter-method": _vm.filterMethod
-    },
-    on: {
-      "change": _vm.setValue,
-      "visible-change": _vm.visualChange
-    },
-    nativeOn: {
-      "keyup": function($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
-        _vm.enterkey($event)
-      }
-    },
-    model: {
-      value: (_vm.selectedCode),
-      callback: function($$v) {
-        _vm.selectedCode = $$v
-      },
-      expression: "selectedCode"
-    }
-  }, _vm._l((_vm.valuesShow), function(item) {
-    return _c('el-option', {
-      key: item.recipesCode,
-      attrs: {
-        "label": item.recipesName,
-        "value": item.recipesCode
-      }
-    })
-  }))], 1)
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 652:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(591);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_StoreSelection__ = __webpack_require__(641);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_StoreSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_StoreSelection__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection__ = __webpack_require__(646);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection__);
 //
 //
 //
@@ -12393,96 +12200,78 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    data() {
+    data: function () {
         return {
-            storeCode: '',
-            recipesList: [],
-            allRecipes: []
+            form: {
+                id: '',
+                storeCode: this.$route.query.storeCode,
+                storeName: '',
+                storeAddr: '',
+                storeManager: '',
+                managerPhone: '',
+                managerEmail: '',
+                defaultWarehouse: ''
+            },
+            warehouseSelection: []
+
         };
     },
     methods: {
+        onSubmit() {
+            var $data = this.$data;
+            //this.$message.success('提交成功！');
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+                url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/saveStore",
+                data: this.$data.form,
+                dataType: 'jsonp'
+            }).then(resp => {
+                this.$message("新增成功");
+                this.$router.go(-1);
+            });
+        },
         onCancel() {
             this.$router.go(-1);
-        },
-        onSubmit() {
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["c" /* http */].jsonp2("/busi/outstockByRecipes", {
-                storeCode: this.$data.storeCode,
-                recipesJson: JSON.stringify(this.$data.recipesList)
-            }).then(value => {
-                this.$message("提交成功");
-            }).fail(resp => {
-                this.$message.error(resp.message);
-            });
-        },
-        addRows() {
-            this.$data.recipesList.push({
-                recipesCode: '',
-                recipesName: '',
-                amt: 0
-            });
-        },
-        removeRows(index) {
-            this.$data.recipesList.splice(index, 1);
-        },
-        addNewRecipes(ctx, recipesCode) {
-            let item = this.recipesMap[recipesCode];
-            if (!item) return;
-            Object.keys(item).forEach(key => ctx[key] = item[key]);
-        },
-        selectStore(ctx, val) {
-            this.$data.storeCode = val;
         }
     },
     mounted() {
-        let self = this;
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryAllRecipes().then(values => {
-            self.$data.allRecipes = values;
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
+            url: __WEBPACK_IMPORTED_MODULE_1__common_config_vue___default.a.server + "/store/getStoreByCode",
+            data: { storeCode: this.$data.form.storeCode },
+            dataType: 'jsonp'
+        }).then(resp => {
+            if (resp && resp.value) {
+                var v = resp.value;
+                this.$data.form.id = v.id;
+                this.$data.form.storeCode = v.storeCode;
+                this.$data.form.storeName = v.storeName;
+                this.$data.form.storeAddr = v.storeAddr;
+                this.$data.form.storeManager = v.storeManager;
+                this.$data.form.managerPhone = v.managerPhone;
+                this.$data.form.managerEmail = v.managerEmail;
+                this.$data.form.defaultWarehouse = v.defaultWarehouse;
+            }
         });
-    },
-    computed: {
-        recipesMap() {
-            let map = {};
-            this.$data.allRecipes.forEach(item => {
-                map[item.recipesCode] = item;
-            });
-            return map;
-        },
-        addedRecipesCode() {
-            let ll = [];
-            Object.keys(this.$data.recipesList).forEach(i => {
-                ll.push(this.$data.recipesList[i].recipesCode);
-            });
-            return ll;
-        }
-    },
-    components: {
-        StoreSelection: __WEBPACK_IMPORTED_MODULE_1__common_StoreSelection___default.a,
-        RecipesSelection: __WEBPACK_IMPORTED_MODULE_2__common_RecipesSelection___default.a
+        __WEBPACK_IMPORTED_MODULE_2__common_bus__["a" /* api */].getAllWarehouse().then(val => {
+            this.$data.warehouseSelection = val.values;
+        });
     }
 });
 
 /***/ }),
 
-/***/ 653:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(86)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, ".form-box[data-v-67028873]{margin-top:20px}.border-table[data-v-67028873]{border-collapse:collapse;border:none}.border-table td[data-v-67028873],.border-table th[data-v-67028873]{border:1px solid #000}.el-input[data-v-67028873]{width:150px}.el-row[data-v-67028873]{margin-bottom:5px;&:last-child{margin-bottom:0}}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 657:
+/***/ 708:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', [_c('div', {
+    staticClass: "crumbs"
+  }, [_c('el-breadcrumb', {
+    attrs: {
+      "separator": "/"
+    }
+  }, [_c('el-breadcrumb-item', [_c('i', {
+    staticClass: "el-icon-date"
+  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("门店管理")])], 1)], 1), _vm._v(" "), _c('div', {
     staticClass: "form-box"
   }, [_c('el-form', {
     ref: "form",
@@ -12491,82 +12280,103 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('el-form-item', {
     attrs: {
-      "label": "门店"
+      "label": "门店名称"
     }
-  }, [_c('el-row', [_c('el-col', {
+  }, [_c('el-input', {
     attrs: {
-      "span": 12
-    }
-  }, [_c('StoreSelection', {
-    attrs: {
-      "value": _vm.storeCode
+      "placeholder": "门店名称"
     },
-    on: {
-      "input": _vm.selectStore
+    model: {
+      value: (_vm.form.storeName),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "storeName", $$v)
+      },
+      expression: "form.storeName"
     }
-  })], 1), _vm._v(" "), _c('el-col', {
+  })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "span": 12
+      "label": "门店地址"
     }
-  }, [_c('el-button', {
+  }, [_c('el-input', {
     attrs: {
-      "type": "primary",
-      "icon": "plus"
+      "placeholder": "门店地址"
     },
-    on: {
-      "click": _vm.addRows
+    model: {
+      value: (_vm.form.storeAddr),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "storeAddr", $$v)
+      },
+      expression: "form.storeAddr"
     }
-  })], 1)], 1)], 1), _vm._v(" "), _c('el-form-item', _vm._l((_vm.recipesList), function(item, index) {
-    return _c('div', [_c('el-row', [_c('el-col', {
-      attrs: {
-        "span": 10
-      }
-    }, [_c('RecipesSelection', {
-      attrs: {
-        "value": item.recipesCode,
-        "context": item,
-        "excludes": _vm.addedRecipesCode
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "默认仓库"
+    }
+  }, [_c('el-select', {
+    attrs: {
+      "placeholder": "请选择"
+    },
+    model: {
+      value: (_vm.form.defaultWarehouse),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "defaultWarehouse", $$v)
       },
-      on: {
-        "input": _vm.addNewRecipes
-      }
-    })], 1), _vm._v(" "), _c('el-col', {
+      expression: "form.defaultWarehouse"
+    }
+  }, _vm._l((_vm.warehouseSelection), function(item) {
+    return _c('el-option', {
+      key: item.warehouseCode,
       attrs: {
-        "span": 8
+        "label": item.warehouseName,
+        "value": item.warehouseCode
       }
-    }, [_c('el-input', {
-      attrs: {
-        "placeholder": "请输入份数"
+    })
+  }))], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "负责人"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "placeholder": "负责人"
+    },
+    model: {
+      value: (_vm.form.storeManager),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "storeManager", $$v)
       },
-      model: {
-        value: (item.amt),
-        callback: function($$v) {
-          _vm.$set(item, "amt", $$v)
-        },
-        expression: "item.amt"
-      }
-    }, [_c('template', {
-      attrs: {
-        "slot": "prepend"
+      expression: "form.storeManager"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "负责人手机"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "placeholder": "负责人手机"
+    },
+    model: {
+      value: (_vm.form.managerPhone),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "managerPhone", $$v)
       },
-      slot: "prepend"
-    }, [_vm._v("份数")])], 2)], 1), _vm._v(" "), _c('el-col', {
-      attrs: {
-        "span": 6
-      }
-    }, [_c('el-button', {
-      attrs: {
-        "type": "error",
-        "size": "small",
-        "icon": "delete"
+      expression: "form.managerPhone"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "负责人邮箱"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "placeholder": "负责人邮箱"
+    },
+    model: {
+      value: (_vm.form.managerEmail),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "managerEmail", $$v)
       },
-      on: {
-        "click": function($event) {
-          _vm.removeRows(index)
-        }
-      }
-    })], 1)], 1)], 1)
-  })), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+      expression: "form.managerEmail"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', [_c('el-button', {
     attrs: {
       "type": "primary"
     },
@@ -12579,20 +12389,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_vm._v("取消")])], 1)], 1)], 1)])
 },staticRenderFns: []}
-
-/***/ }),
-
-/***/ 659:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(653);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(199)("5f38c596", content, true);
 
 /***/ })
 
