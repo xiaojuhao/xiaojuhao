@@ -5,9 +5,9 @@ webpackJsonp([0],{
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(670),
+  __webpack_require__(672),
   /* template */
-  __webpack_require__(710),
+  __webpack_require__(716),
   /* scopeId */
   null,
   /* cssModules */
@@ -19,7 +19,7 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 670:
+/***/ 672:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -40,7 +40,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 710:
+/***/ 716:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;

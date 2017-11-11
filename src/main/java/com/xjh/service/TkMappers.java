@@ -13,6 +13,7 @@ import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsSequenceMapper;
 import com.xjh.dao.tkmapper.TkWmsSessionMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
+import com.xjh.dao.tkmapper.TkWmsSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsUserMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 
@@ -31,6 +32,8 @@ public class TkMappers implements InitializingBean{
 	@Resource TkWmsMaterialMapper materialMapper;
 	@Resource TkWmsWarehouseMapper warehouseMapper;
 	@Resource TkWmsRecipesFormulaMapper recipesFormulaMapper;
+	@Resource TkWmsSupplierMapper supplierMapper;
+	
 	
 	@Override
     public void afterPropertiesSet() throws Exception {
