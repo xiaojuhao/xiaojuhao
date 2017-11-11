@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
@@ -21,6 +23,7 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
@@ -66,12 +69,17 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		String formula = request.getParameter("formulaStr");
+		String splitMaterialsStr = request.getParameter("splitMaterialsStr");
+		String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
+		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
 		WmsMaterialDO material = new WmsMaterialDO();
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
 		material.setSearchKey(CommonUtils.get(request, "searchKey"));
+		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
+			material.setStorageLife(storageLifeNum + storageLifeUnit);
+		}
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
 		material.setCanSplit(CommonUtils.get(request, "canSplit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
@@ -89,7 +97,7 @@ public class BusinessController {
 		} else {
 			this.materialService.updateMaterial(material);
 		}
-		materialService.initMaterialStock(material.getMaterialCode());
+		materialService.initMaterialStock(material.getMaterialCode(), null);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -153,8 +161,8 @@ public class BusinessController {
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
 		example.setStockType(stockType);
-		PageResult<WmsMaterialStockVo> list = this.materialService.queryMaterialsStock(example);
-		return ResultBaseBuilder.succ().data(list).rb(request);
+		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example);
+		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
 	@RequestMapping(value = "/queryMaterialsStockById", produces = "application/json;charset=UTF-8")
@@ -231,6 +239,58 @@ public class BusinessController {
 		event.setOperator(user.getUserCode());
 		event.setStoreCode(storeCode);
 		BusCruise.post(event);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/outstockByRecipes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object outstockByRecipes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String storeCode = CommonUtils.get(request, "storeCode");
+		String recipesJson = CommonUtils.get(request, "recipesJson");
+		if (StringUtils.isAnyBlank(storeCode, recipesJson)) {
+			return ResultBaseBuilder.fails("入参错误").rb(request);
+		}
+		WmsStoreDO store = new WmsStoreDO();
+		store.setStoreCode(storeCode);
+		store = this.storeMapper.selectOne(store);
+		if (store == null) {
+			return ResultBaseBuilder.fails("门店不存在").rb(request);
+		}
+		if (StringUtils.isBlank(store.getDefaultWarehouse())) {
+			return ResultBaseBuilder.fails("门店没有维护默认仓库,请先维护").rb(request);
+		}
+		WmsWarehouseDO warehouse = new WmsWarehouseDO();
+		warehouse.setWarehouseCode(store.getDefaultWarehouse());
+		warehouse = this.warehouseMapper.selectOne(warehouse);
+		if (warehouse == null) {
+			return ResultBaseBuilder.fails("门店默认仓库信息有误").rb(request);
+		}
+		JSONArray recipes = CommonUtils.parseJSONArray(recipesJson);
+		if (recipes.size() == 0) {
+			return ResultBaseBuilder.fails("请输入菜单信息").rb(request);
+		}
+		for (int i = 0; i < recipes.size(); i++) {
+			JSONObject reci = recipes.getJSONObject(i);
+			String recipesCode = reci.getString("recipesCode");
+			Double amt = reci.getDouble("amt");
+			WmsRecipesFormulaDO formula = new WmsRecipesFormulaDO();
+			formula.setRecipesCode(recipesCode);
+			List<WmsRecipesFormulaDO> formulas = TkMappers.inst().getRecipesFormulaMapper().select(formula);
+			for (WmsRecipesFormulaDO f : formulas) {
+				OutStockEvent event = new OutStockEvent();
+				event.setMaterialCode(f.getMaterialCode());
+				event.setWarehouseCode(warehouse.getWarehouseCode());
+				event.setOutstockAmt(f.getMaterialAmt() * amt);
+				event.setOperator(user.getUserCode());
+				event.setStoreCode(storeCode);
+				event.setRemark("出库:菜单"+recipesCode+":份数"+amt);
+				BusCruise.post(event, true);
+			}
+		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

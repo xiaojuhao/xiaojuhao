@@ -702,6 +702,11 @@ public class CommonUtils {
 		return null;
 	}
 
+	public static Double parseDouble(String numberStr, Double defaultVal) {
+		BigDecimal r = parseBigDecimal(numberStr);
+		return r == null ? defaultVal : r.doubleValue();
+	}
+	
 	public static BigDecimal parseBigDecimal(String numberStr, BigDecimal defaultVal) {
 		BigDecimal r = parseBigDecimal(numberStr);
 		return r == null ? defaultVal : r;

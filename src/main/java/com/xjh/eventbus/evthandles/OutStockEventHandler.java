@@ -2,6 +2,8 @@ package com.xjh.eventbus.evthandles;
 
 import java.util.Date;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +14,15 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.eventbus.BusCruise;
 import com.xjh.service.Mappers;
+import com.xjh.service.MaterialService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.MaterialStockChangeVo;
 
 @Service
 public class OutStockEventHandler implements InitializingBean{
+	@Resource
+	MaterialService materialService;
+	
 	@Subscribe
 	public void handle(OutStockEvent event){
 		try{
@@ -30,6 +36,14 @@ public class OutStockEventHandler implements InitializingBean{
 			stock.setWarehouseCode(event.getWarehouseCode());
 			stock.setStockType("2");//分库
 			stock = TkMappers.inst().getMaterialStockMapper().selectOne(stock);
+			if(stock == null){
+				materialService.initMaterialStock(event.getMaterialCode(), event.getWarehouseCode());
+				stock = new WmsMaterialStockDO();
+				stock.setMaterialCode(event.getMaterialCode());
+				stock.setWarehouseCode(event.getWarehouseCode());
+				stock.setStockType("2");//分库
+				stock = TkMappers.inst().getMaterialStockMapper().selectOne(stock);
+			}
 			//
 			WmsWarehouseDO warehouse = new WmsWarehouseDO();
 			warehouse.setWarehouseCode(event.getWarehouseCode());

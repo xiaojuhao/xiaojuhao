@@ -35,7 +35,7 @@ public class RecipesController {
 
 	@RequestMapping(value = "/addRecipes", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object addStore() {
+	public Object addRecipes() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
@@ -56,10 +56,10 @@ public class RecipesController {
 			formulas.add(f);
 			f.setMaterialCode(j.getString("materialCode"));
 			f.setMaterialName(j.getString("materialName"));
+			f.setMaterialAmt(CommonUtils.parseDouble(j.getString("materialAmt"), 0D));
+			f.setMaterialUnit(j.getString("materialUnit"));
 			f.setRecipesCode(recipesCode);
 			f.setRecipesName(recipesName);
-			BigDecimal amt = CommonUtils.parseBigDecimal(j.getString("amt"), null);
-			f.setMaterialAmt(amt == null ? 0 : amt.doubleValue());
 		}
 		//先删后插
 		WmsRecipesFormulaDO formulaExample = new WmsRecipesFormulaDO();

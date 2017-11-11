@@ -9,7 +9,7 @@ import com.xjh.service.vo.WmsMaterialVo;
 
 public interface MaterialService {
 	
-	public ResultBase<Boolean> initMaterialStock(String materialCode);
+	public ResultBase<Boolean> initMaterialStock(String materialCode, String warehouseCode);
 	
 	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example);
 	
