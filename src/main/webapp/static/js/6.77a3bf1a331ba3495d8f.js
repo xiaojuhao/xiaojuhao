@@ -1,17 +1,17 @@
-webpackJsonp([7,12],{
+webpackJsonp([6,11],{
 
 /***/ 506:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(646)
+__webpack_require__(649)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(643),
-  /* template */
   __webpack_require__(645),
+  /* template */
+  __webpack_require__(647),
   /* scopeId */
   "data-v-38481101",
   /* cssModules */
@@ -7070,7 +7070,7 @@ const http = {
 			} else {
 				df.reject(resp);
 			}
-		}).fail(resp => df.reject(resp));
+		});
 
 		return df.promise();
 	}
@@ -7219,6 +7219,21 @@ const api = {
 	},
 	queryMyWarehouse() {
 		return http.jsonp2("/warehouse/queryMyWarehouse", {});
+	},
+	saveSupplierInfo(param) {
+		return http.jsonp2("/supplier/saveSupplier", param);
+	},
+	querySupplierPage(param) {
+		return http.jsonp2("/supplier/querySupplierPage", param);
+	},
+	querySupplierByCode(code) {
+		return http.jsonp2("/supplier/querySupplierByCode", { supplierCode: code });
+	},
+	queryMaterialSupplerByCode(param) {
+		return http.jsonp2("/busi/queryMaterialSupplerByCode", param);
+	},
+	queryAllMaterialSuppler() {
+		return http.jsonp2("/busi/queryAllMaterialSuppler", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = api;
@@ -12849,7 +12864,7 @@ function plural(ms, n, name) {
 
 /***/ }),
 
-/***/ 643:
+/***/ 645:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12963,7 +12978,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 644:
+/***/ 646:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(86)(undefined);
@@ -12978,7 +12993,7 @@ exports.push([module.i, ".table-simple[data-v-38481101]{font-size:0}.table-simpl
 
 /***/ }),
 
-/***/ 645:
+/***/ 647:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -13083,13 +13098,13 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
 /***/ }),
 
-/***/ 646:
+/***/ 649:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(644);
+var content = __webpack_require__(646);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM

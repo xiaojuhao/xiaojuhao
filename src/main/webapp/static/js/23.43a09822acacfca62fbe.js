@@ -1,19 +1,19 @@
-webpackJsonp([15],{
+webpackJsonp([23],{
 
-/***/ 520:
+/***/ 522:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(770)
+__webpack_require__(751)
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(681),
+  __webpack_require__(683),
   /* template */
-  __webpack_require__(747),
+  __webpack_require__(723),
   /* scopeId */
-  "data-v-a7e18560",
+  "data-v-0c8bf1aa",
   /* cssModules */
   null
 )
@@ -7047,7 +7047,7 @@ const http = {
 			} else {
 				df.reject(resp);
 			}
-		}).fail(resp => df.reject(resp));
+		});
 
 		return df.promise();
 	}
@@ -7196,6 +7196,21 @@ const api = {
 	},
 	queryMyWarehouse() {
 		return http.jsonp2("/warehouse/queryMyWarehouse", {});
+	},
+	saveSupplierInfo(param) {
+		return http.jsonp2("/supplier/saveSupplier", param);
+	},
+	querySupplierPage(param) {
+		return http.jsonp2("/supplier/querySupplierPage", param);
+	},
+	querySupplierByCode(code) {
+		return http.jsonp2("/supplier/querySupplierByCode", { supplierCode: code });
+	},
+	queryMaterialSupplerByCode(param) {
+		return http.jsonp2("/busi/queryMaterialSupplerByCode", param);
+	},
+	queryAllMaterialSuppler() {
+		return http.jsonp2("/busi/queryAllMaterialSuppler", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = api;
@@ -12059,12 +12074,48 @@ return jQuery;
 
 /***/ }),
 
-/***/ 650:
+/***/ 683:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bus__ = __webpack_require__(597);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus_js__ = __webpack_require__(597);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -12086,285 +12137,61 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["excludes", "value", "context"],
-  data() {
-    return {
-      allValues: [],
-      valuesShow: [],
-      selectedCode: ''
-    };
-  },
-  mounted() {
-    this.initData();
-  },
-  watch: {
-    value(nval, oval) {
-      this.initData();
-    }
-  },
-  methods: {
-    setValue() {
-      this.$emit("input", this.$props.context, this.selectedCode);
-    },
-    initData() {
-      let $data = this.$data;
-      __WEBPACK_IMPORTED_MODULE_0__bus__["a" /* api */].queryAllMaterials().then(value => {
-        $data.allValues = value.values;
-        $data.selectedCode = this.$props.value;
-      });
-    },
-    enterkey(e) {
-      console.log(e);
-    },
-    filterMethod(input) {
-      let $data = this.$data;
-      setTimeout(() => {
-        $data.valuesShow = $data.allValues.filter(item => {
-          var key = [item.materialCode, item.materialName, item.searchKey].join(',');
-          if (key.indexOf(input) >= 0) {
-            return true;
-          }
-          return false;
-        });
-      }, 10);
-    },
-    visualChange(visible) {
-      if (visible) {
-        this.$data.valuesShow = this.$data.allValues.filter(item => {
-          if (this.excludesMap[item.materialCode]) {
-            return false;
-          }
-          return true;
-        });
-      }
-    }
-  },
-  computed: {
-    excludesMap() {
-      let map = {};
-      this.$props.excludes && this.$props.excludes.forEach(item => {
-        map[item] = 1;
-      });
-      return map;
-    }
-  }
-});
-
-/***/ }),
-
-/***/ 652:
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(198)(
-  /* script */
-  __webpack_require__(650),
-  /* template */
-  __webpack_require__(655),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 655:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('el-select', {
-    attrs: {
-      "placeholder": "请选择",
-      "filterable": "",
-      "filter-method": _vm.filterMethod
-    },
-    on: {
-      "change": _vm.setValue,
-      "visible-change": _vm.visualChange
-    },
-    nativeOn: {
-      "keyup": function($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key)) { return null; }
-        _vm.enterkey($event)
-      }
-    },
-    model: {
-      value: (_vm.selectedCode),
-      callback: function($$v) {
-        _vm.selectedCode = $$v
-      },
-      expression: "selectedCode"
-    }
-  }, _vm._l((_vm.valuesShow), function(item) {
-    return _c('el-option', {
-      key: item.materialCode,
-      attrs: {
-        "label": item.materialName + '-' + item.materialCode,
-        "value": item.materialCode
-      }
-    })
-  }))], 1)
-},staticRenderFns: []}
-
-/***/ }),
-
-/***/ 681:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_bus__ = __webpack_require__(597);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection__ = __webpack_require__(652);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    data: function () {
+    data() {
         return {
-            form: {
-                id: '',
-                recipesCode: this.$route.query.code,
-                recipesName: '',
-                formula: []
+            pageNo: 1,
+            pageSize: 5,
+            totalRows: 0,
+            loadingState: false,
+            queryCond: {
+                materialCode: ''
             },
-            allMaterials: [],
-            loadingState: false
+            queryList: []
         };
     },
-    methods: {
-        onSubmit() {
-            this.$data.loadingState = true;
-            var $data = this.$data;
-            __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].addRecipes({
-                recipesCode: $data.form.recipesCode,
-                recipesName: $data.form.recipesName,
-                formulaJson: JSON.stringify($data.form.formula)
-            }).then(resp => {
-                this.$message("操作成功");
-                this.$router.go(-1);
-            }).always(() => {
-                this.$data.loadingState = false;
-            });
-        },
-        onCancel() {
-            this.$router.go(-1);
-        },
-        removeFormula(index) {
-            this.$data.form.formula.splice(index, 1);
-        },
-        addFormulaItem() {
-            this.$data.form.formula.push({
-                id: 0,
-                materialUnit: '',
-                materialAmt: 0,
-                materialCode: ''
-            });
-        },
-        addNewFormula(ctx, val) {
-            let item = this.allMaterialsMap[val];
-            Object.keys(item).forEach(key => {
-                ctx[key] = item[key];
-            });
-            ctx.materialUnit = item.stockUnit;
-        }
-    },
+    created() {},
     mounted() {
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryRecipesByCode(this.$data.form.recipesCode).then(resp => {
-            this.$data.form.recipesName = resp.recipesName;
-        });
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryAllMaterials().then(page => {
-            this.$data.allMaterials = page.values;
-        });
-        __WEBPACK_IMPORTED_MODULE_0__common_bus__["a" /* api */].queryRecipesFormula(this.$data.form.recipesCode).then(values => {
-            this.$data.form.formula = values;
-        });
+        this.queryData();
     },
-    computed: {
-        allMaterialsMap() {
-            let map = {};
-            this.allMaterials.forEach(item => {
-                map[item.materialCode] = item;
-            });
-            return map;
+    activated() {},
+    computed: {},
+    methods: {
+        handleCurrentChange(val) {
+            this.pageNo = val;
+            this.queryData();
         },
-        addedMaterials() {
-            let ll = [];
-            this.$data.form.formula.forEach(item => ll.push(item.materialCode));
-            return ll;
-        }
-    },
-    components: {
-        MaterialSelection: __WEBPACK_IMPORTED_MODULE_1__common_MaterialSelection___default.a
+        queryData() {
+            __WEBPACK_IMPORTED_MODULE_0__common_bus_js__["a" /* api */].querySupplierPage({
+                pageNo: this.pageNo,
+                pageSize: this.pageSize
+            }).then(page => {
+                this.totalRows = page.totalRows;
+                this.queryList = page.values;
+            });
+        },
+        search() {
+            this.queryList = [];
+            this.queryData();
+        },
+        querySearch(queryString, cb) {
+            var data = [];
+            data.push({ id: 1, value: 'aaaaa' });
+            data.push({ id: 2, value: 'bbbbb' });
+            data.push({ id: 3, value: 'ccccc' });
+            console.log(this.$data.query);
+            cb(data);
+        },
+        edit(index, item) {
+            this.$router.push({ path: "/supplierManagePage", query: { supplierCode: item && item.supplierCode } });
+        },
+        expand(row, expanded) {},
+        handleSelect() {}
     }
 });
 
 /***/ }),
 
-/***/ 716:
+/***/ 697:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(86)(undefined);
@@ -12372,195 +12199,181 @@ exports = module.exports = __webpack_require__(86)(undefined);
 
 
 // module
-exports.push([module.i, ".span-center[data-v-a7e18560]{display:inline-block;width:100%;font-weight:700}.grid-content[data-v-a7e18560]{min-height:1px}.el-row[data-v-a7e18560]{margin-bottom:4px;&:last-child{margin-bottom:0}}.el-col[data-v-a7e18560]{border-radius:4px}", ""]);
+exports.push([module.i, ".handle-box[data-v-0c8bf1aa]{margin-bottom:20px}.handle-select[data-v-0c8bf1aa]{width:120px}.handle-input[data-v-0c8bf1aa]{width:300px;display:inline-block}.el-row[data-v-0c8bf1aa]{margin-bottom:4px;&:last-child{margin-bottom:0}}", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 747:
+/***/ 723:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('div', {
-    staticClass: "crumbs"
-  }, [_c('el-breadcrumb', {
+  return _c('div', {
+    staticClass: "table"
+  }, [_c('div', {
+    staticClass: "handle-box"
+  }, [_c('el-autocomplete', {
+    staticClass: "inline-input",
     attrs: {
-      "separator": "/"
+      "fetch-suggestions": _vm.querySearch,
+      "placeholder": "供应商",
+      "trigger-on-focus": false
+    },
+    on: {
+      "select": _vm.handleSelect
+    },
+    model: {
+      value: (_vm.queryCond.materialCode),
+      callback: function($$v) {
+        _vm.$set(_vm.queryCond, "materialCode", $$v)
+      },
+      expression: "queryCond.materialCode"
     }
-  }, [_c('el-breadcrumb-item', [_c('i', {
-    staticClass: "el-icon-date"
-  }), _vm._v(" 基础信息管理")]), _vm._v(" "), _c('el-breadcrumb-item', [_vm._v("菜品管理")])], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "form-box"
-  }, [_c('el-form', {
+  }), _vm._v(" "), _c('el-button', {
+    attrs: {
+      "type": "primary",
+      "icon": "search"
+    },
+    on: {
+      "click": _vm.search
+    }
+  }, [_vm._v("搜索")]), _vm._v(" "), _c('div', {
+    staticStyle: {
+      "position": "relative",
+      "float": "right"
+    }
+  }, [_c('el-button', {
+    attrs: {
+      "round": ""
+    },
+    on: {
+      "click": function($event) {
+        _vm.edit()
+      }
+    }
+  }, [_vm._v("添加供应商")])], 1)], 1), _vm._v(" "), _c('el-table', {
     directives: [{
       name: "loading",
       rawName: "v-loading",
       value: (_vm.loadingState),
       expression: "loadingState"
     }],
-    ref: "form",
-    attrs: {
-      "label-width": "80px"
-    }
-  }, [_c('el-form-item', {
-    attrs: {
-      "label": "菜品名称"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "placeholder": "菜品名称"
+    staticStyle: {
+      "width": "100%"
     },
-    model: {
-      value: (_vm.form.recipesName),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "recipesName", $$v)
-      },
-      expression: "form.recipesName"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "label": "菜品代码"
-    }
-  }, [_c('el-input', {
-    attrs: {
-      "disabled": "",
-      "placeholder": "菜品代码"
-    },
-    model: {
-      value: (_vm.form.recipesCode),
-      callback: function($$v) {
-        _vm.$set(_vm.form, "recipesCode", $$v)
-      },
-      expression: "form.recipesCode"
-    }
-  })], 1), _vm._v(" "), _c('el-form-item', {
-    attrs: {
-      "label": "配方"
-    }
-  }, [_c('el-row', {
-    attrs: {
-      "gutter": 5
-    }
-  }, [_c('el-col', {
-    attrs: {
-      "span": 12
-    }
-  }, [_c('span', {
-    staticClass: "span-center"
-  }, [_vm._v("原料")])]), _vm._v(" "), _c('el-col', {
-    attrs: {
-      "span": 4
-    }
-  }, [_c('span', {
-    staticClass: "span-center"
-  }, [_vm._v("数量")])]), _vm._v(" "), _c('el-col', {
-    attrs: {
-      "span": 3
-    }
-  }, [_c('span', {
-    staticClass: "span-center"
-  }, [_vm._v("单位")])]), _vm._v(" "), _c('el-col', {
-    attrs: {
-      "span": 3
-    }
-  }, [_c('span', {
-    staticClass: "span-center"
-  }, [_vm._v("操作")])])], 1), _vm._v(" "), _vm._l((_vm.form.formula), function(ff, index) {
-    return _c('el-row', {
-      attrs: {
-        "gutter": 5
-      }
-    }, [_c('el-col', {
-      attrs: {
-        "span": 12
-      }
-    }, [_c('MaterialSelection', {
-      attrs: {
-        "value": ff.materialCode,
-        "context": ff,
-        "excludes": _vm.addedMaterials
-      },
-      on: {
-        "input": _vm.addNewFormula
-      }
-    })], 1), _vm._v(" "), _c('el-col', {
-      attrs: {
-        "span": 4
-      }
-    }, [_c('el-input', {
-      attrs: {
-        "placeholder": "数量"
-      },
-      model: {
-        value: (ff.materialAmt),
-        callback: function($$v) {
-          _vm.$set(ff, "materialAmt", $$v)
-        },
-        expression: "ff.materialAmt"
-      }
-    })], 1), _vm._v(" "), _c('el-col', {
-      attrs: {
-        "span": 3
-      }
-    }, [_c('div', {
-      staticClass: "grid-content"
-    }, [_vm._v(_vm._s(ff.materialUnit))])]), _vm._v(" "), _c('el-col', {
-      attrs: {
-        "span": 3
-      }
-    }, [_c('div', {
-      staticClass: "grid-content"
-    }, [_c('el-button', {
-      attrs: {
-        "type": "danger",
-        "icon": "delete"
-      },
-      on: {
-        "click": function($event) {
-          _vm.removeFormula(index)
-        }
-      }
-    })], 1)])], 1)
-  }), _vm._v(" "), _c('el-row', [_c('el-col', {
-    attrs: {
-      "span": 24
-    }
-  }, [_c('el-button', {
-    attrs: {
-      "type": "success"
+      "data": _vm.queryList,
+      "border": "",
+      "element-loading-text": "拼命加载中",
+      "element-loading-spinner": "el-icon-loading",
+      "element-loading-background": "rgb(0, 0, 0, 0.8)"
     },
     on: {
-      "click": _vm.addFormulaItem
+      "expand": _vm.expand
     }
-  }, [_vm._v("增加原料")])], 1)], 1)], 2), _vm._v(" "), _c('el-form-item', [_c('el-button', {
+  }, [_c('el-table-column', {
     attrs: {
-      "type": "primary"
+      "type": "expand"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(props) {
+        return [_vm._v("\n                供应商供应的原料\n            ")]
+      }
+    }])
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierCode",
+      "label": "供应商编码",
+      "width": "120"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierName",
+      "label": "供应商名称",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierTel",
+      "label": "电话",
+      "width": "130"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierPhone",
+      "label": "手机",
+      "width": "130"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierEmail",
+      "label": "邮箱",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "status",
+      "label": "状态",
+      "width": "100"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "prop": "supplierAddr",
+      "label": "地址",
+      "width": "300"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
+      "label": "操作",
+      "fixed": "right",
+      "width": "120"
+    },
+    scopedSlots: _vm._u([{
+      key: "default",
+      fn: function(scope) {
+        return [_c('el-button', {
+          attrs: {
+            "size": "small",
+            "type": "primary"
+          },
+          on: {
+            "click": function($event) {
+              _vm.edit(scope.$index, scope.row)
+            }
+          }
+        }, [_vm._v("编辑")])]
+      }
+    }])
+  })], 1), _vm._v(" "), _c('div', {
+    staticClass: "pagination"
+  }, [_c('el-pagination', {
+    attrs: {
+      "layout": "prev, pager, next",
+      "total": _vm.totalRows,
+      "page-size": _vm.pageSize
     },
     on: {
-      "click": _vm.onSubmit
+      "current-change": _vm.handleCurrentChange
     }
-  }, [_vm._v("提交")]), _vm._v(" "), _c('el-button', {
-    on: {
-      "click": _vm.onCancel
-    }
-  }, [_vm._v("取消")])], 1)], 1)], 1)])
+  })], 1)], 1)
 },staticRenderFns: []}
 
 /***/ }),
 
-/***/ 770:
+/***/ 751:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(716);
+var content = __webpack_require__(697);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(199)("f68f545a", content, true);
+var update = __webpack_require__(199)("76f3cd70", content, true);
 
 /***/ })
 

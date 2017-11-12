@@ -1,4 +1,4 @@
-webpackJsonp([9],{
+webpackJsonp([8],{
 
 /***/ 507:
 /***/ (function(module, exports, __webpack_require__) {
@@ -7047,7 +7047,7 @@ const http = {
 			} else {
 				df.reject(resp);
 			}
-		}).fail(resp => df.reject(resp));
+		});
 
 		return df.promise();
 	}
@@ -7196,6 +7196,21 @@ const api = {
 	},
 	queryMyWarehouse() {
 		return http.jsonp2("/warehouse/queryMyWarehouse", {});
+	},
+	saveSupplierInfo(param) {
+		return http.jsonp2("/supplier/saveSupplier", param);
+	},
+	querySupplierPage(param) {
+		return http.jsonp2("/supplier/querySupplierPage", param);
+	},
+	querySupplierByCode(code) {
+		return http.jsonp2("/supplier/querySupplierByCode", { supplierCode: code });
+	},
+	queryMaterialSupplerByCode(param) {
+		return http.jsonp2("/busi/queryMaterialSupplerByCode", param);
+	},
+	queryAllMaterialSuppler() {
+		return http.jsonp2("/busi/queryAllMaterialSuppler", {});
 	}
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = api;
@@ -12161,14 +12176,14 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 647:
+/***/ 643:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(198)(
   /* script */
-  __webpack_require__(648),
+  __webpack_require__(644),
   /* template */
-  __webpack_require__(649),
+  __webpack_require__(648),
   /* scopeId */
   null,
   /* cssModules */
@@ -12180,7 +12195,7 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 648:
+/***/ 644:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12270,7 +12285,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 649:
+/***/ 648:
 /***/ (function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -12425,7 +12440,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(567);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_StoreSelection__ = __webpack_require__(647);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_StoreSelection__ = __webpack_require__(643);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_StoreSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__common_StoreSelection__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection__ = __webpack_require__(657);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__common_WarehouseSelection__);

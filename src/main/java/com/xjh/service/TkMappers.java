@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsSequenceMapper;
@@ -33,7 +34,7 @@ public class TkMappers implements InitializingBean{
 	@Resource TkWmsWarehouseMapper warehouseMapper;
 	@Resource TkWmsRecipesFormulaMapper recipesFormulaMapper;
 	@Resource TkWmsSupplierMapper supplierMapper;
-	
+	@Resource TkWmsMaterialSupplierMapper materialSupplierMapper;
 	
 	@Override
     public void afterPropertiesSet() throws Exception {

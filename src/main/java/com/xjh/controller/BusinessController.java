@@ -23,6 +23,7 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
@@ -208,6 +209,29 @@ public class BusinessController {
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
+	@RequestMapping(value = "/queryMaterialSupplerByCode", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMaterialSuppler() {
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String supplierCode = CommonUtils.get(request, "supplierCode");
+		if (CommonUtils.isAllBlank(materialCode, supplierCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
+		ms.setSupplierCode(supplierCode);
+		ms.setMaterialCode(materialCode);
+		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+	
+	@RequestMapping(value = "/queryAllMaterialSuppler", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryAllMaterialSuppler() {
+		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
+		ms.setPageSize(3000);
+		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
 	/**
 	 * 出库
 	 * 
@@ -287,7 +311,7 @@ public class BusinessController {
 				event.setOutstockAmt(f.getMaterialAmt() * amt);
 				event.setOperator(user.getUserCode());
 				event.setStoreCode(storeCode);
-				event.setRemark("出库:菜单"+recipesCode+":份数"+amt);
+				event.setRemark("出库:菜单" + recipesCode + ":份数" + amt);
 				BusCruise.post(event, true);
 			}
 		}
