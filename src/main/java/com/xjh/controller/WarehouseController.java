@@ -53,17 +53,17 @@ public class WarehouseController {
 		warehouse.setManagerPhone(managerPhone);
 		warehouse.setManagerEmail(managerEmail);
 		warehouse.setId(id);
-		if(id == null){
+		if (id == null) {
 			long seq = sequence.next("wms_warehouse");
 			warehouseCode = "WH" + StringUtils.leftPad(seq + "", 4, "0");
 			warehouse.setWarehouseCode(warehouseCode);
 			this.warehouseMapper.insert(warehouse);
-		}else{
+		} else {
 			this.warehouseMapper.updateByPrimaryKeySelective(warehouse);
 		}
 		return ResultBaseBuilder.succ().data(warehouse).rb(request);
 	}
-	
+
 	@RequestMapping(value = "/queryWarehouses", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryWarehouses() {
@@ -88,7 +88,7 @@ public class WarehouseController {
 		warehouse.setManagerPhone(managerPhone);
 		warehouse.setManagerEmail(managerEmail);
 		warehouse.setId(id);
-		
+
 		PageResult<WmsWarehouseDO> page = new PageResult<>();
 		int totalRows = this.warehouseMapper.selectCount(warehouse);
 		PageHelper.startPage(pageNo, pageSize);
@@ -97,7 +97,7 @@ public class WarehouseController {
 		page.setValues(list);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
-	
+
 	@RequestMapping(value = "/queryWarehouseByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryWarehouseByCode() {
@@ -106,12 +106,25 @@ public class WarehouseController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String warehouseCode = CommonUtils.get(request, "warehouseCode");
-		if(StringUtils.isBlank(warehouseCode)){
+		if (StringUtils.isBlank(warehouseCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		warehouse.setWarehouseCode(warehouseCode);
 		warehouse = this.warehouseMapper.selectOne(warehouse);
 		return ResultBaseBuilder.succ().data(warehouse).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMyWarehouse", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMyWarehouse() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		WmsWarehouseDO warehouse = new WmsWarehouseDO();
+		List<WmsWarehouseDO> list = this.warehouseMapper.select(warehouse);
+
+		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }

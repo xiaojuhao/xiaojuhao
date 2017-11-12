@@ -1,5 +1,7 @@
 package com.xjh.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +20,7 @@ import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.SequenceService;
 import com.xjh.service.StoreService;
+import com.xjh.service.TkMappers;
 
 @Controller
 @RequestMapping("/store")
@@ -71,9 +74,7 @@ public class StoreController {
 	public Object getAllStore(){
 		PageResult<WmsStoreDO> page = storeService.queryStore(null);
 		return ResultBaseBuilder.succ().data(page).rb(request);
-	}
-	
-	@RequestMapping(value="/getStoreByCode", produces = "application/json;charset=UTF-8")
+	}@RequestMapping(value="/getStoreByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getStoreByCode(){
 		String storeCode = request.getParameter("storeCode");
@@ -83,4 +84,14 @@ public class StoreController {
 		}
 		return ResultBaseBuilder.succ().data(store).rb(request);
 	}
+	
+	@RequestMapping(value="/getMyStore", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object getMyStore(){
+		WmsStoreDO store = new WmsStoreDO();
+		List<WmsStoreDO> list = TkMappers.inst().getStoreMapper().select(store);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+	
+	
 }
