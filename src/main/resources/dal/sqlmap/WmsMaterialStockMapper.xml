@@ -9,7 +9,7 @@
 			,modifier = #{operator}
 		</if>
 		where material_code = #{materialCode}
-		and warehouse_code in ( #{warehouseCode},'WH0000')
+		and cabin_code in ( #{cabinCode},'ZK0000')
 	</update>
 
 	<update id="increaseStock">
@@ -19,7 +19,7 @@
 			,modifier = #{operator}
 		</if>
 		where material_code = #{materialCode}
-		and warehouse_code in (#{warehouseCode},'WH0000')
+		and cabin_code in (#{cabinCode},'ZK0000')
 	</update>
 
 </mapper>

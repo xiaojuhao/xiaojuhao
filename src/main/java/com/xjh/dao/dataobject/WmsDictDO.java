@@ -10,20 +10,14 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "wms_material_stock")
-public class WmsMaterialStockDO extends PageDTO {
+@Table(name = "wms_dict")
+public class WmsDictDO extends PageDTO {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
-	String materialName;
-	String materialCode;
-	Double currStock;
-	Double usedStock;
-	String stockType;
-	String cabinCode;
-	String cabinName;
-	String cabinType;
-	String stockUnit;
-	String modifier;
+	String dictGroup;
+	String dictCode;
+	String dictName;
+	String dictVal;
 }

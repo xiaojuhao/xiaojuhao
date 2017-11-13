@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
+import com.xjh.dao.tkmapper.TkWmsDictMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
@@ -35,6 +36,7 @@ public class TkMappers implements InitializingBean{
 	@Resource TkWmsRecipesFormulaMapper recipesFormulaMapper;
 	@Resource TkWmsSupplierMapper supplierMapper;
 	@Resource TkWmsMaterialSupplierMapper materialSupplierMapper;
+	@Resource TkWmsDictMapper dictMapper;
 	
 	@Override
     public void afterPropertiesSet() throws Exception {

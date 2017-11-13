@@ -16,6 +16,7 @@ import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
@@ -32,7 +33,7 @@ public class MaterialServiceImpl implements MaterialService {
 	TkWmsMaterialStockMapper tkWmsMaterialStockMapper;
 
 	@Override
-	public ResultBase<Boolean> initMaterialStock(String materialCode, String warehouseCode) {
+	public ResultBase<Boolean> initMaterialStock(String materialCode, String cabinCode) {
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setMaterialCode(materialCode);
 		List<WmsMaterialDO> materials = tkWmsMaterialMapper.select(example);
@@ -43,37 +44,49 @@ public class MaterialServiceImpl implements MaterialService {
 			List<WmsMaterialStockDO> stocks = tkWmsMaterialStockMapper.select(stock);
 			if (stocks == null || stocks.size() == 0) {
 				WmsMaterialStockDO insert = new WmsMaterialStockDO();
-				CommonUtils.copyPropertiesQuietly(insert, m);
-				insert.setWarehouseCode("WH0000");
-				insert.setWarehouseName("总库");
+				insert.setMaterialCode(m.getMaterialCode());
+				insert.setMaterialName(m.getMaterialName());
+				insert.setStockUnit(m.getStockUnit());
+				insert.setCabinCode("ZK0000");
+				insert.setCabinName("总库");
+				insert.setCabinType("0");
 				insert.setStockType("1");
 				insert.setStockUnit(m.getStockUnit());
 				insert.setCurrStock(0D);
 				insert.setUsedStock(0D);
 				this.tkWmsMaterialStockMapper.insert(insert);
 			}
-			if (StringUtils.isNotBlank(warehouseCode)) {
-				WmsWarehouseDO warehouse = new WmsWarehouseDO();
-				warehouse.setWarehouseCode(warehouseCode);
-				warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
-				if (warehouse != null) {
-					WmsMaterialStockDO fenku = new WmsMaterialStockDO();
+			if (StringUtils.isNotBlank(cabinCode)) {
+				String cabinName = null;
+				String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
+				WmsMaterialStockDO fenku = new WmsMaterialStockDO();
+				fenku.setMaterialCode(materialCode);
+				fenku.setCabinCode(cabinCode);
+				fenku.setStockType("2");
+				fenku = TkMappers.inst().getMaterialStockMapper().selectOne(fenku);
+				if (cabinCode.startsWith("WH")) {
+					WmsWarehouseDO warehouse = new WmsWarehouseDO();
+					warehouse.setWarehouseCode(cabinCode);
+					warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
+					cabinName = warehouse.getWarehouseName();
+				} else if (cabinCode.startsWith("MD")) {
+					WmsStoreDO store = new WmsStoreDO();
+					store.setStoreCode(cabinCode);
+					store = TkMappers.inst().getStoreMapper().selectOne(store);
+					cabinName = store.getStoreName();
+				}
+				if (fenku == null) {
+					fenku = new WmsMaterialStockDO();
 					fenku.setMaterialCode(materialCode);
-					fenku.setWarehouseCode(warehouseCode);
+					fenku.setMaterialName(m.getMaterialName());
+					fenku.setCabinCode(cabinCode);
+					fenku.setCabinType(cabinType);
+					fenku.setCabinName(cabinName);
+					fenku.setCurrStock(0D);
+					fenku.setUsedStock(0D);
 					fenku.setStockType("2");
-					fenku = TkMappers.inst().getMaterialStockMapper().selectOne(fenku);
-					if (fenku == null) {
-						fenku = new WmsMaterialStockDO();
-						fenku.setMaterialCode(materialCode);
-						fenku.setMaterialName(m.getMaterialName());
-						fenku.setWarehouseName(warehouse.getWarehouseName());
-						fenku.setWarehouseCode(warehouseCode);
-						fenku.setCurrStock(0D);
-						fenku.setUsedStock(0D);
-						fenku.setStockType("2");
-						fenku.setStockUnit(m.getStockUnit());
-						this.tkWmsMaterialStockMapper.insert(fenku);
-					}
+					fenku.setStockUnit(m.getStockUnit());
+					this.tkWmsMaterialStockMapper.insert(fenku);
 				}
 			}
 		}
@@ -142,6 +155,14 @@ public class MaterialServiceImpl implements MaterialService {
 		page.setPageSize(example.getPageSize());
 		page.setValues(ret);
 		return page;
+	}
+
+	@Override
+	public WmsMaterialDO getMaterialByCode(String code) {
+		WmsMaterialDO m = new WmsMaterialDO();
+		m.setMaterialCode(code);
+		m = tkWmsMaterialMapper.selectOne(m);
+		return m;
 	}
 
 }

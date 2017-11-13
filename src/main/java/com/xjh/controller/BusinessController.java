@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,15 +28,11 @@ import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
-import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
-import com.xjh.eventbus.BusCruise;
-import com.xjh.eventbus.evthandles.InStockEvent;
-import com.xjh.eventbus.evthandles.OutStockEvent;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
@@ -149,16 +146,19 @@ public class BusinessController {
 		if (user == null) {
 
 		}
-		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 20);
-		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
+		int pageSize = CommonUtils.getPageSize(request);
+		int pageNo = CommonUtils.getPageNo(request);
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = CommonUtils.get(request, "materialCode");
-		String warehouseCode = CommonUtils.get(request, "warehouseCode");
+		String cabCode = CommonUtils.get(request, "cabCode");
+		String cabType = CommonUtils.get(request, "cabType");
 		String stockType = CommonUtils.get(request, "stockType");
+
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		example.setMaterialCode(materialCode);
-		example.setWarehouseCode(warehouseCode);
+		example.setCabinCode(cabCode);
+		example.setCabinType(cabType);
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
 		example.setStockType(stockType);
@@ -223,7 +223,7 @@ public class BusinessController {
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
-	
+
 	@RequestMapping(value = "/queryAllMaterialSuppler", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryAllMaterialSuppler() {
@@ -232,6 +232,7 @@ public class BusinessController {
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
+
 	/**
 	 * 出库
 	 * 
@@ -247,22 +248,24 @@ public class BusinessController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String outstockAmtStr = CommonUtils.get(request, "outstockAmt");
 		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
-		String storeCode = CommonUtils.get(request, "storeCode");
-		String warehouseCode = CommonUtils.get(request, "warehouseCode");
+		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (outstockAmt == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		if (StringUtils.isAnyBlank(materialCode, warehouseCode)) {
+		if (StringUtils.isAnyBlank(materialCode, cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		// 提交事件
-		OutStockEvent event = new OutStockEvent();
-		event.setMaterialCode(materialCode);
-		event.setWarehouseCode(warehouseCode);
-		event.setOutstockAmt(outstockAmt.doubleValue());
-		event.setOperator(user.getUserCode());
-		event.setStoreCode(storeCode);
-		BusCruise.post(event);
+		String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
+		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+		d.setCabinCode(cabinCode);
+		d.setCabinType(cabinType);
+		d.setAmt(-1 * outstockAmt.doubleValue());
+		d.setMaterialCode(materialCode);
+		d.setOpType("out_stock");
+		d.setStatus("0");
+		d.setGmtCreated(new Date());
+		d.setOperator(user.getUserCode());
+		TkMappers.inst().getMaterialStockHistoryMapper().insertSelective(d);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -287,12 +290,6 @@ public class BusinessController {
 		if (StringUtils.isBlank(store.getDefaultWarehouse())) {
 			return ResultBaseBuilder.fails("门店没有维护默认仓库,请先维护").rb(request);
 		}
-		WmsWarehouseDO warehouse = new WmsWarehouseDO();
-		warehouse.setWarehouseCode(store.getDefaultWarehouse());
-		warehouse = this.warehouseMapper.selectOne(warehouse);
-		if (warehouse == null) {
-			return ResultBaseBuilder.fails("门店默认仓库信息有误").rb(request);
-		}
 		JSONArray recipes = CommonUtils.parseJSONArray(recipesJson);
 		if (recipes.size() == 0) {
 			return ResultBaseBuilder.fails("请输入菜单信息").rb(request);
@@ -305,14 +302,17 @@ public class BusinessController {
 			formula.setRecipesCode(recipesCode);
 			List<WmsRecipesFormulaDO> formulas = TkMappers.inst().getRecipesFormulaMapper().select(formula);
 			for (WmsRecipesFormulaDO f : formulas) {
-				OutStockEvent event = new OutStockEvent();
-				event.setMaterialCode(f.getMaterialCode());
-				event.setWarehouseCode(warehouse.getWarehouseCode());
-				event.setOutstockAmt(f.getMaterialAmt() * amt);
-				event.setOperator(user.getUserCode());
-				event.setStoreCode(storeCode);
-				event.setRemark("出库:菜单" + recipesCode + ":份数" + amt);
-				BusCruise.post(event, true);
+				WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+				d.setCabinCode(storeCode);
+				d.setCabinType("2");
+				d.setAmt(-1 * f.getMaterialAmt() * amt);
+				d.setMaterialCode(f.getMaterialCode());
+				d.setOpType("out_stock");
+				d.setStatus("0");
+				d.setGmtCreated(new Date());
+				d.setOperator(user.getUserCode());
+				d.setRemark("按菜单出库:" + recipesCode);
+				TkMappers.inst().getMaterialStockHistoryMapper().insertSelective(d);
 			}
 		}
 		return ResultBaseBuilder.succ().rb(request);
@@ -327,20 +327,53 @@ public class BusinessController {
 		}
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String instockAmtStr = CommonUtils.get(request, "instockAmt");
-		String warehouseCode = CommonUtils.get(request, "warehouseCode");
+		String cabCode = CommonUtils.get(request, "cabCode");
 		BigDecimal instockAmt = CommonUtils.parseBigDecimal(instockAmtStr);
 		if (instockAmt == null || Math.abs(instockAmt.doubleValue()) < 0.009) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		if (CommonUtils.isAnyBlank(materialCode, warehouseCode)) {
+		if (CommonUtils.isAnyBlank(materialCode, cabCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		InStockEvent event = new InStockEvent();
-		event.setMaterialCode(materialCode);
-		event.setWarehouseCode(warehouseCode);
-		event.setInstockAmt(instockAmt.doubleValue());
-		event.setOperator(user.getUserCode());
-		BusCruise.post(event);
+//		InStockEvent event = new InStockEvent();
+//		event.setMaterialCode(materialCode);
+//		event.setCabCode(cabCode);
+//		event.setInstockAmt(instockAmt.doubleValue());
+//		event.setOperator(user.getUserCode());
+//		BusCruise.post(event);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/batchInstock", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object batchInstock() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String dataJson = CommonUtils.get(request, "dataJson");
+		JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
+		// 保存history
+		List<WmsMaterialStockHistoryDO> hisList = new ArrayList<>();
+		for (int i = 0; i < dataArr.size(); i++) {
+			JSONObject j = dataArr.getJSONObject(i);
+			WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+			d.setCabinCode(j.getString("cabinCode"));
+			d.setCabinType(j.getString("cabinType"));
+			d.setAmt(j.getDouble("amt"));
+			d.setUnitPrice(j.getDouble("unitPrice"));
+			d.setTotalPrice(d.getAmt() * d.getUnitPrice());
+			d.setMaterialCode(j.getString("materialCode"));
+			d.setOpType("in_stock");
+			d.setStatus("0");
+			d.setProductDate(CommonUtils.parseDate(j.getString("productDate")));
+			d.setGmtCreated(new Date());
+			d.setOperator(user.getUserCode());
+			hisList.add(d);
+		}
+		for (WmsMaterialStockHistoryDO dd : hisList) {
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(dd);
+		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -369,23 +402,19 @@ public class BusinessController {
 		if (stock == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}
-		// 更新库存
-		Double prevStock = stock.getCurrStock();
-		stock.setCurrStock(realStock.doubleValue());
-		this.stockMapper.updateByPrimaryKeySelective(stock);
 		// 记录history
-		WmsMaterialStockHistoryDO history = new WmsMaterialStockHistoryDO();
-		history.setMaterialCode(stock.getMaterialCode());
-		history.setMaterialName(stock.getMaterialName());
-		history.setCurrStock(stock.getCurrStock());
-		history.setWarehouseCode(stock.getWarehouseCode());
-		history.setStockChg(prevStock - realStock.doubleValue());
-		history.setOpType("correct");
-		history.setOperator(user.getUserCode());
-		history.setGmtCreated(new Date());
-		history.setRemark(String.format("库存盘点,%s=>%s", prevStock, realStock));
-		this.stockHistoryMapper.insert(history);
-		return ResultBaseBuilder.succ().data(stock).rb(request);
+		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+		d.setCabinCode(stock.getCabinCode());
+		d.setCabinType(stock.getCabinType());
+		d.setAmt(realStock.doubleValue());
+		d.setMaterialCode(stock.getMaterialCode());
+		d.setMaterialName(stock.getMaterialName());
+		d.setOpType("correct");
+		d.setStatus("0");
+		d.setGmtCreated(new Date());
+		d.setOperator(user.getUserCode());
+		this.stockHistoryMapper.insert(d);
+		return ResultBaseBuilder.succ().rb(request);
 	}
 
 	@RequestMapping(value = "/diaobo", produces = "application/json;charset=UTF-8")
@@ -396,40 +425,38 @@ public class BusinessController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String materialCode = CommonUtils.get(request, "materialCode");// 调拨材料
-		String fromWarehouseCode = CommonUtils.get(request, "fromWarehouseCode");// 拨出门店
-		String toWarehouseCode = CommonUtils.get(request, "toWarehouseCode");// 拨入门店
+		String fromCabCode = CommonUtils.get(request, "fromCabCode");// 拨出门店
+		String toCabCode = CommonUtils.get(request, "toCabCode");// 拨入门店
 		Double diaoboAmt = CommonUtils.getDbl(request, "diaoboAmt", null);
-		if (diaoboAmt == null || CommonUtils.isAnyBlank(fromWarehouseCode, toWarehouseCode, materialCode)) {
+		if (diaoboAmt == null || CommonUtils.isAnyBlank(fromCabCode, toCabCode, materialCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		WmsWarehouseDO fromWarehouse = new WmsWarehouseDO();
-		fromWarehouse.setWarehouseCode(fromWarehouseCode);
-		fromWarehouse = TkMappers.inst().getWarehouseMapper().selectOne(fromWarehouse);
-		WmsWarehouseDO toWarehouse = new WmsWarehouseDO();
-		toWarehouse.setWarehouseCode(toWarehouseCode);
-		toWarehouse = TkMappers.inst().getWarehouseMapper().selectOne(toWarehouse);
-		if (fromWarehouse == null || toWarehouse == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		// 出库事件
-		OutStockEvent outevent = new OutStockEvent();
-		outevent.setMaterialCode(materialCode);
-		outevent.setWarehouseCode(fromWarehouse.getWarehouseCode());
-		outevent.setOutstockAmt(diaoboAmt);
-		outevent.setOperator(user.getUserCode());
-		outevent.setRemark("调拨出库");
-		// 入库事件
-		InStockEvent inevent = new InStockEvent();
-		inevent.setMaterialCode(materialCode);
-		inevent.setWarehouseCode(toWarehouse.getWarehouseCode());
-		inevent.setInstockAmt(diaoboAmt);
-		inevent.setOperator(user.getUserCode());
-		inevent.setRemark("调拨入库");
-		//
-		BusCruise.post(outevent, true);
-		BusCruise.post(inevent, true);
-		outevent.await(2000);
-		inevent.await(2000);
+		// 调出
+		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+		d.setCabinCode(fromCabCode);
+		d.setCabinType(fromCabCode.startsWith("WH") ? "1" : "2");
+		d.setAmt(-1 * diaoboAmt.doubleValue());
+		d.setMaterialCode(materialCode);
+		d.setOpType("bochu");
+		d.setStatus("0");
+		d.setGmtCreated(new Date());
+		d.setOperator(user.getUserCode());
+		d.setRemark("调出到" + toCabCode);
+		d.setRelateCode(toCabCode);
+		this.stockHistoryMapper.insert(d);
+		// 调入
+		d = new WmsMaterialStockHistoryDO();
+		d.setCabinCode(fromCabCode);
+		d.setCabinType(fromCabCode.startsWith("WH") ? "1" : "2");
+		d.setAmt(diaoboAmt.doubleValue());
+		d.setMaterialCode(materialCode);
+		d.setOpType("boru");
+		d.setStatus("0");
+		d.setGmtCreated(new Date());
+		d.setOperator(user.getUserCode());
+		d.setRemark("从" + fromCabCode + "拨入");
+		d.setRelateCode(fromCabCode);
+		this.stockHistoryMapper.insert(d);
 
 		return ResultBaseBuilder.succ().msg("调拨成功").rb(request);
 	}
