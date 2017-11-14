@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -47,6 +48,11 @@ public class SupplierController {
 		String supplierPhone = CommonUtils.get(request, "supplierPhone");
 		String supplierEmail = CommonUtils.get(request, "supplierEmail");
 		String status = CommonUtils.get(request, "status");
+		String payMode = CommonUtils.get(request, "payMode");
+		String payWay = CommonUtils.get(request, "payWay");
+		String payAccount = CommonUtils.get(request, "payAccount");
+		String bankName = CommonUtils.get(request, "bankName");
+		String remark = CommonUtils.get(request, "remark");
 		String materialJson = CommonUtils.get(request, "materialJson");
 		WmsSupplierDO supplier = new WmsSupplierDO();
 		// 如果供应商不存在，则新增供应商
@@ -58,7 +64,14 @@ public class SupplierController {
 			supplier.setSupplierTel(supplierTel);
 			supplier.setSupplierPhone(supplierPhone);
 			supplier.setSupplierEmail(supplierEmail);
+			supplier.setPayMode(payMode);
+			supplier.setPayWay(payWay);
+			supplier.setPayAccount(payAccount);
+			supplier.setBankName(bankName);
+			supplier.setRemark(remark);
+			supplier.setModifer(user.getUserCode());
 			supplier.setStatus("1");
+			supplier.setGmtModified(new Date());
 			TkMappers.inst().getSupplierMapper().insert(supplier);
 		}
 		// 否则修改供应商信息
@@ -66,7 +79,7 @@ public class SupplierController {
 			WmsSupplierDO cond = new WmsSupplierDO();
 			cond.setSupplierCode(supplierCode);
 			cond = TkMappers.inst().getSupplierMapper().selectOne(cond);
-			//code不存在
+			// code不存在
 			if (cond == null) {
 				return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 			}
@@ -80,6 +93,13 @@ public class SupplierController {
 			supplier.setSupplierTel(supplierTel);
 			supplier.setSupplierPhone(supplierPhone);
 			supplier.setSupplierEmail(supplierEmail);
+			supplier.setPayMode(payMode);
+			supplier.setPayWay(payWay);
+			supplier.setPayAccount(payAccount);
+			supplier.setBankName(bankName);
+			supplier.setRemark(remark);
+			supplier.setModifer(user.getUserCode());
+			supplier.setGmtModified(new Date());
 			supplier.setStatus(status);
 			TkMappers.inst().getSupplierMapper().updateByPrimaryKeySelective(supplier);
 		}
@@ -111,12 +131,12 @@ public class SupplierController {
 			// 先删除后插入
 			WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 			ms.setSupplierCode(supplier.getSupplierCode());
-			TkMappers.inst().getMaterialSupplierMapper().delete(ms);
+			TkMappers.inst().getMaterialSupplierMapper().delete(ms); // deleteAll
 			for (WmsMaterialSupplierDO t : materialSupplierList) {
 				TkMappers.inst().getMaterialSupplierMapper().insert(t);
 			}
 		}
-		return ResultBaseBuilder.succ().rb(request);
+		return ResultBaseBuilder.succ().data(supplier).rb(request);
 	}
 
 	@RequestMapping(value = "/querySupplierPage", produces = "application/json;charset=UTF-8")

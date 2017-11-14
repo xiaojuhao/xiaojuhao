@@ -74,7 +74,8 @@ public class BusinessController {
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
-		material.setSearchKey(CommonUtils.get(request, "searchKey"));
+		String searchKey = CommonUtils.get(request, "searchKey");
+		material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
 		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
 			material.setStorageLife(storageLifeNum + storageLifeUnit);
 		}
@@ -96,7 +97,7 @@ public class BusinessController {
 			this.materialService.updateMaterial(material);
 		}
 		materialService.initMaterialStock(material.getMaterialCode(), null);
-		return ResultBaseBuilder.succ().rb(request);
+		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
 	@RequestMapping(value = "/queryMaterials", produces = "application/json;charset=UTF-8")
@@ -312,6 +313,7 @@ public class BusinessController {
 				d.setGmtCreated(new Date());
 				d.setOperator(user.getUserCode());
 				d.setRemark("按菜单出库:" + recipesCode);
+				d.setRelateCode(recipesCode);
 				TkMappers.inst().getMaterialStockHistoryMapper().insertSelective(d);
 			}
 		}
@@ -327,20 +329,24 @@ public class BusinessController {
 		}
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String instockAmtStr = CommonUtils.get(request, "instockAmt");
-		String cabCode = CommonUtils.get(request, "cabCode");
+		String cabinCode = CommonUtils.get(request, "cabinCode");
 		BigDecimal instockAmt = CommonUtils.parseBigDecimal(instockAmtStr);
 		if (instockAmt == null || Math.abs(instockAmt.doubleValue()) < 0.009) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		if (CommonUtils.isAnyBlank(materialCode, cabCode)) {
+		if (CommonUtils.isAnyBlank(materialCode, cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-//		InStockEvent event = new InStockEvent();
-//		event.setMaterialCode(materialCode);
-//		event.setCabCode(cabCode);
-//		event.setInstockAmt(instockAmt.doubleValue());
-//		event.setOperator(user.getUserCode());
-//		BusCruise.post(event);
+		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
+		d.setCabinCode(cabinCode);
+		d.setCabinType(cabinCode.startsWith("WH") ? "1" : "2");
+		d.setAmt(instockAmt.doubleValue());
+		d.setMaterialCode(materialCode);
+		d.setOpType("correct");
+		d.setStatus("0");
+		d.setGmtCreated(new Date());
+		d.setOperator(user.getUserCode());
+		this.stockHistoryMapper.insert(d);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -406,7 +412,9 @@ public class BusinessController {
 		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
 		d.setCabinCode(stock.getCabinCode());
 		d.setCabinType(stock.getCabinType());
-		d.setAmt(realStock.doubleValue());
+		d.setAmt(realStock.doubleValue());// 修正库存量
+		d.setPreStock(stock.getCurrStock());// 修正前的库存
+		d.setPostStock(realStock.doubleValue());// 修正后的库存
 		d.setMaterialCode(stock.getMaterialCode());
 		d.setMaterialName(stock.getMaterialName());
 		d.setOpType("correct");
@@ -446,8 +454,8 @@ public class BusinessController {
 		this.stockHistoryMapper.insert(d);
 		// 调入
 		d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(fromCabCode);
-		d.setCabinType(fromCabCode.startsWith("WH") ? "1" : "2");
+		d.setCabinCode(toCabCode);
+		d.setCabinType(toCabCode.startsWith("WH") ? "1" : "2");
 		d.setAmt(diaoboAmt.doubleValue());
 		d.setMaterialCode(materialCode);
 		d.setOpType("boru");

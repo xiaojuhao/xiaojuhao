@@ -1,6 +1,6 @@
 package com.xjh.dao.dataobject;
 
-import java.util.Date;
+import java.io.Serializable;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,25 +12,17 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "wms_supplier")
-public class WmsSupplierDO extends PageDTO {
+@Table(name = "wms_material_split")
+public class WmsMaterialSplitDO extends PageDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
-	String supplierCode;
-	String supplierName;
-	String supplierAddr;
-	String payMode;
-	String payWay;
-	String payAccount;
-	String bankName;
-	String supplierTel;
-	String supplierPhone;
-	String supplierEmail;
+	String materialCode;
+	String materialName;
+	String splitCode;
+	String splitName;
 	String status;
-	String remark;
-	String modifer;
-	Date gmtModified;
+	Double splitAmt;
 
 }

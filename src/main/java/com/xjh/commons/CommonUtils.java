@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,6 +43,9 @@ import org.springframework.beans.BeanUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.stuxuhai.jpinyin.PinyinException;
+import com.github.stuxuhai.jpinyin.PinyinFormat;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -413,6 +417,7 @@ public class CommonUtils {
 		}
 		return json;
 	}
+
 	public static JSONArray parseJSONArray(String jsonStr) {
 		JSONArray json = null;
 		try {
@@ -425,6 +430,7 @@ public class CommonUtils {
 		}
 		return json;
 	}
+
 	/**
 	 * email加密显示
 	 * 
@@ -647,7 +653,7 @@ public class CommonUtils {
 		String val = request.getParameter(paramName);
 		return parseInt(val, null);
 	}
-	
+
 	public static Double getDbl(HttpServletRequest request, String paramName, Double def) {
 		BigDecimal val = parseBigDecimal(request.getParameter(paramName), null);
 		if (val == null) {
@@ -706,7 +712,7 @@ public class CommonUtils {
 		BigDecimal r = parseBigDecimal(numberStr);
 		return r == null ? defaultVal : r.doubleValue();
 	}
-	
+
 	public static BigDecimal parseBigDecimal(String numberStr, BigDecimal defaultVal) {
 		BigDecimal r = parseBigDecimal(numberStr);
 		return r == null ? defaultVal : r;
@@ -945,4 +951,26 @@ public class CommonUtils {
 		return list;
 	}
 
+	public static String genSearchKey(String src, String base) {
+		Set<String> set = new HashSet<>();
+		if (StringUtils.isNotBlank(base)) {
+			for (String str : base.split(",")) {
+				if (StringUtils.isNotBlank(str))
+					set.add(str.trim());
+			}
+		}
+		try {
+			String pinyin = PinyinHelper.convertToPinyinString(src, ",", PinyinFormat.WITHOUT_TONE);
+			set.add(pinyin.replaceAll(",", ""));
+			StringBuffer hh = new StringBuffer();
+			for (String str : pinyin.split(",")) {
+				if (StringUtils.isNotBlank(str))
+					hh.append(str.substring(0, 1));
+			}
+			set.add(hh.toString());
+		} catch (PinyinException e) {
+			e.printStackTrace();
+		}
+		return set.stream().collect(Collectors.joining(","));
+	}
 }
