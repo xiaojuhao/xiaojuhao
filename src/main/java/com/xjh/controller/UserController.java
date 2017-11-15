@@ -40,12 +40,6 @@ public class UserController {
 		if (CommonUtils.isAnyBlank(userCode, password)) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
 		}
-		if (userCode.equals("administrator") && password.equals("123456")) {
-			WmsUserDO userDO = new WmsUserDO();
-			userDO.setUserCode(userCode);
-			userDO.setUserName("超级管理员");
-			return ResultBaseBuilder.succ().data(userDO).rb(request);
-		}
 		WmsUserDO userDO = new WmsUserDO();
 		userDO.setUserCode(userCode);
 		userDO.setPassword(CommonUtils.md5(password));
