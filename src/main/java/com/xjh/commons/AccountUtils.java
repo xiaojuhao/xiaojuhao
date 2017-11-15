@@ -32,6 +32,9 @@ public class AccountUtils {
 		WmsUserDO user = new WmsUserDO();
 		user.setUserCode(userCode);
 		user = TkMappers.inst().getUserMapper().selectOne(user);
+		if (user != null && !StringUtils.equals(user.getStatus(), "1")) {
+			return null;
+		}
 		return user;
 	}
 }
