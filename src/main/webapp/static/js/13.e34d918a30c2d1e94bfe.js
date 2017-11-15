@@ -272,6 +272,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 
@@ -281,6 +284,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             form: {
                 supplierCode: this.$route.query.supplierCode,
                 supplierName: '',
+                shortName: '',
                 supplierTel: '',
                 supplierPhone: '',
                 supplierEmail: '',
@@ -412,6 +416,21 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         _vm.$set(_vm.form, "supplierName", $$v)
       },
       expression: "form.supplierName"
+    }
+  })], 1), _vm._v(" "), _c('el-form-item', {
+    attrs: {
+      "label": "简称"
+    }
+  }, [_c('el-input', {
+    attrs: {
+      "placeholder": "简称"
+    },
+    model: {
+      value: (_vm.form.shortName),
+      callback: function($$v) {
+        _vm.$set(_vm.form, "shortName", $$v)
+      },
+      expression: "form.shortName"
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {

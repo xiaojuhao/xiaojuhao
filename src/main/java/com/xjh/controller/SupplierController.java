@@ -47,6 +47,7 @@ public class SupplierController {
 		String supplierTel = CommonUtils.get(request, "supplierTel");
 		String supplierPhone = CommonUtils.get(request, "supplierPhone");
 		String supplierEmail = CommonUtils.get(request, "supplierEmail");
+		String shortName = CommonUtils.get(request, "shortName");
 		String status = CommonUtils.get(request, "status");
 		String payMode = CommonUtils.get(request, "payMode");
 		String payWay = CommonUtils.get(request, "payWay");
@@ -54,6 +55,9 @@ public class SupplierController {
 		String bankName = CommonUtils.get(request, "bankName");
 		String remark = CommonUtils.get(request, "remark");
 		String materialJson = CommonUtils.get(request, "materialJson");
+		if (StringUtils.isBlank(shortName)) {
+			shortName = supplierName;
+		}
 		WmsSupplierDO supplier = new WmsSupplierDO();
 		// 如果供应商不存在，则新增供应商
 		if (StringUtils.isBlank(supplierCode)) {
@@ -61,6 +65,7 @@ public class SupplierController {
 			supplierCode = "S" + StringUtils.leftPad(seq + "", 4, "0");
 			supplier.setSupplierCode(supplierCode);
 			supplier.setSupplierName(supplierName);
+			supplier.setShortName(shortName);
 			supplier.setSupplierTel(supplierTel);
 			supplier.setSupplierPhone(supplierPhone);
 			supplier.setSupplierEmail(supplierEmail);
@@ -90,6 +95,7 @@ public class SupplierController {
 				return ResultBaseBuilder.fails("供应商修改失败:no data").rb(request);
 			}
 			supplier.setSupplierName(supplierName);
+			supplier.setShortName(shortName);
 			supplier.setSupplierTel(supplierTel);
 			supplier.setSupplierPhone(supplierPhone);
 			supplier.setSupplierEmail(supplierEmail);
