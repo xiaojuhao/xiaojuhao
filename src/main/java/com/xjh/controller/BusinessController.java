@@ -145,7 +145,7 @@ public class BusinessController {
 	public Object queryMaterialsStock() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
-
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		int pageSize = CommonUtils.getPageSize(request);
 		int pageNo = CommonUtils.getPageNo(request);
@@ -163,7 +163,7 @@ public class BusinessController {
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
 		example.setStockType(stockType);
-		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example);
+		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example, user);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
@@ -176,7 +176,7 @@ public class BusinessController {
 		}
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
-		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example);
+		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example, null);
 		if (page.getValues() == null || page.getValues().size() == 0) {
 			return ResultBaseBuilder.fails("数据不存在").rb(request);
 		}

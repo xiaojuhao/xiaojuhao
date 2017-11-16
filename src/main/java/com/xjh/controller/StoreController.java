@@ -1,6 +1,8 @@
 package com.xjh.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -31,12 +33,12 @@ public class StoreController {
 	StoreService storeService;
 	@Resource
 	SequenceService sequenceService;
-	
-	@RequestMapping(value="/saveStore", produces = "application/json;charset=UTF-8")
+
+	@RequestMapping(value = "/saveStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object saveStore(){
+	public Object saveStore() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if(user == null){
+		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		Long id = CommonUtils.getLong(request, "id");
@@ -47,7 +49,7 @@ public class StoreController {
 		String managerPhone = CommonUtils.get(request, "managerPhone");
 		String managerEmail = CommonUtils.get(request, "managerEmail");
 		String defaultWarehouse = CommonUtils.get(request, "defaultWarehouse");
-		
+
 		WmsStoreDO store = new WmsStoreDO();
 		store.setId(id);
 		store.setStoreName(storeName);
@@ -58,49 +60,61 @@ public class StoreController {
 		store.setManagerPhone(managerPhone);
 		store.setDefaultWarehouse(defaultWarehouse);
 		ResultBase<WmsStoreDO> rs = null;
-		if(StringUtils.isBlank(storeCode)){
+		if (StringUtils.isBlank(storeCode)) {
 			long val = sequenceService.next("wms_store");
-			storeCode = "MD"+StringUtils.leftPad(val+"", 4, "0");
+			storeCode = "MD" + StringUtils.leftPad(val + "", 4, "0");
 			store.setStoreCode(storeCode);
 			rs = storeService.addStore(store);
-		}else{
+		} else {
 			rs = storeService.updateStore(store);
 		}
 		return ResultBaseBuilder.wrap(rs).rb(request);
 	}
 
-	@RequestMapping(value="/getAllStore", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object getAllStore(){
-		
+	public Object getAllStore() {
+
 		PageResult<WmsStoreDO> page = storeService.queryStore(null);
 		return ResultBaseBuilder.succ().data(page).rb(request);
-	}@RequestMapping(value="/getStoreByCode", produces = "application/json;charset=UTF-8")
+	}
+
+	@RequestMapping(value = "/getStoreByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object getStoreByCode(){
+	public Object getStoreByCode() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String storeCode = request.getParameter("storeCode");
 		WmsStoreDO store = storeService.queryByStoreCode(storeCode);
-		if(store == null){
+		if (store == null) {
 			return ResultBaseBuilder.fails("门店不存在").rb(request);
 		}
 		return ResultBaseBuilder.succ().data(store).rb(request);
 	}
-	
-	@RequestMapping(value="/getMyStore", produces = "application/json;charset=UTF-8")
+
+	@RequestMapping(value = "/getMyStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object getMyStore(){
+	public Object getMyStore() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		WmsStoreDO store = new WmsStoreDO();
+		final String auths = user.getAuthStores() == null ? "" : user.getAuthStores();
+
 		List<WmsStoreDO> list = TkMappers.inst().getStoreMapper().select(store);
+		if (!"1".equals(user.getUserRole())) {
+			List<WmsStoreDO> list2 = new ArrayList<>();
+			for (WmsStoreDO t : list) {
+				if (auths.contains(t.getStoreCode())) {
+					list2.add(t);
+				}
+			}
+			list = list2;
+		}
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
-	
-	
+
 }

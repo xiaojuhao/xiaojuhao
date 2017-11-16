@@ -385,7 +385,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     methods: {
         onCancel() {
-            this.$router.go(-1);
+            this.recipesList = [];
         },
         onSubmit() {
             this.$data.loadingState = true;
@@ -569,7 +569,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     on: {
       "click": _vm.onCancel
     }
-  }, [_vm._v("取消")])], 1)], 1)], 1)])
+  }, [_vm._v("清空")])], 1)], 1)], 1)])
 },staticRenderFns: []}
 
 /***/ }),

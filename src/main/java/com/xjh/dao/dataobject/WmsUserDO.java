@@ -24,6 +24,8 @@ public class WmsUserDO extends PageDTO {
 	String userRole;
 	String password;
 	String status;
+	String authStores;
+	String authWarehouse;
 	@Transient
 	String loginCookie;
 }

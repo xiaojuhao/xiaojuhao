@@ -134,6 +134,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__common_config_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery__ = __webpack_require__(264);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__common_bus__ = __webpack_require__(262);
 //
 //
 //
@@ -179,6 +180,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+
 
 
 
@@ -187,29 +191,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             item: {},
             diaoboAmt: 0,
-            allWarehouse: [],
-            toWarehouseCode: ''
+            allCabins: [],
+            toCabinCode: ''
         };
     },
     methods: {
         onSubmit() {
-            var self = this;
-            __WEBPACK_IMPORTED_MODULE_1_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/busi/diaobo",
-                data: {
-                    materialCode: self.item.materialCode,
-                    diaoboAmt: self.diaoboAmt,
-                    fromCabCode: self.item.cabinCode,
-                    toCabCode: self.toWarehouseCode
-                },
-                dataType: 'jsonp'
-            }).then(function (resp) {
-                if (resp.code != 200) {
-                    self.$message.error(resp.message);
-                    return;
-                }
-                self.$message(resp.message);
-                self.$router.go(-1);
+            __WEBPACK_IMPORTED_MODULE_2__common_bus__["a" /* api */].diaobo({
+                materialCode: self.item.materialCode,
+                diaoboAmt: self.diaoboAmt,
+                fromCabCode: self.item.cabinCode,
+                toCabCode: self.toWarehouseCode
+            }).then(val => {
+                this.$message("提交成功");
+                this.$router.go(-1);
+            }).fail(resp => {
+                this.$message.error(resp.message);
             });
         },
         onBack() {
@@ -223,19 +220,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         }
     },
-    computed: {
-        warehouseSelection: function (p) {
-            return this.allWarehouse.filter(d => {
-                //过滤拨出仓库
-                if (d.warehouseCode != this.item.warehouseCode) {
-                    return d;
-                }
-            });
-        }
-    },
+    computed: {},
     mounted() {
         this.initData();
-        __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.getWarehouse({}, resp => this.allWarehouse = resp.value.values);
+        __WEBPACK_IMPORTED_MODULE_2__common_bus__["a" /* api */].queryMyStores().then(stores => {
+            stores.forEach(s => {
+                let c = {};
+                c.cabinCode = s.storeCode;
+                c.cabinName = s.storeName;
+                c.type = "门店";
+                this.allCabins.push(c);
+            });
+        });
+
+        __WEBPACK_IMPORTED_MODULE_2__common_bus__["a" /* api */].queryMyWarehouse().then(wares => {
+            wares.forEach(w => {
+                let c = {};
+                c.cabinCode = w.warehouseCode;
+                c.cabinName = w.warehouseName;
+                c.type = "仓库";
+                this.allCabins.push(c);
+            });
+        });
     },
     activated() {}
 });
@@ -292,9 +298,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }, [_c('span', [_vm._v(_vm._s(_vm.item.currStock))])]), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "label": "仓库"
+      "label": "仓库/门店"
     }
-  }, [_c('span', [_vm._v(_vm._s(_vm.item.warehouseName))])]), _vm._v(" "), _c('el-form-item', {
+  }, [_c('span', [_vm._v(_vm._s(_vm.item.cabinName))])]), _vm._v(" "), _c('el-form-item', {
     attrs: {
       "label": "调拨数量"
     }
@@ -308,27 +314,37 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })], 1), _vm._v(" "), _c('el-form-item', {
     attrs: {
-      "label": "拨出仓库"
+      "label": "拨入"
     }
   }, [_c('el-select', {
     attrs: {
       "placeholder": "请选择"
     },
     model: {
-      value: (_vm.toWarehouseCode),
+      value: (_vm.toCabinCode),
       callback: function($$v) {
-        _vm.toWarehouseCode = $$v
+        _vm.toCabinCode = $$v
       },
-      expression: "toWarehouseCode"
+      expression: "toCabinCode"
     }
-  }, _vm._l((_vm.warehouseSelection), function(item) {
+  }, _vm._l((_vm.allCabins), function(item) {
     return _c('el-option', {
-      key: item.warehouseCode,
+      key: item.cabinCode,
       attrs: {
-        "label": item.warehouseName,
-        "value": item.warehouseCode
+        "label": item.cabinName,
+        "value": item.cabinCode
       }
-    })
+    }, [_c('span', {
+      staticStyle: {
+        "float": "left"
+      }
+    }, [_vm._v(_vm._s(item.cabinName))]), _vm._v(" "), _c('span', {
+      staticStyle: {
+        "float": "right",
+        "color": "#8492a6",
+        "font-size": "13px"
+      }
+    }, [_vm._v(_vm._s(item.type))])])
   }))], 1), _vm._v(" "), _c('el-form-item', {
     staticClass: "el-form-item-button"
   }, [_c('el-button', {

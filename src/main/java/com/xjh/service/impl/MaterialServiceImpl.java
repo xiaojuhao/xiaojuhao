@@ -10,13 +10,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
-import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
@@ -24,6 +24,8 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.TkMappers;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
+
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class MaterialServiceImpl implements MaterialService {
@@ -134,16 +136,34 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example) {
+	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example, WmsUserDO user) {
 		PageResult<WmsMaterialStockVo> page = new PageResult<>();
 		page.setTotalRows(0);
 		if (example == null) {
 			example = new WmsMaterialStockDO();
 		}
-		int totalRows = this.tkWmsMaterialStockMapper.selectCount(example);
+
+		Example exam = new Example(WmsMaterialStockDO.class, false, false);
+		Example.Criteria cri = exam.createCriteria();
+		cri.andEqualTo(example);
+		if (user != null && !"1".equals(user.getUserRole())) {
+			List<String> cabinCodes = new ArrayList<>();
+			if (StringUtils.isNotBlank(user.getAuthStores())) {
+				String[] arr = user.getAuthStores().split(",");
+				for (String s : arr)
+					cabinCodes.add(s);
+			}
+			if (StringUtils.isNotBlank(user.getAuthWarehouse())) {
+				String[] arr = user.getAuthWarehouse().split(",");
+				for (String s : arr)
+					cabinCodes.add(s);
+			}
+			cri.andIn("cabinCode", cabinCodes);
+		}
+		int totalRows = this.tkWmsMaterialStockMapper.selectCountByExample(exam);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		PageHelper.orderBy("id");
-		List<WmsMaterialStockDO> list = tkWmsMaterialStockMapper.select(example);
+		List<WmsMaterialStockDO> list = tkWmsMaterialStockMapper.selectByExample(exam);
 		List<WmsMaterialStockVo> ret = new ArrayList<>();
 		for (WmsMaterialStockDO dd : list) {
 			WmsMaterialStockVo vo = new WmsMaterialStockVo();

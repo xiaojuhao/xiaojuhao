@@ -427,16 +427,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                // this.loadingState = true;
-                // this.$message({
-                //   type: 'success',
-                //   message: '入库成功!'
-                // });
-                // self.recipesList = [];
-                // setTimeout(()=>{
-                //     this.loadingState = false;
-                // },2000)
+                this.loadingState = true;
                 this.submitToServer();
+                self.recipesList = [];
+                setTimeout(() => {
+                    this.loadingState = false;
+                }, 2000);
             }).catch(() => {
                 this.$message({
                     type: 'info',

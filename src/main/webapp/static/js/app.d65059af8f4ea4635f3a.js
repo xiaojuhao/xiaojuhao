@@ -502,6 +502,9 @@ const api = {
 		});
 		return df.promise();
 	},
+	diaobo(data) {
+		return http.post("/busi/diaobo", data);
+	},
 	addRecipes(data) {
 		var df = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.Deferred();
 		__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
@@ -565,6 +568,9 @@ const api = {
 	},
 	getAllWarehouse() {
 		return http.jsonp2("/warehouse/queryWarehouses", { pageSize: 1000 });
+	},
+	queryWarehousesPage(param) {
+		return http.jsonp("/warehouse/queryWarehouses", param);
 	},
 	getWarehouseByCode(code) {
 		return http.jsonp2("/warehouse/queryWarehouseByCode", { warehouseCode: code });

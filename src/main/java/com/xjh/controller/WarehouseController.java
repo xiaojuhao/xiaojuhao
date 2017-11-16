@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -122,9 +123,18 @@ public class WarehouseController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		final String auths = user.getAuthWarehouse() == null ? "" : user.getAuthWarehouse();
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		List<WmsWarehouseDO> list = this.warehouseMapper.select(warehouse);
-
+		if (!"1".equals(user.getUserRole())) {
+			List<WmsWarehouseDO> list2 = new ArrayList<>();
+			for (WmsWarehouseDO t : list) {
+				if (auths.contains(t.getWarehouseCode())) {
+					list2.add(t);
+				}
+			}
+			list = list2;
+		}
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }

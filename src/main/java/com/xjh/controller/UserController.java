@@ -134,6 +134,8 @@ public class UserController {
 				user.setStoreCode(input.getStoreCode());
 			if (StringUtils.isNotBlank(input.getStatus()))
 				user.setStatus(input.getStatus());
+			user.setAuthStores(input.getAuthStores());
+			user.setAuthWarehouse(input.getAuthWarehouse());
 			TkMappers.inst().getUserMapper().updateByPrimaryKeySelective(user);
 		}
 		return ResultBaseBuilder.succ().rb(request);

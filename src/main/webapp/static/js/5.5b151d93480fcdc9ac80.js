@@ -1037,6 +1037,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__OutStock_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__OutStock_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery__ = __webpack_require__(264);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__common_bus__ = __webpack_require__(262);
 //
 //
 //
@@ -1092,6 +1093,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+
 
 
 
@@ -1118,13 +1120,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     mounted() {
         this.getData();
-        var $this = this;
-        __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
-            url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + "/warehouse/queryWarehouses",
-            dataType: 'jsonp'
-        }).then(resp => {
-            console.log(resp);
-            $this.warehouseSelection = resp.value.values;
+        let param = {};
+        __WEBPACK_IMPORTED_MODULE_3__common_bus__["a" /* api */].queryWarehousesPage(param).then(page => {
+            this.warehouseSelection = page.values;
         });
     },
     activated() {
@@ -1146,28 +1144,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getData() {
             let self = this;
             self.$data.loadingState = true;
-            __WEBPACK_IMPORTED_MODULE_2_jquery___default.a.ajax({
-                url: __WEBPACK_IMPORTED_MODULE_0__common_config_vue___default.a.server + '/busi/queryMaterialsStock',
-                data: {
-                    pageSize: self.$data.pageSize,
-                    pageNo: self.$data.cur_page,
-                    materialCode: self.$data.query.materialCode,
-                    warehouseCode: self.$data.query.warehouseCode,
-                    stockType: '2'
-                },
-                dataType: 'jsonp'
-            }).then(function (resp) {
-                if (resp.code != 200) {
-                    self.$message.error(resp.message);
-                    return;
-                }
-                var value = resp.value;
-                if (!value) {
-                    self.$message.error("服务端没有返回数据");
-                    return;
-                }
-                self.tableData = value.values;
-                self.totalRows = value.totalRows;
+            let param = {
+                pageSize: self.$data.pageSize,
+                pageNo: self.$data.cur_page,
+                materialCode: self.$data.query.materialCode,
+                warehouseCode: self.$data.query.warehouseCode,
+                stockType: '2'
+            };
+
+            __WEBPACK_IMPORTED_MODULE_3__common_bus__["a" /* api */].queryMaterialsStockPage(param).then(page => {
+                self.tableData = page.values;
+                self.totalRows = page.totalRows;
             }).fail(function (resp) {
                 self.$message.error("请求出错");
             }).always(function (resp) {
@@ -1366,7 +1353,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
-      "prop": "warehouseName",
+      "prop": "cabinName",
       "label": "仓库",
       "width": "200"
     }
