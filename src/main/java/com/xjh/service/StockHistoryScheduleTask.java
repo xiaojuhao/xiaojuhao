@@ -141,6 +141,72 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
 	}
 
+	public void handleSplitIn(WmsMaterialStockHistoryDO record) {
+		if (!"split_in".equals(record.getOpType())) {
+			return;
+		}
+		// 更新状态为处理中.....
+		WmsMaterialStockHistoryDO status = new WmsMaterialStockHistoryDO();
+		status.setId(record.getId());
+		status.setStatus("9");
+		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+		// 初始化库存
+		materialService.initMaterialStock(record.getMaterialCode(), record.getCabinCode());
+		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
+		changeVo.setMaterialCode(record.getMaterialCode());
+		changeVo.setCabinCode(record.getCabinCode());
+		changeVo.setStockChgAmt(record.getAmt());
+		wmsMaterialStockMapper.increaseStock(changeVo);
+		// 处理完成。。。
+		status.setId(record.getId());
+		status.setStatus("1");
+		if (record.getCabinCode().startsWith("WH")) {
+			WmsWarehouseDO warehouse = this.WarehouseService.getWarehouseByCode(record.getCabinCode());
+			status.setCabinName(warehouse.getWarehouseName());
+		} else if (record.getCabinCode().startsWith("MD")) {
+			WmsStoreDO store = this.storeService.queryByStoreCode(record.getCabinCode());
+			status.setCabinName(store.getStoreName());
+		}
+		WmsMaterialDO material = materialService.getMaterialByCode(record.getMaterialCode());
+		status.setMaterialName(material.getMaterialName());
+		status.setStockUnit(material.getStockUnit());
+		status.setOperator(record.getOperator());
+		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+	}
+
+	public void handleSplitOut(WmsMaterialStockHistoryDO record) {
+		if (!"split_out".equals(record.getOpType())) {
+			return;
+		}
+		// 更新状态为处理中.....
+		WmsMaterialStockHistoryDO status = new WmsMaterialStockHistoryDO();
+		status.setId(record.getId());
+		status.setStatus("9");
+		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+		// 初始化库存
+		materialService.initMaterialStock(record.getMaterialCode(), record.getCabinCode());
+		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
+		changeVo.setMaterialCode(record.getMaterialCode());
+		changeVo.setCabinCode(record.getCabinCode());
+		changeVo.setStockChgAmt(record.getAmt());
+		wmsMaterialStockMapper.useStock(changeVo);
+		// 处理完成。。。
+		status.setId(record.getId());
+		status.setStatus("1");
+		if (record.getCabinCode().startsWith("WH")) {
+			WmsWarehouseDO warehouse = this.WarehouseService.getWarehouseByCode(record.getCabinCode());
+			status.setCabinName(warehouse.getWarehouseName());
+		} else if (record.getCabinCode().startsWith("MD")) {
+			WmsStoreDO store = this.storeService.queryByStoreCode(record.getCabinCode());
+			status.setCabinName(store.getStoreName());
+		}
+		WmsMaterialDO material = materialService.getMaterialByCode(record.getMaterialCode());
+		status.setMaterialName(material.getMaterialName());
+		status.setStockUnit(material.getStockUnit());
+		status.setOperator(record.getOperator());
+		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+	}
+
 	public void handleBoru(WmsMaterialStockHistoryDO record) {
 		if (!"boru".equals(record.getOpType())) {
 			return;
@@ -155,8 +221,8 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
-		changeVo.setStockChgAmt(Math.abs(record.getAmt()));
-		wmsMaterialStockMapper.increaseStock(changeVo);
+		changeVo.setStockChgAmt(record.getAmt());
+		wmsMaterialStockMapper.changeByDelta(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");
@@ -188,8 +254,8 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
-		changeVo.setStockChgAmt(Math.abs(record.getAmt()));
-		wmsMaterialStockMapper.useStock(changeVo);
+		changeVo.setStockChgAmt(record.getAmt());
+		wmsMaterialStockMapper.changeByDelta(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");
@@ -255,10 +321,14 @@ public class StockHistoryScheduleTask implements InitializingBean {
 				if (dd == null) {
 					break;
 				}
-				if (dd.getOpType().equals("in_stock") || dd.getOpType().equals("split_in")) {
+				if (dd.getOpType().equals("in_stock")) {
 					handleInStock(dd);
-				} else if (dd.getOpType().equals("out_stock") || dd.getOpType().equals("split_out")) {
+				} else if (dd.getOpType().equals("out_stock")) {
 					this.handleOutStock(dd);
+				} else if (dd.getOpType().equals("split_out")) {
+					this.handleSplitOut(dd);
+				} else if (dd.getOpType().equals("split_in")) {
+					this.handleSplitIn(dd);
 				} else if (dd.getOpType().equals("boru")) {
 					this.handleBoru(dd);
 				} else if (dd.getOpType().equals("bochu")) {

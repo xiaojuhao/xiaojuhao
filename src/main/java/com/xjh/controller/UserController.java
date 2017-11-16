@@ -1,7 +1,5 @@
 package com.xjh.controller;
 
-import java.util.Enumeration;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +20,7 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
+import com.xjh.valueobject.UserVo;
 
 @Controller
 @RequestMapping("/user")
@@ -47,8 +46,9 @@ public class UserController {
 		if (loginRs.getIsSuccess() == false) {
 			return ResultBaseBuilder.fails("登录失败").rb(request);
 		}
-		WmsUserDO ret = new WmsUserDO();
+		UserVo ret = new UserVo();
 		ret.setUserName(loginRs.getValue().getUserName());
+		ret.setLoginCookie(loginRs.getValue().getLoginCookie());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 
@@ -62,6 +62,10 @@ public class UserController {
 	@RequestMapping(value = "/queryUsers", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryUsers(WmsUserDO userDO) {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		PageResult<WmsUserDO> page = this.userService.queryUsers(userDO);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
@@ -69,6 +73,10 @@ public class UserController {
 	@RequestMapping(value = "/queryUserByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryUserByCode() {
+		WmsUserDO loginUser = AccountUtils.getLoginUser(request);
+		if (loginUser == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String userCode = CommonUtils.get(request, "userCode");
 		if (StringUtils.isBlank(userCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

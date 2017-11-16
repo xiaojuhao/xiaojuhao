@@ -32,8 +32,7 @@ public class CookieUtils {
 		if (StringUtils.isNotBlank(domain)) {
 			cookie.setDomain(domain);
 		}
-		String ctx = request.getContextPath();
-		cookie.setPath(StringUtils.isBlank(ctx) ? "/" : ctx);
+		cookie.setPath("/");
 		response.addCookie(cookie);
 		return cookie;
 	}

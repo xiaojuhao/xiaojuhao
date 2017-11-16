@@ -22,4 +22,14 @@
 		and cabin_code in (#{cabinCode},'ZK0000')
 	</update>
 
+	<update id="changeByDelta">
+		update wms_material_stock
+		set curr_stock = curr_stock + #{stockChgAmt}
+		<if test="operator!=null and operator!=''">
+			,modifier = #{operator}
+		</if>
+		where material_code = #{materialCode}
+		and cabin_code in (#{cabinCode})
+	</update>
+	
 </mapper>

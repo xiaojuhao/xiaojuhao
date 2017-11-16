@@ -72,11 +72,16 @@ public class StoreController {
 	@RequestMapping(value="/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getAllStore(){
+		
 		PageResult<WmsStoreDO> page = storeService.queryStore(null);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}@RequestMapping(value="/getStoreByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getStoreByCode(){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String storeCode = request.getParameter("storeCode");
 		WmsStoreDO store = storeService.queryByStoreCode(storeCode);
 		if(store == null){
@@ -88,6 +93,10 @@ public class StoreController {
 	@RequestMapping(value="/getMyStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getMyStore(){
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		WmsStoreDO store = new WmsStoreDO();
 		List<WmsStoreDO> list = TkMappers.inst().getStoreMapper().select(store);
 		return ResultBaseBuilder.succ().data(list).rb(request);

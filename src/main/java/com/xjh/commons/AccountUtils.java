@@ -15,6 +15,9 @@ public class AccountUtils {
 			return null;
 		}
 		String loginSessionKey = CookieUtils.getCookie(request, Constants.WMS_LOGIN_KEY);
+		if (StringUtils.isBlank(loginSessionKey)) {
+			loginSessionKey = request.getParameter("requestLoginCookie");
+		}
 		if (loginSessionKey == null) {
 			return null;
 		}

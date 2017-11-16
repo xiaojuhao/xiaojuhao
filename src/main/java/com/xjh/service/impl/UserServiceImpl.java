@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
 		sessionDO.setUserInfo(CommonUtils.toJsonString(userDO));
 		sessionMapper.insert(sessionDO);
 		CookieUtils.addCookie(request, response, Constants.WMS_LOGIN_KEY, sessionDO.getSessionId(), null);
+		user.setLoginCookie(sessionDO.getSessionId());
 		return ResultBaseBuilder.succ().msg("登录成功").data(user).rb();
 	}
 

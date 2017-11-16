@@ -148,6 +148,10 @@ public class SupplierController {
 	@RequestMapping(value = "/querySupplierPage", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object querySupplierPage() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		WmsSupplierDO cond = new WmsSupplierDO();
 		cond.setSupplierCode(supplierCode);
@@ -168,6 +172,10 @@ public class SupplierController {
 	@RequestMapping(value = "/querySupplierByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object querySupplierByCode() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		if (StringUtils.isBlank(supplierCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

@@ -49,7 +49,7 @@ public class RecipesController {
 		this.recipesService.saveRecipes(recipes);
 		//
 		recipesCode = recipes.getRecipesCode();
-		if(StringUtils.isBlank(recipesCode)){
+		if (StringUtils.isBlank(recipesCode)) {
 			return ResultBaseBuilder.fails("保存失败").rb(request);
 		}
 		JSONArray arr = CommonUtils.parseJSONArray(formula);
@@ -65,11 +65,11 @@ public class RecipesController {
 			f.setRecipesCode(recipesCode);
 			f.setRecipesName(recipesName);
 		}
-		//先删后插
+		// 先删后插
 		WmsRecipesFormulaDO formulaExample = new WmsRecipesFormulaDO();
 		formulaExample.setRecipesCode(recipesCode);
 		TkMappers.inst().getRecipesFormulaMapper().delete(formulaExample);
-		for(WmsRecipesFormulaDO fm : formulas){
+		for (WmsRecipesFormulaDO fm : formulas) {
 			TkMappers.inst().getRecipesFormulaMapper().insert(fm);
 		}
 		//
@@ -79,6 +79,10 @@ public class RecipesController {
 	@RequestMapping(value = "/queryRecipes", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryRecipes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
 		wmsRecipesDO.setRecipesCode(recipesCode);
@@ -91,6 +95,10 @@ public class RecipesController {
 	@RequestMapping(value = "/queryAllRecipes", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryAllRecipes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
 		wmsRecipesDO.setPageSize(1000);
 		PageResult<WmsRecipesDO> page = recipesService.queryRecipes(wmsRecipesDO);
@@ -100,16 +108,24 @@ public class RecipesController {
 	@RequestMapping(value = "/queryRecipesByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryRecipesByCode() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		WmsRecipesDO recipes = this.recipesService.queryRecipesByCode(recipesCode);
 		return ResultBaseBuilder.succ().data(recipes).rb(request);
 	}
-	
+
 	@RequestMapping(value = "/queryRecipesFormula", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryRecipesFormula() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String recipesCode = CommonUtils.get(request, "recipesCode");
-		if(StringUtils.isBlank(recipesCode)){
+		if (StringUtils.isBlank(recipesCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		WmsRecipesFormulaDO example = new WmsRecipesFormulaDO();
