@@ -39,6 +39,7 @@ public class IndexController {
 		List<MenuVo> menus = new ArrayList<>();
 		WmsMenuDO rootCond = new WmsMenuDO();
 		rootCond.setParentCode("root");
+		rootCond.setStatus(1);
 		List<WmsMenuDO> root = TkMappers.inst().getMenuMapper().select(rootCond);
 		for (WmsMenuDO r : root) {
 			if (!r.getRoles().contains(user.getUserRole()) && !r.getRoles().contains("all")) {
@@ -52,6 +53,7 @@ public class IndexController {
 			m.setMenuIcon(r.getMenuIcon());
 			WmsMenuDO subCond = new WmsMenuDO();
 			subCond.setParentCode(r.getMenuCode());
+			subCond.setStatus(1);
 			List<WmsMenuDO> sub = TkMappers.inst().getMenuMapper().select(subCond);
 			List<MenuVo> subs = new ArrayList<>();
 			for (WmsMenuDO s : sub) {

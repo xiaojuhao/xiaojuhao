@@ -55,6 +55,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.increaseStock(changeVo);
 		// 如果物料可拆，则进行自动拆分
 		if (StringUtils.equals(material.getCanSplit(), "Y")) {
@@ -123,6 +124,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(Math.abs(record.getAmt()));
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.useStock(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
@@ -156,6 +158,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.increaseStock(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
@@ -189,6 +192,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.useStock(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
@@ -222,6 +226,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.changeByDelta(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());
@@ -255,6 +260,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
+		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.changeByDelta(changeVo);
 		// 处理完成。。。
 		status.setId(record.getId());

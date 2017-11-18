@@ -40,6 +40,8 @@ import com.xjh.service.TkMappers;
 import com.xjh.service.vo.WmsMaterialStockVo;
 import com.xjh.service.vo.WmsMaterialVo;
 
+import tk.mybatis.mapper.entity.Example;
+
 @Controller
 @RequestMapping("/busi")
 public class BusinessController {
@@ -68,7 +70,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		
+
 		String splitMaterialsStr = request.getParameter("splitMaterialsStr");
 		String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
 		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
@@ -187,8 +189,8 @@ public class BusinessController {
 		int pageNo = CommonUtils.getPageNo(request);
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = CommonUtils.get(request, "materialCode");
-		String cabCode = CommonUtils.get(request, "cabCode");
-		String cabType = CommonUtils.get(request, "cabType");
+		String cabCode = CommonUtils.get(request, "cabinCode");
+		String cabType = CommonUtils.get(request, "cabinType");
 		String stockType = CommonUtils.get(request, "stockType");
 
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
@@ -229,15 +231,27 @@ public class BusinessController {
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		String materialCode = CommonUtils.get(request, "materialCode");
-		String opType = CommonUtils.get(request, "opType");
-		WmsMaterialStockHistoryDO example = new WmsMaterialStockHistoryDO();
-		example.setMaterialCode(materialCode);
-		example.setOpType(opType);
-		example.setPageSize(pageSize);
-		example.setPageNo(pageNo);
+		String opTypes = CommonUtils.get(request, "opTypes");
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		if (CommonUtils.isAnyBlank(materialCode, cabinCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsMaterialStockHistoryDO dd = new WmsMaterialStockHistoryDO();
+		dd.setMaterialCode(materialCode);
+		dd.setCabinCode(cabinCode);
+		dd.setPageSize(pageSize);
+		dd.setPageNo(pageNo);
+
+		Example example = new Example(WmsMaterialStockHistoryDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo(dd);
+		if (StringUtils.isNotBlank(opTypes)) {
+			cri.andIn("opType", CommonUtils.splitAsList(opTypes, ","));
+		}
 		PageHelper.startPage(pageNo, pageSize);
-		List<WmsMaterialStockHistoryDO> list = stockHistoryMapper.select(example);
-		int totalRows = this.stockHistoryMapper.selectCount(example);
+		PageHelper.orderBy("id desc");
+		List<WmsMaterialStockHistoryDO> list = stockHistoryMapper.selectByExample(example);
+		int totalRows = this.stockHistoryMapper.selectCountByExample(example);
 		PageResult<WmsMaterialStockHistoryDO> page = new PageResult<>();
 		page.setTotalRows(totalRows);
 		page.setValues(list);
@@ -408,6 +422,7 @@ public class BusinessController {
 			d.setMaterialCode(j.getString("materialCode"));
 			d.setOpType("in_stock");
 			d.setStatus("0");
+			d.setKeepDays(j.getString("storageLifeNum")+j.getString("storageLifeUnit"));
 			d.setProductDate(CommonUtils.parseDate(j.getString("productDate")));
 			d.setGmtCreated(new Date());
 			d.setOperator(user.getUserCode());

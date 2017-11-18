@@ -24,7 +24,7 @@ public class WmsMaterialStockHistoryDO extends PageDTO {
 	String cabinCode;
 	String cabinName;
 	String cabinType;
-	Double keepDays;// 保质期（天）
+	String keepDays;// 保质期
 	Double totalPrice;
 	Double unitPrice;
 	Double amt;// 变化量

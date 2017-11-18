@@ -49,6 +49,7 @@ public class UserController {
 		UserVo ret = new UserVo();
 		ret.setUserName(loginRs.getValue().getUserName());
 		ret.setLoginCookie(loginRs.getValue().getLoginCookie());
+		ret.setUserRole(loginRs.getValue().getUserRole());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 
