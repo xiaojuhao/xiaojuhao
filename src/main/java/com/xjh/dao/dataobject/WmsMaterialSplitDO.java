@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "wms_material_split")
+@Table(name = "wms_material_split_cfg")
 public class WmsMaterialSplitDO extends PageDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id

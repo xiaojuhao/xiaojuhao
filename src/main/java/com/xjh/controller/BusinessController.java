@@ -22,6 +22,7 @@ import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
+import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
@@ -67,6 +68,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		
 		String splitMaterialsStr = request.getParameter("splitMaterialsStr");
 		String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
 		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
@@ -82,6 +84,7 @@ public class BusinessController {
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
 		material.setCanSplit(CommonUtils.get(request, "canSplit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
+		material.setWarningThreshold(CommonUtils.get(request, "warningThreshold"));
 		material.setStatus(1);
 
 		if (StringUtils.isBlank(material.getMaterialName())) {
@@ -97,6 +100,21 @@ public class BusinessController {
 			this.materialService.updateMaterial(material);
 		}
 		materialService.initMaterialStock(material.getMaterialCode(), null);
+		JSONArray splits = CommonUtils.parseJSONArray(splitMaterialsStr);
+		WmsMaterialSplitDO splitCf = new WmsMaterialSplitDO();
+		splitCf.setMaterialCode(material.getMaterialCode());
+		TkMappers.inst().getMaterialSplitMapper().delete(splitCf);
+		for (int i = 0; i < splits.size(); i++) {
+			JSONObject j = splits.getJSONObject(i);
+			WmsMaterialSplitDO ss = new WmsMaterialSplitDO();
+			ss.setMaterialCode(material.getMaterialCode());
+			ss.setMaterialName(material.getMaterialName());
+			ss.setSplitCode(j.getString("materialCode"));
+			ss.setSplitName(j.getString("materialName"));
+			ss.setSplitAmt(j.getDouble("splitAmt"));
+			ss.setStatus("1");
+			TkMappers.inst().getMaterialSplitMapper().insert(ss);
+		}
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
@@ -118,6 +136,24 @@ public class BusinessController {
 		example.setId(id);
 		PageResult<WmsMaterialVo> list = this.materialService.queryMaterials(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMaterialSplitByMaterialCode", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMaterialSplitByMaterialCode() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+
+		}
+		String materialCode = CommonUtils.get(request, "materialCode");
+		List<WmsMaterialSplitDO> splits = new ArrayList<>();
+		if (StringUtils.isBlank(materialCode)) {
+			return ResultBaseBuilder.succ().data(splits).rb(request);
+		}
+		WmsMaterialSplitDO cond = new WmsMaterialSplitDO();
+		cond.setMaterialCode(materialCode);
+		splits = TkMappers.inst().getMaterialSplitMapper().select(cond);
+		return ResultBaseBuilder.succ().data(splits).rb(request);
 	}
 
 	@RequestMapping(value = "/queryMaterialById", produces = "application/json;charset=UTF-8")

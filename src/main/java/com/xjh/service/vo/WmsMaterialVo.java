@@ -16,4 +16,5 @@ public class WmsMaterialVo implements Serializable{
 	String searchKey;
 	Integer utilizationRatio;
 	String storageLife;
+	String warningThreshold;
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.xjh.dao.tkmapper.TkWmsDictMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialSplitMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
@@ -53,7 +54,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsDictMapper dictMapper;
 	@Resource
 	TkWmsMenuMapper menuMapper;
-
+	@Resource
+	TkWmsMaterialSplitMapper materialSplitMapper;
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		holder.setValue(this);

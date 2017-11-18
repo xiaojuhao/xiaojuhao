@@ -26,4 +26,5 @@ public class WmsMaterialStockDO extends PageDTO {
 	String cabinType;
 	String stockUnit;
 	String modifier;
+	String warningThreshold;
 }
