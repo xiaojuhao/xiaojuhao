@@ -44,7 +44,7 @@ public class UserController {
 		userDO.setPassword(CommonUtils.md5(password));
 		ResultBase<WmsUserDO> loginRs = userService.login(userDO, request, response);
 		if (loginRs.getIsSuccess() == false) {
-			return ResultBaseBuilder.fails("登录失败").rb(request);
+			return ResultBaseBuilder.wrap(loginRs).rb(request);
 		}
 		UserVo ret = new UserVo();
 		ret.setUserName(loginRs.getValue().getUserName());

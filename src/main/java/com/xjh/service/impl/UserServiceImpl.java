@@ -66,15 +66,15 @@ public class UserServiceImpl implements UserService {
 		t.setUserCode(userDO.getUserCode());
 		WmsUserDO user = userMapper.selectOne(t);
 		if (user == null) {
-			return ResultBaseBuilder.fails("登录失败").rb();
+			return ResultBaseBuilder.fails("用户名或密码错误").rb();
 		}
 		if (!StringUtils.equals(user.getPassword(), userDO.getPassword())) {
 			CookieUtils.deleteCookie(request, Constants.WMS_LOGIN_KEY);
-			return ResultBaseBuilder.fails("登录失败").rb();
+			return ResultBaseBuilder.fails("用户名或密码错误").rb();
 		}
 		if (!StringUtils.equals(user.getStatus(), "1")) {
 			CookieUtils.deleteCookie(request, Constants.WMS_LOGIN_KEY);
-			return ResultBaseBuilder.fails("登录失败").rb();
+			return ResultBaseBuilder.fails("用户名或密码错误").rb();
 		}
 		WmsSessionDO sessionDO = new WmsSessionDO();
 		sessionDO.setSessionId("WmsLogin" + CommonUtils.uuid().toUpperCase());
