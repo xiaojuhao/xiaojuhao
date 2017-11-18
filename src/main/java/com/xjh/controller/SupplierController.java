@@ -155,6 +155,7 @@ public class SupplierController {
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		WmsSupplierDO cond = new WmsSupplierDO();
 		cond.setSupplierCode(supplierCode);
+		cond.setStatus(CommonUtils.get(request, "status"));
 		cond.setPageNo(CommonUtils.getPageNo(request));// 分页信息
 		cond.setPageSize(CommonUtils.getPageSize(request));// 分页信息
 		int totalRows = TkMappers.inst().getSupplierMapper().selectCount(cond);
