@@ -19,4 +19,5 @@ public class WmsRecipesDO extends PageDTO{
 	String recipesName;
 	String recipesCode;
 	String storeCode;
+	String outCode;
 }

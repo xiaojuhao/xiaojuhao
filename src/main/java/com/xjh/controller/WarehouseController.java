@@ -46,6 +46,7 @@ public class WarehouseController {
 		String warehouseManager = CommonUtils.get(request, "warehouseManager");
 		String managerPhone = CommonUtils.get(request, "managerPhone");
 		String managerEmail = CommonUtils.get(request, "managerEmail");
+		String relatedStoresStr = CommonUtils.get(request, "relatedStoresStr");
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		warehouse.setWarehouseCode(warehouseCode);
 		warehouse.setWarehouseName(warehouseName);
@@ -53,6 +54,7 @@ public class WarehouseController {
 		warehouse.setWarehouseManager(warehouseManager);
 		warehouse.setManagerPhone(managerPhone);
 		warehouse.setManagerEmail(managerEmail);
+		warehouse.setRelatedStore(relatedStoresStr);
 		warehouse.setId(id);
 		if (id == null) {
 			long seq = sequence.next("wms_warehouse");
@@ -60,7 +62,7 @@ public class WarehouseController {
 			warehouse.setWarehouseCode(warehouseCode);
 			this.warehouseMapper.insert(warehouse);
 		} else {
-			this.warehouseMapper.updateByPrimaryKeySelective(warehouse);
+			this.warehouseMapper.updateByPrimaryKey(warehouse);
 		}
 		return ResultBaseBuilder.succ().data(warehouse).rb(request);
 	}

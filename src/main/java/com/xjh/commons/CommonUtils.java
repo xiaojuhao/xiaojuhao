@@ -90,6 +90,45 @@ public class CommonUtils {
 		return date;
 	}
 
+	public static Date future(Date baseDate, long seconds) {
+		if (baseDate == null) {
+			baseDate = new Date();
+		}
+		Date date = new Date();
+		date.setTime(baseDate.getTime() + seconds * 1000);
+		return date;
+	}
+
+	public static Date futureYear(Date baseDate, int year) {
+		if (baseDate == null) {
+			baseDate = new Date();
+		}
+		Calendar c = Calendar.getInstance();
+		c.setTime(baseDate);
+		c.add(Calendar.YEAR, year);
+		return c.getTime();
+	}
+
+	public static Date futureMonth(Date baseDate, int month) {
+		if (baseDate == null) {
+			baseDate = new Date();
+		}
+		Calendar c = Calendar.getInstance();
+		c.setTime(baseDate);
+		c.add(Calendar.MONTH, month);
+		return c.getTime();
+	}
+
+	public static Date futureDays(Date baseDate, int days) {
+		if (baseDate == null) {
+			baseDate = new Date();
+		}
+		Calendar c = Calendar.getInstance();
+		c.setTime(baseDate);
+		c.add(Calendar.DATE, days);
+		return c.getTime();
+	}
+
 	public static <T> boolean isEqual(T a, T b) {
 		if (a == null || b == null) {
 			return false;
@@ -691,6 +730,9 @@ public class CommonUtils {
 	}
 
 	public static Date parseDate(String dateValue) {
+		if (StringUtils.isBlank(dateValue)) {
+			return null;
+		}
 		try {
 			return DateUtils.parseDate(dateValue, dateFormats);
 		} catch (Exception ex) {

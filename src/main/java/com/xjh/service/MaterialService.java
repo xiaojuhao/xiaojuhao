@@ -12,9 +12,9 @@ public interface MaterialService {
 
 	public ResultBase<Boolean> initMaterialStock(String materialCode, String cabinCode);
 
-	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example);
+	public PageResult<WmsMaterialDO> queryMaterials(WmsMaterialDO example);
 
-	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example, WmsUserDO user);
+	public PageResult<WmsMaterialStockDO> queryMaterialsStock(WmsMaterialStockDO example, WmsUserDO user);
 
 	public int insertMaterial(WmsMaterialDO example);
 

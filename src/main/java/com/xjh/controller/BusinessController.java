@@ -65,20 +65,24 @@ public class BusinessController {
 
 	@RequestMapping(value = "/addMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object addyMaterials() {
+	public Object addMaterials() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 
-		String splitMaterialsStr = request.getParameter("splitMaterialsStr");
 		String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
 		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
+		String specUnit = CommonUtils.get(request, "specUnit");
+		String specQty = CommonUtils.get(request, "specQty");
+
 		WmsMaterialDO material = new WmsMaterialDO();
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
 		String searchKey = CommonUtils.get(request, "searchKey");
+		material.setSpecUnit(specUnit);
+		material.setSpecQty(CommonUtils.parseDouble(specQty, 1D));
 		material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
 		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
 			material.setStorageLife(storageLifeNum + storageLifeUnit);
@@ -86,7 +90,6 @@ public class BusinessController {
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
 		material.setCanSplit(CommonUtils.get(request, "canSplit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
-		material.setWarningThreshold(CommonUtils.get(request, "warningThreshold"));
 		material.setStatus(1);
 
 		if (StringUtils.isBlank(material.getMaterialName())) {
@@ -102,21 +105,6 @@ public class BusinessController {
 			this.materialService.updateMaterial(material);
 		}
 		materialService.initMaterialStock(material.getMaterialCode(), null);
-		JSONArray splits = CommonUtils.parseJSONArray(splitMaterialsStr);
-		WmsMaterialSplitDO splitCf = new WmsMaterialSplitDO();
-		splitCf.setMaterialCode(material.getMaterialCode());
-		TkMappers.inst().getMaterialSplitMapper().delete(splitCf);
-		for (int i = 0; i < splits.size(); i++) {
-			JSONObject j = splits.getJSONObject(i);
-			WmsMaterialSplitDO ss = new WmsMaterialSplitDO();
-			ss.setMaterialCode(material.getMaterialCode());
-			ss.setMaterialName(material.getMaterialName());
-			ss.setSplitCode(j.getString("materialCode"));
-			ss.setSplitName(j.getString("materialName"));
-			ss.setSplitAmt(j.getDouble("splitAmt"));
-			ss.setStatus("1");
-			TkMappers.inst().getMaterialSplitMapper().insert(ss);
-		}
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
@@ -136,7 +124,7 @@ public class BusinessController {
 		example.setPageSize(pageSize);
 		example.setMaterialCode(materialCode);
 		example.setId(id);
-		PageResult<WmsMaterialVo> list = this.materialService.queryMaterials(example);
+		PageResult<WmsMaterialDO> list = this.materialService.queryMaterials(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 
@@ -171,7 +159,7 @@ public class BusinessController {
 		}
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setId(id);
-		PageResult<WmsMaterialVo> list = this.materialService.queryMaterials(example);
+		PageResult<WmsMaterialDO> list = this.materialService.queryMaterials(example);
 		if (list == null || list.getValues() == null || list.getValues().size() == 0) {
 			return ResultBaseBuilder.fails("无数据").rb(request);
 		}
@@ -201,7 +189,7 @@ public class BusinessController {
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
 		example.setStockType(stockType);
-		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example, user);
+		PageResult<WmsMaterialStockDO> page = this.materialService.queryMaterialsStock(example, user);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
@@ -214,7 +202,7 @@ public class BusinessController {
 		}
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
-		PageResult<WmsMaterialStockVo> page = this.materialService.queryMaterialsStock(example, null);
+		PageResult<WmsMaterialStockDO> page = this.materialService.queryMaterialsStock(example, null);
 		if (page.getValues() == null || page.getValues().size() == 0) {
 			return ResultBaseBuilder.fails("数据不存在").rb(request);
 		}
@@ -338,9 +326,6 @@ public class BusinessController {
 		if (store == null) {
 			return ResultBaseBuilder.fails("门店不存在").rb(request);
 		}
-		if (StringUtils.isBlank(store.getDefaultWarehouse())) {
-			return ResultBaseBuilder.fails("门店没有维护默认仓库,请先维护").rb(request);
-		}
 		JSONArray recipes = CommonUtils.parseJSONArray(recipesJson);
 		if (recipes.size() == 0) {
 			return ResultBaseBuilder.fails("请输入菜单信息").rb(request);
@@ -422,7 +407,7 @@ public class BusinessController {
 			d.setMaterialCode(j.getString("materialCode"));
 			d.setOpType("in_stock");
 			d.setStatus("0");
-			d.setKeepDays(j.getString("storageLifeNum")+j.getString("storageLifeUnit"));
+			d.setKeepDays(j.getString("storageLifeNum") + j.getString("storageLifeUnit"));
 			d.setProductDate(CommonUtils.parseDate(j.getString("productDate")));
 			d.setGmtCreated(new Date());
 			d.setOperator(user.getUserCode());

@@ -43,9 +43,11 @@ public class RecipesController {
 		String formula = request.getParameter("formulaJson");
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String recipesName = CommonUtils.get(request, "recipesName");
+		String outCode = CommonUtils.get(request, "outCode");
 		WmsRecipesDO recipes = new WmsRecipesDO();
 		recipes.setRecipesCode(recipesCode);
 		recipes.setRecipesName(recipesName);
+		recipes.setOutCode(outCode);
 		this.recipesService.saveRecipes(recipes);
 		//
 		recipesCode = recipes.getRecipesCode();

@@ -24,5 +24,6 @@ public class WmsWarehouseDO extends PageDTO implements Serializable {
 	String warehouseAddr;
 	String managerPhone;
 	String managerEmail;
+	String relatedStore;
 
 }

@@ -96,24 +96,24 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public PageResult<WmsMaterialVo> queryMaterials(WmsMaterialDO example) {
-		PageResult<WmsMaterialVo> page = new PageResult<WmsMaterialVo>();
+	public PageResult<WmsMaterialDO> queryMaterials(WmsMaterialDO example) {
+		PageResult<WmsMaterialDO> page = new PageResult<WmsMaterialDO>();
 		if (example == null) {
 			example = new WmsMaterialDO();
 		}
 		int totalRows = this.tkWmsMaterialMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialDO> list = tkWmsMaterialMapper.select(example);
-		List<WmsMaterialVo> ret = new ArrayList<>();
-		for (WmsMaterialDO dd : list) {
-			WmsMaterialVo vo = new WmsMaterialVo();
-			ret.add(vo);
-			BeanUtils.copyProperties(dd, vo);
-		}
+//		List<WmsMaterialVo> ret = new ArrayList<>();
+//		for (WmsMaterialDO dd : list) {
+//			WmsMaterialVo vo = new WmsMaterialVo();
+//			ret.add(vo);
+//			BeanUtils.copyProperties(dd, vo);
+//		}
 		page.setPageNo(example.getPageNo());
 		page.setPageSize(example.getPageSize());
 		page.setTotalRows(totalRows);
-		page.setValues(ret);
+		page.setValues(list);
 		return page;
 	}
 
@@ -136,8 +136,8 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public PageResult<WmsMaterialStockVo> queryMaterialsStock(WmsMaterialStockDO example, WmsUserDO user) {
-		PageResult<WmsMaterialStockVo> page = new PageResult<>();
+	public PageResult<WmsMaterialStockDO> queryMaterialsStock(WmsMaterialStockDO example, WmsUserDO user) {
+		PageResult<WmsMaterialStockDO> page = new PageResult<>();
 		page.setTotalRows(0);
 		if (example == null) {
 			example = new WmsMaterialStockDO();
@@ -173,7 +173,7 @@ public class MaterialServiceImpl implements MaterialService {
 		page.setTotalRows(totalRows);
 		page.setPageNo(example.getPageNo());
 		page.setPageSize(example.getPageSize());
-		page.setValues(ret);
+		page.setValues(list);
 		return page;
 	}
 
