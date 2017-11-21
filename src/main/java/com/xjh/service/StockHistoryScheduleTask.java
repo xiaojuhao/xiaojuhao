@@ -1,19 +1,15 @@
 package com.xjh.service;
 
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import com.xjh.dao.dataobject.WmsMaterialDO;
-import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
@@ -57,41 +53,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setStockChgAmt(record.getAmt());
 		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.increaseStock(changeVo);
-		// 如果物料可拆，则进行自动拆分
-		if (StringUtils.equals(material.getCanSplit(), "Y")) {
-			WmsMaterialSplitDO splitCond = new WmsMaterialSplitDO();
-			splitCond.setMaterialCode(record.getMaterialCode());
-			List<WmsMaterialSplitDO> list = splitMapper.select(splitCond);
-			if (list != null && list.size() > 0) {
-				WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-				d.setCabinCode(record.getCabinCode());
-				d.setCabinType(record.getCabinType());
-				d.setAmt(-1 * record.getAmt());
-				d.setMaterialCode(record.getMaterialCode());
-				d.setMaterialName(record.getMaterialName());
-				d.setOpType("split_out");
-				d.setStatus("0");
-				d.setRemark("自动拆出");
-				d.setGmtCreated(new Date());
-				d.setOperator(record.getOperator());
-				TkMappers.inst().materialStockHistoryMapper.insert(d);
-				for (WmsMaterialSplitDO split : list) {
-					WmsMaterialStockHistoryDO dd = new WmsMaterialStockHistoryDO();
-					dd.setCabinCode(record.getCabinCode());
-					dd.setCabinType(record.getCabinType());
-					dd.setAmt(record.getAmt() * split.getSplitAmt());
-					dd.setMaterialCode(split.getMaterialCode());
-					dd.setMaterialName(split.getMaterialName());
-					dd.setOpType("split_in");
-					dd.setStatus("0");
-					dd.setRemark("自动拆入,formid=" + record.getId());
-					dd.setRelateCode(record.getMaterialCode());
-					dd.setGmtCreated(new Date());
-					dd.setOperator(record.getOperator());
-					TkMappers.inst().materialStockHistoryMapper.insert(dd);
-				}
-			}
-		}
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");

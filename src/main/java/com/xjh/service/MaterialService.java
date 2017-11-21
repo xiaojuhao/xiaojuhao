@@ -5,12 +5,10 @@ import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsUserDO;
-import com.xjh.service.vo.WmsMaterialStockVo;
-import com.xjh.service.vo.WmsMaterialVo;
 
 public interface MaterialService {
 
-	public ResultBase<Boolean> initMaterialStock(String materialCode, String cabinCode);
+	public ResultBase<WmsMaterialStockDO> initMaterialStock(String materialCode, String cabinCode);
 
 	public PageResult<WmsMaterialDO> queryMaterials(WmsMaterialDO example);
 

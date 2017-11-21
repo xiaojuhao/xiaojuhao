@@ -1,12 +1,12 @@
 package com.xjh.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
@@ -22,8 +22,6 @@ import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.TkMappers;
-import com.xjh.service.vo.WmsMaterialStockVo;
-import com.xjh.service.vo.WmsMaterialVo;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -35,64 +33,41 @@ public class MaterialServiceImpl implements MaterialService {
 	TkWmsMaterialStockMapper tkWmsMaterialStockMapper;
 
 	@Override
-	public ResultBase<Boolean> initMaterialStock(String materialCode, String cabinCode) {
+	public ResultBase<WmsMaterialStockDO> initMaterialStock(String materialCode, String cabinCode) {
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setMaterialCode(materialCode);
-		List<WmsMaterialDO> materials = tkWmsMaterialMapper.select(example);
-		for (WmsMaterialDO m : materials) {
-			WmsMaterialStockDO stock = new WmsMaterialStockDO();
-			stock.setMaterialCode(m.getMaterialCode());
-			stock.setStockType("1");
-			List<WmsMaterialStockDO> stocks = tkWmsMaterialStockMapper.select(stock);
-			if (stocks == null || stocks.size() == 0) {
-				WmsMaterialStockDO insert = new WmsMaterialStockDO();
-				insert.setMaterialCode(m.getMaterialCode());
-				insert.setMaterialName(m.getMaterialName());
-				insert.setStockUnit(m.getStockUnit());
-				insert.setCabinCode("ZK0000");
-				insert.setCabinName("总库");
-				insert.setCabinType("0");
-				insert.setStockType("1");
-				insert.setStockUnit(m.getStockUnit());
-				insert.setCurrStock(0D);
-				insert.setUsedStock(0D);
-				this.tkWmsMaterialStockMapper.insert(insert);
-			}
-			if (StringUtils.isNotBlank(cabinCode)) {
-				String cabinName = null;
-				String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
-				WmsMaterialStockDO fenku = new WmsMaterialStockDO();
-				fenku.setMaterialCode(materialCode);
-				fenku.setCabinCode(cabinCode);
-				fenku.setStockType("2");
-				fenku = TkMappers.inst().getMaterialStockMapper().selectOne(fenku);
-				if (cabinCode.startsWith("WH")) {
-					WmsWarehouseDO warehouse = new WmsWarehouseDO();
-					warehouse.setWarehouseCode(cabinCode);
-					warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
-					cabinName = warehouse.getWarehouseName();
-				} else if (cabinCode.startsWith("MD")) {
-					WmsStoreDO store = new WmsStoreDO();
-					store.setStoreCode(cabinCode);
-					store = TkMappers.inst().getStoreMapper().selectOne(store);
-					cabinName = store.getStoreName();
-				}
-				if (fenku == null) {
-					fenku = new WmsMaterialStockDO();
-					fenku.setMaterialCode(materialCode);
-					fenku.setMaterialName(m.getMaterialName());
-					fenku.setCabinCode(cabinCode);
-					fenku.setCabinType(cabinType);
-					fenku.setCabinName(cabinName);
-					fenku.setCurrStock(0D);
-					fenku.setUsedStock(0D);
-					fenku.setStockType("2");
-					fenku.setStockUnit(m.getStockUnit());
-					this.tkWmsMaterialStockMapper.insert(fenku);
-				}
-			}
+		WmsMaterialDO material = tkWmsMaterialMapper.selectOne(example);
+		String cabinName = null;
+		String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
+		WmsMaterialStockDO stockDO = new WmsMaterialStockDO();
+		stockDO.setMaterialCode(materialCode);
+		stockDO.setCabinCode(cabinCode);
+		stockDO = TkMappers.inst().getMaterialStockMapper().selectOne(stockDO);
+		if (cabinCode.startsWith("WH")) {
+			WmsWarehouseDO warehouse = new WmsWarehouseDO();
+			warehouse.setWarehouseCode(cabinCode);
+			warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
+			cabinName = warehouse.getWarehouseName();
+		} else if (cabinCode.startsWith("MD")) {
+			WmsStoreDO store = new WmsStoreDO();
+			store.setStoreCode(cabinCode);
+			store = TkMappers.inst().getStoreMapper().selectOne(store);
+			cabinName = store.getStoreName();
 		}
-		return ResultBaseBuilder.succ().data(true).rb();
+		if (stockDO == null) {
+			stockDO = new WmsMaterialStockDO();
+			stockDO.setMaterialCode(materialCode);
+			stockDO.setMaterialName(material.getMaterialName());
+			stockDO.setCabinCode(cabinCode);
+			stockDO.setCabinType(cabinType);
+			stockDO.setCabinName(cabinName);
+			stockDO.setCurrStock(0D);
+			stockDO.setStockUnit(material.getStockUnit());
+			stockDO.setGmtModified(new Date());
+			stockDO.setModifier("system");
+			this.tkWmsMaterialStockMapper.insert(stockDO);
+		}
+		return ResultBaseBuilder.succ().data(stockDO).rb();
 	}
 
 	@Override
@@ -104,12 +79,12 @@ public class MaterialServiceImpl implements MaterialService {
 		int totalRows = this.tkWmsMaterialMapper.selectCount(example);
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		List<WmsMaterialDO> list = tkWmsMaterialMapper.select(example);
-//		List<WmsMaterialVo> ret = new ArrayList<>();
-//		for (WmsMaterialDO dd : list) {
-//			WmsMaterialVo vo = new WmsMaterialVo();
-//			ret.add(vo);
-//			BeanUtils.copyProperties(dd, vo);
-//		}
+		// List<WmsMaterialVo> ret = new ArrayList<>();
+		// for (WmsMaterialDO dd : list) {
+		// WmsMaterialVo vo = new WmsMaterialVo();
+		// ret.add(vo);
+		// BeanUtils.copyProperties(dd, vo);
+		// }
 		page.setPageNo(example.getPageNo());
 		page.setPageSize(example.getPageSize());
 		page.setTotalRows(totalRows);
@@ -164,12 +139,6 @@ public class MaterialServiceImpl implements MaterialService {
 		PageHelper.startPage(example.getPageNo(), example.getPageSize());
 		PageHelper.orderBy("id");
 		List<WmsMaterialStockDO> list = tkWmsMaterialStockMapper.selectByExample(exam);
-		List<WmsMaterialStockVo> ret = new ArrayList<>();
-		for (WmsMaterialStockDO dd : list) {
-			WmsMaterialStockVo vo = new WmsMaterialStockVo();
-			ret.add(vo);
-			BeanUtils.copyProperties(dd, vo);
-		}
 		page.setTotalRows(totalRows);
 		page.setPageNo(example.getPageNo());
 		page.setPageSize(example.getPageSize());

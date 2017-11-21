@@ -37,8 +37,6 @@ import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
-import com.xjh.service.vo.WmsMaterialStockVo;
-import com.xjh.service.vo.WmsMaterialVo;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -88,7 +86,6 @@ public class BusinessController {
 			material.setStorageLife(storageLifeNum + storageLifeUnit);
 		}
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
-		material.setCanSplit(CommonUtils.get(request, "canSplit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
 		material.setStatus(1);
 
@@ -104,7 +101,6 @@ public class BusinessController {
 		} else {
 			this.materialService.updateMaterial(material);
 		}
-		materialService.initMaterialStock(material.getMaterialCode(), null);
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
@@ -179,7 +175,6 @@ public class BusinessController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String cabCode = CommonUtils.get(request, "cabinCode");
 		String cabType = CommonUtils.get(request, "cabinType");
-		String stockType = CommonUtils.get(request, "stockType");
 
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
@@ -188,8 +183,15 @@ public class BusinessController {
 		example.setCabinType(cabType);
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
-		example.setStockType(stockType);
 		PageResult<WmsMaterialStockDO> page = this.materialService.queryMaterialsStock(example, user);
+		List<WmsMaterialStockDO> tempList = page.getValues();
+		if (tempList != null) {
+			for (WmsMaterialStockDO stock : tempList) {
+				String searchKey = CommonUtils.genSearchKey(stock.getMaterialName(), "");
+				searchKey += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
+				stock.setSearchKey(searchKey);
+			}
+		}
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
@@ -269,7 +271,15 @@ public class BusinessController {
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setPageSize(3000);
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
-		return ResultBaseBuilder.succ().data(list).rb(request);
+		List<JSONObject> retList = new ArrayList<>();
+		for (WmsMaterialSupplierDO s : list) {
+			JSONObject json = CommonUtils.toJSONObject(s);
+			String searchKey = CommonUtils.genSearchKey(s.getMaterialName(), "");
+			searchKey += "," + CommonUtils.genSearchKey(s.getSupplierName(), "");
+			json.put("searchKey", searchKey);
+			retList.add(json);
+		}
+		return ResultBaseBuilder.succ().data(retList).rb(request);
 	}
 
 	/**

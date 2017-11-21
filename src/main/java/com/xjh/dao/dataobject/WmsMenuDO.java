@@ -21,6 +21,7 @@ public class WmsMenuDO extends PageDTO {
 	String menuIcon;
 	String menuIndex;
 	String parentCode;
+	Integer orderBy;
 	String roles;
 	Integer status;
 }
