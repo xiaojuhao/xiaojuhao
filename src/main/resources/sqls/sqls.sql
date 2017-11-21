@@ -1,21 +1,3 @@
-drop table if exists  wms_dict;
-drop table if exists  wms_material;
-drop table if exists  wms_material_split_cfg;
-drop table if exists  wms_material_stock;
-drop table if exists  wms_material_stock_history;
-drop table if exists  wms_material_supplier;
-drop table if exists  wms_menu;
-drop table if exists  wms_purchase_order;
-drop table if exists  wms_purchase_order_detail;
-drop table if exists  wms_recipes;
-drop table if exists  wms_recipes_formula;
-drop table if exists  wms_sequence;
-drop table if exists  wms_session;
-drop table if exists  wms_store;
-drop table if exists  wms_supplier;
-drop table if exists  wms_user;
-drop table if exists  wms_warehouse;
-
 CREATE TABLE
     wms_dict
     (
@@ -29,12 +11,63 @@ CREATE TABLE
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE
+    wms_inventory_apply
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        apply_num VARCHAR(64) NOT NULL COMMENT '申请单号码',
+        cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
+        cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
+        apply_type VARCHAR(32) NOT NULL COMMENT '申请单类型',
+        serial_no VARCHAR(64) NOT NULL COMMENT '流水号',
+        proposer VARCHAR(128) NOT NULL COMMENT '申请人',
+        status VARCHAR(2) NOT NULL COMMENT
+        '采购单状态, 0:草稿, 1:提交待审核 2:审核通过 3:采购中 4:配送中 5:已入库, 6:已撤销,7:驳回',
+        remark VARCHAR(1024) COMMENT '备注',
+        gmt_created DATETIME NOT NULL COMMENT '创建时间',
+        gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
+        creator VARCHAR(35) NOT NULL COMMENT '创建人',
+        modifier VARCHAR(35) NOT NULL COMMENT '最近修改人',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE
+    wms_inventory_apply_detail
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        apply_num VARCHAR(64) NOT NULL COMMENT '采购单号码',
+        apply_type VARCHAR(32) NOT NULL COMMENT '申请单类型',
+        cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
+        cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
+        material_code VARCHAR(35) NOT NULL COMMENT '原料代码',
+        material_name VARCHAR(128) NOT NULL COMMENT '原料名称',
+        supplier_code VARCHAR(35) COMMENT '供应商',
+        supplier_name VARCHAR(128) COMMENT '供应商名称',
+        spec_amt DECIMAL(14,2) COMMENT '采购量(规则)',
+        spec_unit VARCHAR(32) COMMENT '规格单位',
+        spec_price DECIMAL(14,2) COMMENT '单价，按规则',
+        stock_amt DECIMAL(14,2) COMMENT '库存量,根据规格计算',
+        real_stock_amt DECIMAL(14,2) COMMENT '实际入库量，由接收人确认',
+        stock_unit VARCHAR(32) COMMENT '库存单位',
+        total_price DECIMAL(14,2) COMMENT '总价',
+        remark VARCHAR(1024) COMMENT '备注',
+        prod_date DATETIME COMMENT '生产日期',
+        exp_date DATETIME COMMENT '过期日期',
+        keep_time VARCHAR(10) COMMENT '保质期，如10天，1月等',
+        gmt_created DATETIME NOT NULL COMMENT '创建时间',
+        status VARCHAR(2) NOT NULL COMMENT '状态',
+        gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
+        creator VARCHAR(35) NOT NULL COMMENT '创建人',
+        modifier VARCHAR(35) NOT NULL COMMENT '最近修改人',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE
     wms_material
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
         material_name VARCHAR(50) NOT NULL COMMENT '原料名称',
         material_code VARCHAR(35) NOT NULL COMMENT '原料编码',
-        can_split VARCHAR(1) NOT NULL COMMENT '是否可拆分 Y:是 N:否',
         spec_unit VARCHAR(32) COMMENT '规格单位，如包、箱等',
         spec_qty DECIMAL(14,2) COMMENT '规格数量',
         stock_unit VARCHAR(10) COMMENT '单位，如克，条，箱等',
@@ -124,54 +157,21 @@ CREATE TABLE
         parent_code VARCHAR(20) COMMENT '父级菜单',
         status INT COMMENT '状态 0:待处理 1:有效 2:无效',
         roles VARCHAR(32) COMMENT '授权角色',
+        order_by INT,
+        type VARCHAR(10),
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE
-    wms_purchase_order
+    wms_notice
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-        order_num VARCHAR(64) NOT NULL COMMENT '采购单号码',
-        cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
-        cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
-        proposer VARCHAR(128) NOT NULL COMMENT '申请人',
-        status VARCHAR(2) NOT NULL COMMENT
-        '采购单状态, 0:草稿, 1:提交待审核 2:审核通过 3:采购中 4:配送中 5:已入库, 6:已撤销,7:驳回',
-        remark VARCHAR(1024) COMMENT '备注',
-        gmt_created DATETIME NOT NULL COMMENT '创建时间',
-        gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
-        creator VARCHAR(35) NOT NULL COMMENT '创建人',
-        modifier VARCHAR(35) NOT NULL COMMENT '最近修改人',
-        PRIMARY KEY (id)
-    )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE
-    wms_purchase_order_detail
-    (
-        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-        order_num VARCHAR(64) NOT NULL COMMENT '采购单号码',
-        cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
-        cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
-        material_code VARCHAR(35) NOT NULL COMMENT '原料代码',
-        material_name VARCHAR(128) NOT NULL COMMENT '原料名称',
-        supplier_code VARCHAR(35) NOT NULL COMMENT '供应商',
-        supplier_name VARCHAR(128) NOT NULL COMMENT '供应商名称',
-        spec_amt DECIMAL(14,2) NOT NULL COMMENT '采购量(规则)',
-        spec_unit VARCHAR(32) NOT NULL COMMENT '规格单位',
-        spec_price DECIMAL(14,2) NOT NULL COMMENT '单价，按规则',
-        stock_amt DECIMAL(14,2) NOT NULL COMMENT '库存量,根据规格计算',
-        real_stock_amt DECIMAL(14,2) NOT NULL COMMENT '实际入库量，由接收人确认',
-        stock_unit VARCHAR(32) NOT NULL COMMENT '库存单位',
-        total_price DECIMAL(14,2) NOT NULL COMMENT '总价',
-        remark VARCHAR(1024) COMMENT '备注',
-        prod_date DATETIME NOT NULL COMMENT '生产日期',
-        exp_date DATETIME NOT NULL COMMENT '过期日期',
-        keep_time VARCHAR(10) NOT NULL COMMENT '保质期，如10天，1月等',
-        gmt_created DATETIME NOT NULL COMMENT '创建时间',
-        status VARCHAR(2) NOT NULL COMMENT '状态',
-        gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
-        creator VARCHAR(35) NOT NULL COMMENT '创建人',
-        modifier VARCHAR(35) NOT NULL COMMENT '最近修改人',
+        title VARCHAR(256) COMMENT '标题',
+        content VARCHAR(1024) COMMENT '显示内容',
+        msg_type VARCHAR(32) COMMENT '信息类型',
+        status VARCHAR(1) COMMENT '状态 0:草稿 1:有效 2:撤销 3:已处理 4:到期',
+        gmt_created DATETIME COMMENT '创建时间',
+        gmt_expired DATETIME COMMENT '到期时间',
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -199,7 +199,6 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱配方';
-
 CREATE TABLE
     wms_sequence
     (
@@ -275,7 +274,6 @@ CREATE TABLE
         CONSTRAINT uni_user_code UNIQUE (user_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息';
-
 CREATE TABLE
     wms_warehouse
     (
@@ -291,13 +289,6 @@ CREATE TABLE
         CONSTRAINT uni_wh_code UNIQUE (warehouse_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
-
-insert into wms_user (user_name, user_code, password, status, user_role)
-values('管理员','admin','E10ADC3949BA59ABBE56E057F20F883E','1', "1");
-insert into wms_user (user_name, user_code, password, status, user_role)
-values('尹国良','yinguoliang','E10ADC3949BA59ABBE56E057F20F883E','1', "1");
-
-
 
 
 
