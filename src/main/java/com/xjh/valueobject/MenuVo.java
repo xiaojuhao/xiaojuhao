@@ -11,6 +11,7 @@ public class MenuVo implements Serializable {
 	Long id;
 	String menuName;
 	String menuCode;
+	String type;
 	String menuIcon;
 	String menuIndex;
 	List<MenuVo> subs;

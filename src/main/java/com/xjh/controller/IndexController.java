@@ -51,6 +51,7 @@ public class IndexController {
 			m.setMenuName(r.getMenuName());
 			m.setMenuIndex(r.getMenuIndex());
 			m.setMenuIcon(r.getMenuIcon());
+			m.setType(r.getType());
 			WmsMenuDO subCond = new WmsMenuDO();
 			subCond.setParentCode(r.getMenuCode());
 			subCond.setStatus(1);
@@ -63,6 +64,7 @@ public class IndexController {
 				sv.setMenuName(s.getMenuName());
 				sv.setMenuIndex(s.getMenuIndex());
 				sv.setMenuIcon(s.getMenuIcon());
+				sv.setType(s.getType());
 				subs.add(sv);
 			}
 			m.setSubs(subs);
