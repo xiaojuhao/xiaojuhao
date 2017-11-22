@@ -97,7 +97,11 @@ public class InventoryOrderController {
 				if (d.getSpecPrice() == null) {
 					d.setSpecPrice(0D);
 				}
-				d.setStockAmt(d.getSpecAmt() * j.getDouble("specQty"));
+				double qty = j.getDouble("specQty");
+				if ("无".equals(d.getSpecUnit())) {
+					qty = 1;
+				}
+				d.setStockAmt(d.getSpecAmt() * qty);
 				d.setStockUnit("个");
 				d.setRealStockAmt(d.getStockAmt());
 				d.setTotalPrice(d.getStockAmt() * d.getSpecPrice());
