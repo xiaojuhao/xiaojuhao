@@ -150,12 +150,12 @@ public class InventoryOrderController {
 	@RequestMapping(value = "/queryPurchaseOrderDetail", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryPurchaseOrderDetail() {
-		String ApplyNum = CommonUtils.get(request, "ApplyNum");
-		if (StringUtils.isBlank(ApplyNum)) {
+		String applyNum = CommonUtils.get(request, "applyNum");
+		if (StringUtils.isBlank(applyNum)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
-		cond.setApplyNum(ApplyNum);
+		cond.setApplyNum(applyNum);
 		List<WmsInventoryApplyDetailDO> list = TkMappers.inst().getPurchaseOrderDetailMapper().select(cond);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
@@ -164,7 +164,7 @@ public class InventoryOrderController {
 	@ResponseBody
 	public Object confirmInventory() {
 		String dataJson = CommonUtils.get(request, "dataJson");
-		String ApplyNum = CommonUtils.get(request, "ApplyNum");
+		String ApplyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(ApplyNum)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}

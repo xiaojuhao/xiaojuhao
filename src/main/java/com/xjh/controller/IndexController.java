@@ -1,20 +1,28 @@
 package com.xjh.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsInventoryApplyDO;
+import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMenuDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
@@ -28,6 +36,10 @@ public class IndexController {
 	MaterialService materialService;
 	@Resource
 	SequenceService sequenceService;
+	@Resource
+	TkWmsInventoryApplyMapper inventoryMapper;
+	@Resource
+	TkWmsInventoryApplyDetailMapper inventoryDetailMapper;
 
 	@RequestMapping(value = "/menu", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -70,7 +82,27 @@ public class IndexController {
 			m.setSubs(subs);
 			menus.add(m);
 		}
-		
+
 		return ResultBaseBuilder.succ().data(menus).rb(request);
+	}
+
+	@RequestMapping(value = "/print", produces = "text/html;charset=UTF-8")
+	public ModelAndView print() {
+		ModelAndView mv = new ModelAndView("print");
+		String applyNum = request.getParameter("applyNum");
+		if (StringUtils.isBlank(applyNum)) {
+			mv.setViewName("error");
+			return mv;
+		}
+		WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
+		apply.setApplyNum(applyNum);
+		apply = this.inventoryMapper.selectOne(apply);
+		WmsInventoryApplyDetailDO detailCond = new WmsInventoryApplyDetailDO();
+		detailCond.setApplyNum(applyNum);
+		List<WmsInventoryApplyDetailDO> list = this.inventoryDetailMapper.select(detailCond);
+		mv.addObject("record", apply);
+		mv.addObject("list", list);
+		mv.addObject("crateDate",new SimpleDateFormat("yyyy-MM-dd").format(apply.getGmtCreated()));
+		return mv;
 	}
 }

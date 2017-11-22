@@ -12,8 +12,8 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsMenuMapper;
-import com.xjh.dao.tkmapper.TkWmsPurchaseOrderDetailMapper;
-import com.xjh.dao.tkmapper.TkWmsPurchaseOrderMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsSequenceMapper;
@@ -59,9 +59,9 @@ public class TkMappers implements InitializingBean {
 	@Resource
 	TkWmsMaterialSplitMapper materialSplitMapper;
 	@Resource
-	TkWmsPurchaseOrderMapper purchaseOrderMapper;
+	TkWmsInventoryApplyMapper purchaseOrderMapper;
 	@Resource
-	TkWmsPurchaseOrderDetailMapper purchaseOrderDetailMapper;
+	TkWmsInventoryApplyDetailMapper purchaseOrderDetailMapper;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {

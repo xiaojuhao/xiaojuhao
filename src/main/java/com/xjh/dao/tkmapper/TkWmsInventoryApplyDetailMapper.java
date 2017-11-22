@@ -4,6 +4,6 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 
 import tk.mybatis.mapper.common.Mapper;
 
-public interface TkWmsPurchaseOrderDetailMapper extends Mapper<WmsInventoryApplyDetailDO>{
+public interface TkWmsInventoryApplyDetailMapper extends Mapper<WmsInventoryApplyDetailDO>{
 
 }

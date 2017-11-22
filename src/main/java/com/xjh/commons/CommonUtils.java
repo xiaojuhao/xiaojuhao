@@ -5,6 +5,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -49,6 +50,8 @@ import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 public class CommonUtils {
 	static Logger log = LoggerFactory.getLogger(CommonUtils.class);
@@ -818,9 +821,11 @@ public class CommonUtils {
 			return "";
 		return obj.toString();
 	}
+
 	public static String stringOfNow() {
 		return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 	}
+
 	public static String stringOfToday() {
 		return new SimpleDateFormat("yyyyMMdd").format(new Date());
 	}
@@ -1016,5 +1021,13 @@ public class CommonUtils {
 			e.printStackTrace();
 		}
 		return set.stream().collect(Collectors.joining(","));
+	}
+
+	public static void reduceImg(File src, File dst) {
+		try {
+			Thumbnails.of(src).scale(0.5).outputQuality(0.8).toFile(dst);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
