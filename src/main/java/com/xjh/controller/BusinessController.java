@@ -34,9 +34,11 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
+import com.xjh.service.CabinService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
+import com.xjh.valueobject.CabinVo;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -55,7 +57,8 @@ public class BusinessController {
 	TkWmsStoreMapper storeMapper;
 	@Resource
 	TkWmsWarehouseMapper warehouseMapper;
-
+	@Resource
+	CabinService cabinService;
 	@Resource
 	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
@@ -263,6 +266,20 @@ public class BusinessController {
 		ms.setMaterialCode(materialCode);
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
+	@RequestMapping(value = "/getCabinByCode", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object getCabinByCode() {
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		if (StringUtils.isBlank(cabinCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		CabinVo vo = cabinService.getCabinByCode(cabinCode);
+		if (vo == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		return ResultBaseBuilder.succ().data(vo).rb(request);
 	}
 
 	@RequestMapping(value = "/queryAllMaterialSuppler", produces = "application/json;charset=UTF-8")
