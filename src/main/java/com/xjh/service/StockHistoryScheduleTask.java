@@ -311,17 +311,17 @@ public class StockHistoryScheduleTask implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		System.out.println("start afterPropertiesSet..............");
-		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					System.out.println("start..............");
-					start();
-				} catch (Exception ex) {
-
-				}
-			}
-		}, 0, 5, TimeUnit.SECONDS);
+//		System.out.println("start afterPropertiesSet..............");
+//		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					System.out.println("start..............");
+//					start();
+//				} catch (Exception ex) {
+//
+//				}
+//			}
+//		}, 0, 5, TimeUnit.SECONDS);
 	}
 }
