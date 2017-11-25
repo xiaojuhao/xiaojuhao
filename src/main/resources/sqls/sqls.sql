@@ -304,7 +304,10 @@ create table wms_upload_files(
 );
 
 alter table wms_inventory_apply_detail add img_busi_no varchar(64) after keep_time;
-
+alter table wms_inventory_apply_detail add from_cabin_code varchar(64) after cabin_name;
+alter table wms_inventory_apply_detail add from_cabin_name varchar(64) after from_cabin_code;
+alter table wms_inventory_apply add from_cabin_code varchar(64) after cabin_name;
+alter table wms_inventory_apply add from_cabin_name varchar(64) after from_cabin_code;
 
 INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 'all', 1, 'link');
 INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 'all', 2, 'nav');

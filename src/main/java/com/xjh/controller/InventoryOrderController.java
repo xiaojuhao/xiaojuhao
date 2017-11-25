@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -14,18 +15,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
-import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
+
+import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/inventoryOrder")
@@ -142,11 +146,23 @@ public class InventoryOrderController {
 	@ResponseBody
 	public Object queryInventoryApply() {
 		String status = CommonUtils.get(request, "status");
-		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
-		cond.setStatus(status);
-		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
+		String applyTypes = CommonUtils.get(request, "applyTypes");
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
+		List<String> types = CommonUtils.splitAsList(applyTypes, ",");
+		Example example = new Example(WmsInventoryApplyDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		if (types.size() > 0) {
+			cri.andIn("applyType", types);
+		}
+		cri.andEqualTo("status", status);
+		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCountByExample(example);
+		PageHelper.startPage(pageNo, pageSize);
+		PageHelper.orderBy("gmt_created desc, id desc");
+		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().selectByExample(example);
+
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
-		page.setTotalRows(list.size());
+		page.setTotalRows(totalRows);
 		page.setValues(list);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
@@ -163,9 +179,39 @@ public class InventoryOrderController {
 		cond.setStatus(status);
 		cond.setApplyType("purchase");
 		cond.setProposer(user.getUserCode());
+		cond.setPageNo(CommonUtils.getPageNo(request));
+		cond.setPageSize(CommonUtils.getPageSize(request));
+		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
+		PageHelper.orderBy("gmt_created desc");
 		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
+		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCount(cond);
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
-		page.setTotalRows(list.size());
+		page.setTotalRows(totalRows);
+		page.setValues(list);
+		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMyAllocate", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMyAllocate() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
+		String status = CommonUtils.get(request, "status");
+		Example example = new Example(WmsInventoryApplyDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("status", status);
+		cri.andIn("applyType", Arrays.asList("allocation"));
+		cri.andEqualTo("proposer", user.getUserCode());
+		PageHelper.startPage(pageNo, pageSize);
+		PageHelper.orderBy("gmt_created desc");
+		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().selectByExample(example);
+		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCountByExample(example);
+		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
+		page.setTotalRows(totalRows);
 		page.setValues(list);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
@@ -182,9 +228,14 @@ public class InventoryOrderController {
 		cond.setStatus(status);
 		cond.setApplyType("claim_loss");
 		cond.setProposer(user.getUserCode());
+		cond.setPageNo(CommonUtils.getPageNo(request));
+		cond.setPageSize(CommonUtils.getPageSize(request));
+		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
+		PageHelper.orderBy("gmt_created desc");
 		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
+		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCount(cond);
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
-		page.setTotalRows(list.size());
+		page.setTotalRows(totalRows);
 		page.setValues(list);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
@@ -263,7 +314,7 @@ public class InventoryOrderController {
 		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(order);
 		return ResultBaseBuilder.succ().rb(request);
 	}
-	
+
 	@RequestMapping(value = "/claimLoss", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object claimLoss() {
@@ -293,7 +344,7 @@ public class InventoryOrderController {
 		inorder.setModifier(user.getUserCode());
 		inorder.setStatus("4");
 		inorder.setRemark(remark);
-		
+
 		WmsInventoryApplyDetailDO indetail = new WmsInventoryApplyDetailDO();
 		indetail.setCabinCode(inorder.getCabinCode());
 		indetail.setCabinName(inorder.getCabinName());

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -68,6 +69,7 @@ public class IndexController {
 			WmsMenuDO subCond = new WmsMenuDO();
 			subCond.setParentCode(r.getMenuCode());
 			subCond.setStatus(1);
+			PageHelper.orderBy(" order_by");
 			List<WmsMenuDO> sub = TkMappers.inst().getMenuMapper().select(subCond);
 			List<MenuVo> subs = new ArrayList<>();
 			for (WmsMenuDO s : sub) {
@@ -124,13 +126,18 @@ public class IndexController {
 			j.put("sno", index++);
 			j.put("cabinName", dd.getCabinName());
 			j.put("materialName", dd.getMaterialName());
-			j.put("specInfo", dd.getSpecAmt() + dd.getSpecUnit());
+			if (dd.getSpecAmt() != null) {
+				j.put("specInfo", dd.getSpecAmt() + dd.getSpecUnit());
+			}
 			j.put("stockInfo", dd.getStockAmt() + dd.getStockUnit());
 			j.put("realStockInfo", dd.getRealStockAmt() + dd.getStockUnit());
 			if ("无".equals(dd.getSpecUnit())) {
 				j.put("specInfo", j.getString("stockInfo"));
 			}
-			j.put("totalPrice", dd.getTotalPrice());
+			if(dd.getTotalPrice() != null){
+				j.put("totalPrice", (dd.getTotalPrice())+"元");
+			}
+			
 			list2.add(j);
 		}
 		mv.addObject("record", apply);

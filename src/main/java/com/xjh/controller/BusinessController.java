@@ -489,50 +489,5 @@ public class BusinessController {
 		this.stockHistoryMapper.insert(d);
 		return ResultBaseBuilder.succ().rb(request);
 	}
-
-	@RequestMapping(value = "/diaobo", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object diaobo() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String materialCode = CommonUtils.get(request, "materialCode");// 调拨材料
-		String fromCabCode = CommonUtils.get(request, "fromCabCode");// 拨出门店
-		String toCabCode = CommonUtils.get(request, "toCabCode");// 拨入门店
-		Double diaoboAmt = CommonUtils.getDbl(request, "diaoboAmt", null);
-		if (diaoboAmt == null || CommonUtils.isAnyBlank(fromCabCode, toCabCode, materialCode)) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		// 调出
-		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(fromCabCode);
-		d.setCabinType(fromCabCode.startsWith("WH") ? "1" : "2");
-		d.setAmt(-1 * diaoboAmt.doubleValue());
-		d.setMaterialCode(materialCode);
-		d.setOpType("bochu");
-		d.setStatus("0");
-		d.setGmtCreated(new Date());
-		d.setOperator(user.getUserCode());
-		d.setRemark("调出到" + toCabCode);
-		d.setRelateCode(toCabCode);
-		this.stockHistoryMapper.insert(d);
-		// 调入
-		d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(toCabCode);
-		d.setCabinType(toCabCode.startsWith("WH") ? "1" : "2");
-		d.setAmt(diaoboAmt.doubleValue());
-		d.setMaterialCode(materialCode);
-		d.setOpType("boru");
-		d.setStatus("0");
-		d.setGmtCreated(new Date());
-		d.setOperator(user.getUserCode());
-		d.setRemark("从" + fromCabCode + "拨入");
-		d.setRelateCode(fromCabCode);
-		this.stockHistoryMapper.insert(d);
-
-		return ResultBaseBuilder.succ().msg("调拨成功").rb(request);
-	}
-
 	
 }

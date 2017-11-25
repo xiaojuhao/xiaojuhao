@@ -56,9 +56,9 @@
 						<th>序号</th>
 						<th>仓库/门店</th>
 						<th>原料名称</th>
-						<th>入库数量</th>
+						<th>采购额</th>
 						<th>实际入库</th>
-						<th>采购数量</th>
+						<th>采购规格</th>
 						<th>总价</th>
 						
 					</tr>
@@ -70,7 +70,7 @@
 							<td>${item.stockInfo }</td>
 							<td>${item.realStockInfo }</td>
 							<td>${item.specInfo }</td>
-							<td>${item.totalPrice }元</td>
+							<td>${item.totalPrice }</td>
 						</tr>
 					</c:forEach>
 				</table>

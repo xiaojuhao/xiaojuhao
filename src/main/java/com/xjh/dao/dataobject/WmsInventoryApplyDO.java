@@ -22,6 +22,8 @@ public class WmsInventoryApplyDO extends PageDTO implements Serializable {
 	String applyNum;
 	String cabinCode;
 	String cabinName;
+	String fromCabinCode;
+	String fromCabinName;
 	String applyType;
 	String serialNo;
 	String proposer;

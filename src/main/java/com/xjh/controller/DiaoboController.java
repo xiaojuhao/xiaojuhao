@@ -20,6 +20,7 @@ import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.TkMappers;
@@ -57,29 +58,23 @@ public class DiaoboController {
 				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("货站信息不存在").rb(request);
 			}
 			String remark = CommonUtils.get(request, "remark");
-			WmsInventoryApplyDO inorder = new WmsInventoryApplyDO();
-			WmsInventoryApplyDO outorder = new WmsInventoryApplyDO();
+			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> indetails = new ArrayList<>();
-			List<WmsInventoryApplyDetailDO> outdetails = new ArrayList<>();
 			// 保存采购单
-			inorder.setApplyNum(CommonUtils.uuid());
-			inorder.setCabinCode(inCabinCode);
-			inorder.setCabinName(inCabin.getName());
-			inorder.setSerialNo(CommonUtils.stringOfNow());
-			inorder.setApplyType("allocate_in");
-			inorder.setProposer(user.getUserName());
-			inorder.setGmtCreated(new Date());
-			inorder.setGmtModified(new Date());
-			inorder.setCreator(user.getUserCode());
-			inorder.setModifier(user.getUserCode());
-			inorder.setStatus(status);
-			inorder.setRemark(remark);
-			// 出库单
-			CommonUtils.copyPropertiesQuietly(outorder, inorder);
-			outorder.setApplyType("allocate_out");
-			outorder.setApplyNum(CommonUtils.uuid());
-			outorder.setCabinCode(outCabinCode);
-			outorder.setCabinName(outCabin.getName());
+			apply.setApplyNum(CommonUtils.uuid());
+			apply.setCabinCode(inCabinCode);
+			apply.setCabinName(inCabin.getName());
+			apply.setFromCabinCode(outCabinCode);
+			apply.setFromCabinName(outCabin.getName());
+			apply.setSerialNo(CommonUtils.stringOfNow());
+			apply.setApplyType("allocation");
+			apply.setProposer(user.getUserCode());
+			apply.setGmtCreated(new Date());
+			apply.setGmtModified(new Date());
+			apply.setCreator(user.getUserCode());
+			apply.setModifier(user.getUserCode());
+			apply.setStatus(status);
+			apply.setRemark(remark);
 			//
 			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
 			// 保存history
@@ -87,73 +82,98 @@ public class DiaoboController {
 				JSONObject j = dataArr.getJSONObject(i);
 				Double storageLifeNum = j.getDouble("storageLifeNum");
 				String storageLifeUnit = j.getString("storageLifeUnit");
-				WmsInventoryApplyDetailDO indetail = new WmsInventoryApplyDetailDO();
-				WmsInventoryApplyDetailDO outdetail = new WmsInventoryApplyDetailDO();
-				indetail.setCabinCode(inorder.getCabinCode());
-				indetail.setCabinName(inorder.getCabinName());
-				indetail.setApplyNum(inorder.getApplyNum());
-				indetail.setApplyType(inorder.getApplyType());
-				indetail.setMaterialCode(j.getString("materialCode"));
-				indetail.setMaterialName(j.getString("materialName"));
-				indetail.setSupplierCode(j.getString("supplierCode"));
-				indetail.setSupplierName(j.getString("supplierName"));
-				indetail.setSpecAmt(j.getDouble("specAmt"));
-				if (indetail.getSpecAmt() == null) {
-					indetail.setSpecAmt(0D);
-				}
-				indetail.setSpecUnit(j.getString("specUnit"));
-				if (indetail.getSpecUnit() == null) {
-					indetail.setSpecUnit("无");
-				}
-				indetail.setSpecPrice(j.getDouble("specPrice"));
-				if (indetail.getSpecPrice() == null) {
-					indetail.setSpecPrice(0D);
-				}
-				indetail.setStockAmt(indetail.getSpecAmt() * j.getDouble("specQty"));
-				indetail.setStockUnit("个");
-				indetail.setRealStockAmt(indetail.getStockAmt());
-				indetail.setTotalPrice(indetail.getStockAmt() * indetail.getSpecPrice());
-				indetail.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
-				indetail.setExpDate(CommonUtils.parseDate("expDate"));
-				if (indetail.getExpDate() == null) {
-					switch (storageLifeUnit) {
-					case "D":
-						indetail.setExpDate(CommonUtils.futureDays(indetail.getProdDate(), storageLifeNum.intValue()));
-						break;
-					case "M":
-						indetail.setExpDate(CommonUtils.futureMonth(indetail.getProdDate(), storageLifeNum.intValue()));
-						break;
-					default:
-						indetail.setExpDate(CommonUtils.futureYear(indetail.getProdDate(), 10));
-					}
-				}
-				indetail.setKeepTime(storageLifeNum + storageLifeUnit);
-				indetail.setGmtCreated(new Date());
-				indetail.setGmtModified(new Date());
-				indetail.setCreator(user.getUserCode());
-				indetail.setModifier(user.getUserCode());
-				indetail.setStatus("0");
+				WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
+				detail.setCabinCode(apply.getCabinCode());
+				detail.setCabinName(apply.getCabinName());
+				detail.setFromCabinCode(apply.getFromCabinCode());
+				detail.setFromCabinName(apply.getFromCabinName());
+				detail.setApplyNum(apply.getApplyNum());
+				detail.setApplyType(apply.getApplyType());
+				detail.setMaterialCode(j.getString("materialCode"));
+				detail.setMaterialName(j.getString("materialName"));
+				detail.setSupplierCode(j.getString("supplierCode"));
+				detail.setSupplierName(j.getString("supplierName"));
+				
+				detail.setStockAmt(j.getDouble("outAmt"));
+				detail.setStockUnit(j.getString("stockUnit"));
+				detail.setRealStockAmt(detail.getStockAmt());
+				detail.setGmtCreated(new Date());
+				detail.setGmtModified(new Date());
+				detail.setCreator(user.getUserCode());
+				detail.setModifier(user.getUserCode());
+				detail.setStatus("0");
 
-				CommonUtils.copyPropertiesQuietly(outdetail, indetail);
-				outdetail.setCabinCode(outCabinCode);
-				outdetail.setCabinName(outCabin.getName());
-				outdetail.setApplyNum(outorder.getApplyNum());
-				outdetail.setApplyType(outorder.getApplyType());
-				indetails.add(indetail);
-				outdetails.add(outdetail);
+				indetails.add(detail);
 			}
 			// 插入数据库
-			TkMappers.inst().getPurchaseOrderMapper().insert(inorder);
-			TkMappers.inst().getPurchaseOrderMapper().insert(outorder);
+			TkMappers.inst().getPurchaseOrderMapper().insert(apply);
 			for (WmsInventoryApplyDetailDO detail : indetails) {
-				TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
-			}
-			for (WmsInventoryApplyDetailDO detail : outdetails) {
 				TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
 			}
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
 			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
+	}
+
+	@RequestMapping(value = "/confirm", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object confirm() {
+		String dataJson = CommonUtils.get(request, "dataJson");
+		String applyNum = CommonUtils.get(request, "applyNum");
+		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsInventoryApplyDO order = new WmsInventoryApplyDO();
+		order.setApplyNum(applyNum);
+		order = TkMappers.inst().getPurchaseOrderMapper().selectOne(order);
+		if (order == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		if (!"4".equals(order.getStatus())) {
+			return ResultBaseBuilder.fails("调拨单已处理").rb(request);
+		}
+		JSONArray array = CommonUtils.parseJSONArray(dataJson);
+		for (int i = 0; i < array.size(); i++) {
+			JSONObject j = array.getJSONObject(i);
+			Long id = j.getLong("id");
+			Double realStock = j.getDouble("realStockAmt");
+			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
+			detail.setId(id);
+			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
+			if (detail == null || StringUtils.equals("1", detail.getStatus())) {
+				continue;
+			}
+			// history
+			WmsMaterialStockHistoryDO h = new WmsMaterialStockHistoryDO();
+			h.setOpType("in_stock");
+			h.setCabinCode(detail.getCabinCode());
+			h.setCabinName(detail.getCabinName());
+			h.setCabinType(detail.getCabinCode().startsWith("WH") ? "1" : "2");
+			h.setMaterialCode(detail.getMaterialCode());
+			h.setMaterialName(detail.getMaterialName());
+			h.setKeepDays(detail.getKeepTime());
+			h.setTotalPrice(detail.getTotalPrice());
+			h.setUnitPrice(detail.getSpecPrice());
+			h.setProductDate(detail.getProdDate());
+			h.setStockUnit(detail.getStockUnit());
+			h.setAmt(realStock);
+			h.setOperator(detail.getModifier());
+			h.setGmtCreated(new Date());
+			h.setStatus("0");
+			h.setRelateCode(detail.getApplyNum());
+			h.setRemark("调拨入库");
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(h);
+			//
+			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
+			update.setId(detail.getId());
+			update.setStatus("1");
+			update.setRealStockAmt(realStock);
+			TkMappers.inst().getPurchaseOrderDetailMapper().updateByPrimaryKeySelective(update);
+		}
+
+		order.setStatus("5");
+		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(order);
+		return ResultBaseBuilder.succ().rb(request);
 	}
 }
