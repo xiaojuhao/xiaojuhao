@@ -290,6 +290,22 @@ CREATE TABLE
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
 
+create table wms_upload_files(
+   id bigint primary key auto_increment comment '主键',
+   busi_no varchar(64) not null comment '业务代码',
+   content_type varchar(64) not null comment '文件类型(http)',
+   file_location varchar(64) not null comment '文件存储位置,local表示本地',
+   file_path varchar(128) not null comment '文件存储路径,file_location=local时保存为本地目录',
+   file_name varchar(128) not null comment '文件名称',
+   file_ori_name varchar(128) comment '文件原始名称',
+   remark varchar(256) comment '备注',
+   creator varchar(35) comment '创建人员',
+   gmt_created datetime comment '创建时间'
+);
+
+alter table wms_inventory_apply_detail add img_busi_no varchar(64) after keep_time;
+
+
 INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 'all', 1, 'link');
 INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 'all', 2, 'nav');
 INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('基础信息', 'base_nav', 'el-icon-menu', '3', 'root', 1, 'all', 3, 'nav');
@@ -358,3 +374,4 @@ INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, user_role,
 INSERT INTO wms_warehouse (warehouse_code, warehouse_name, warehouse_addr, warehouse_manager, manager_phone, manager_email, related_store) VALUES ('WH0001', '崇明仓库', null, null, null, null, null);
 INSERT INTO wms_warehouse ( warehouse_code, warehouse_name, warehouse_addr, warehouse_manager, manager_phone, manager_email, related_store) VALUES ( 'WH0002', '昆山仓库', null, null, null, null, null);
 
+INSERT INTO wms_dict (dict_group, dict_code, dict_name, dict_val) VALUES ( 'DEFAULT', 'image_path', '保存路劲', '/root/pictures/');
