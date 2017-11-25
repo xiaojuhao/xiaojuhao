@@ -308,7 +308,7 @@ public class InventoryOrderController {
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
 			h.setRelateCode(detail.getApplyNum());
-			h.setRemark("采购入库");
+			h.setRemark("采购入库,供应商:" + detail.getSupplierName());
 			historyInserts.add(h);
 
 			if (Math.abs(detail.getStockAmt() - realStock) > 0.001) {
@@ -328,7 +328,7 @@ public class InventoryOrderController {
 				loss.setGmtCreated(new Date());
 				loss.setStatus("1"); // 入库损耗数据不需要更新库存，仅做记录
 				loss.setRelateCode(detail.getApplyNum());
-				loss.setRemark("采购入库损耗");
+				loss.setRemark("采购入库损耗,供应商:" + detail.getSupplierName());
 				historyInserts.add(loss);
 			}
 			//
