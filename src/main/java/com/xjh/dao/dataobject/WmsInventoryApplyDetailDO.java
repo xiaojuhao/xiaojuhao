@@ -38,6 +38,7 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Date prodDate;
 	Date expDate;
 	String keepTime;//保质期，如10天
+	String imgBusiNo;
 	String creator;
 	String modifier;
 	Date gmtCreated;

@@ -5,8 +5,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -22,11 +25,16 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsDictDO;
+import com.xjh.dao.dataobject.WmsUploadFilesDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DictService;
+import com.xjh.service.TkMappers;
 
 @Controller
 @RequestMapping("/file")
@@ -74,10 +82,12 @@ public class FileController {
 	@ResponseBody
 	public Object upload() {
 		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
 			CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
 					request.getSession().getServletContext());
 			JSONObject ret = new JSONObject();
 
+			List<WmsUploadFilesDO> files = new ArrayList<>();
 			if (multipartResolver.isMultipart(request)) {
 				WmsDictDO imagepath = dict.query("DEFAULT", "image_path");
 				if (imagepath == null) {
@@ -85,7 +95,14 @@ public class FileController {
 				}
 				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
 				Iterator<String> iter = multiRequest.getFileNames();
-
+				if (user == null) {
+					user = AccountUtils.getLoginUser(multiRequest);
+				}
+				String busiNo = CommonUtils.get(multiRequest, "busiNo");
+				if (StringUtils.isBlank(busiNo)) {
+					busiNo = CommonUtils.uuid();
+				}
+				ret.put("busiNo", busiNo);
 				while (iter.hasNext()) {
 					String localFileName = CommonUtils.uuid();
 					ret.put("filename", localFileName);
@@ -93,8 +110,22 @@ public class FileController {
 					if (file != null) {
 						String path = imagepath.getDictVal() + localFileName + ".jpg";
 						file.transferTo(new File(path));
+						WmsUploadFilesDO dd = new WmsUploadFilesDO();
+						dd.setBusiNo(busiNo);
+						dd.setContentType("image/jpeg");
+						dd.setCreator(user == null ? "system" : user.getUserCode());
+						dd.setFileName(localFileName);
+						dd.setFileOriName(file.getOriginalFilename());
+						dd.setFileLocation("local");
+						dd.setFilePath(imagepath.getDictVal());
+						dd.setGmtCreated(new Date());
+						files.add(dd);
 					}
 				}
+			}
+			// 保存数据库
+			for (WmsUploadFilesDO file : files) {
+				TkMappers.inst().getUploadFilesMapper().insert(file);
 			}
 			return ResultBaseBuilder.succ().data(ret).rb(request);
 		} catch (Exception e) {

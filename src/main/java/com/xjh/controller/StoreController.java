@@ -73,8 +73,9 @@ public class StoreController {
 	@RequestMapping(value = "/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getAllStore() {
-
-		PageResult<WmsStoreDO> page = storeService.queryStore(null);
+		WmsStoreDO cond = new WmsStoreDO();
+		cond.setPageSize(300);
+		PageResult<WmsStoreDO> page = storeService.queryStore(cond);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 

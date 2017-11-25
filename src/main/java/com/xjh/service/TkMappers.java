@@ -6,20 +6,21 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import com.xjh.dao.tkmapper.TkWmsDictMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSplitMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsMenuMapper;
-import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
-import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsSequenceMapper;
 import com.xjh.dao.tkmapper.TkWmsSessionMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsSupplierMapper;
+import com.xjh.dao.tkmapper.TkWmsUploadFilesMapper;
 import com.xjh.dao.tkmapper.TkWmsUserMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 
@@ -62,6 +63,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsInventoryApplyMapper purchaseOrderMapper;
 	@Resource
 	TkWmsInventoryApplyDetailMapper purchaseOrderDetailMapper;
+	@Resource
+	TkWmsUploadFilesMapper uploadFilesMapper;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -88,7 +89,12 @@ public class IndexController {
 
 	@RequestMapping(value = "/print", produces = "text/html;charset=UTF-8")
 	public ModelAndView print() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
 		ModelAndView mv = new ModelAndView("print");
+		if (user == null) {
+			mv.setViewName("error");
+			return mv;
+		}
 		String applyNum = request.getParameter("applyNum");
 		if (StringUtils.isBlank(applyNum)) {
 			mv.setViewName("error");
@@ -99,10 +105,42 @@ public class IndexController {
 		apply = this.inventoryMapper.selectOne(apply);
 		WmsInventoryApplyDetailDO detailCond = new WmsInventoryApplyDetailDO();
 		detailCond.setApplyNum(applyNum);
+		detailCond.setPageSize(1000);
 		List<WmsInventoryApplyDetailDO> list = this.inventoryDetailMapper.select(detailCond);
+		List<JSONObject> list2 = new ArrayList<>();
+		String applyType = apply.getApplyType();
+		if ("purchase".equals(applyType)) {
+			applyType = "采购单";
+		} else if ("allocate_in".equals(applyType)) {
+			applyType = "调拨入库";
+		} else if ("allocate_out".equals(applyType)) {
+			applyType = "调拨出库";
+		} else if ("claim_loss".equals(applyType)) {
+			applyType = "报损";
+		}
+		int index = 1;
+		for (WmsInventoryApplyDetailDO dd : list) {
+			JSONObject j = new JSONObject();
+			j.put("sno", index++);
+			j.put("cabinName", dd.getCabinName());
+			j.put("materialName", dd.getMaterialName());
+			j.put("specInfo", dd.getSpecAmt() + dd.getSpecUnit());
+			j.put("stockInfo", dd.getStockAmt() + dd.getStockUnit());
+			j.put("realStockInfo", dd.getRealStockAmt() + dd.getStockUnit());
+			if ("无".equals(dd.getSpecUnit())) {
+				j.put("specInfo", j.getString("stockInfo"));
+			}
+			j.put("totalPrice", dd.getTotalPrice());
+			list2.add(j);
+		}
 		mv.addObject("record", apply);
-		mv.addObject("list", list);
-		mv.addObject("crateDate",new SimpleDateFormat("yyyy-MM-dd").format(apply.getGmtCreated()));
+		mv.addObject("list", list2);
+		mv.addObject("totalRows", list.size());
+		mv.addObject("createDate", new SimpleDateFormat("yyyy-MM-dd").format(apply.getGmtCreated()));
+		mv.addObject("applyType", applyType);
+		mv.addObject("printer", user.getUserName());
+		mv.addObject("currentDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		return mv;
 	}
+
 }

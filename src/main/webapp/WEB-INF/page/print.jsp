@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
 .container {
-	width: 80%;
-	border: solid 0px blue;
+	width:210mm;
+	border: solid 0px #000000;
 	margin: 0 auto 0 auto;
 }
 
@@ -17,12 +17,12 @@
 }
 
 .query {
-	margin-left: 20px;
+	margin-left: 10px;
 }
 
 .spaceline {
 	display: inline-block;
-	width: 20px;
+	width: 10px;
 }
 
 .newline {
@@ -34,47 +34,55 @@
 <body>
 	<div class="container" id="app">
 		<div class="header">
-			<h4>入库单详细清单</h4>
+			<h4>入库清单</h4>
 		</div>
 		<div class="query">
-			<div style="margin-left: 40px; margin-bottom: 20px;">
+			<div style="margin-left: 20px; margin-bottom: 20px;">
 				<label><strong>单号:</strong> </label><span>${record.applyNum }</span>
 				<div class="spaceline"></div>
 				<label><strong>申请人: </strong></label><span>${record.proposer }</span>
 				<div class="spaceline"></div>
 				<label><strong>仓库/门店:</strong> </label><span>${record.cabinName }</span>
 				<div class="newline"></div>
-				<label><strong>采购日期:</strong> </label><span>${crateDate }</span>
+				<label><strong>日期:</strong> </label><span>${createDate }</span>
 				<div class="spaceline"></div>
-				
+				<label><strong>类型:</strong> </label><span>${applyType }</span>
+				<div class="spaceline"></div>
 			</div>
-			<div style="margin-left: 40px; margin-bottom: 40px;">
-				共102条
-				<table border="1" bordercolor="#a0c6e5"
-					style="border-collapse: collapse; min-width: 80%">
+			<div style="margin-left: 20px; margin-bottom: 10px;">
+				<table border="1" bordercolor=" #000000"
+					style="border-collapse: collapse; min-width: 85%">
 					<tr>
 						<th>序号</th>
 						<th>仓库/门店</th>
 						<th>原料名称</th>
-						<th>规格数量</th>
-						<th>单价</th>
-						<th>数量</th>
+						<th>入库数量</th>
+						<th>实际入库</th>
+						<th>采购数量</th>
+						<th>总价</th>
+						
 					</tr>
 					<c:forEach items="${list}" var="item" varStatus="s">
 						<tr>
-							<td align="center">${s.index + 1}</td>
+							<td align="center">${item.sno}</td>
 							<td>${item.cabinName }</td>
 							<td>${item.materialName }</td>
-							<td>${item.specAmt }${item.specUnit }</td>
-							<td>${item.specPrice }</td>
-							<td>${item.stockAmt }${item.stockUnit }</td>
-							
+							<td>${item.stockInfo }</td>
+							<td>${item.realStockInfo }</td>
+							<td>${item.specInfo }</td>
+							<td>${item.totalPrice }元</td>
 						</tr>
 					</c:forEach>
-
 				</table>
 			</div>
-			<div style="margin-left: 40px; margin-bottom: 40px;"></div>
+			<div style="margin-left: 20px; margin-bottom: 40px; text-align:center">
+				<font size=2>
+				<label>打印人员: </label><span>${printer }</span>
+				<div class="spaceline"></div>
+				<label>打印日期: </label><span>${currentDate }</span>
+				<div class="spaceline"></div>
+				</font>
+			</div>
 		</div>
 	</div>
 

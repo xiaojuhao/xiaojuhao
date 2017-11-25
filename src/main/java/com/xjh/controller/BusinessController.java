@@ -21,6 +21,8 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsInventoryApplyDO;
+import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
@@ -532,15 +534,5 @@ public class BusinessController {
 		return ResultBaseBuilder.succ().msg("调拨成功").rb(request);
 	}
 
-	@RequestMapping(value = "/claimLoss", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object claimLoss() {
-		String cabinCode = CommonUtils.get(request, "cabinCode");
-		String materialCode = CommonUtils.get(request, "materialCode");
-		double lossAmt = CommonUtils.getDbl(request, "lossAmt", 0D);
-		String images = CommonUtils.get(request, "images");
-		String remark = CommonUtils.get(request, "remark");
-
-		return ResultBaseBuilder.succ().msg("提交成功").rb(request);
-	}
+	
 }

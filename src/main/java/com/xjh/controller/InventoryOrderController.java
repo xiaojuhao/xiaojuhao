@@ -61,7 +61,7 @@ public class InventoryOrderController {
 			order.setCabinName(cabinVo.getName());
 			order.setSerialNo(CommonUtils.stringOfNow());
 			order.setApplyType("purchase");
-			order.setProposer(user.getUserName());
+			order.setProposer(user.getUserCode());
 			order.setGmtCreated(new Date());
 			order.setGmtModified(new Date());
 			order.setCreator(user.getUserCode());
@@ -138,12 +138,50 @@ public class InventoryOrderController {
 		}
 	}
 
-	@RequestMapping(value = "/queryMyPurchaseOrder", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object queryMyPurchaseOrder() {
+	public Object queryInventoryApply() {
 		String status = CommonUtils.get(request, "status");
 		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
 		cond.setStatus(status);
+		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
+		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
+		page.setTotalRows(list.size());
+		page.setValues(list);
+		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMyPurchaseOrder", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMyPurchaseOrder() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String status = CommonUtils.get(request, "status");
+		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
+		cond.setStatus(status);
+		cond.setApplyType("purchase");
+		cond.setProposer(user.getUserCode());
+		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
+		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
+		page.setTotalRows(list.size());
+		page.setValues(list);
+		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMyLossApply", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMyLossApply() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String status = CommonUtils.get(request, "status");
+		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
+		cond.setStatus(status);
+		cond.setApplyType("claim_loss");
+		cond.setProposer(user.getUserCode());
 		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().select(cond);
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
 		page.setTotalRows(list.size());
@@ -224,5 +262,57 @@ public class InventoryOrderController {
 		order.setStatus("5");
 		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(order);
 		return ResultBaseBuilder.succ().rb(request);
+	}
+	
+	@RequestMapping(value = "/claimLoss", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object claimLoss() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		String cabinName = CommonUtils.get(request, "cabinName");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String materialName = CommonUtils.get(request, "materialName");
+		double lossAmt = CommonUtils.getDbl(request, "lossAmt", 0D);
+		String stockUnit = CommonUtils.get(request, "stockUnit");
+		String images = CommonUtils.get(request, "images");
+		String remark = CommonUtils.get(request, "remark");
+		String imgBusiNo = CommonUtils.get(request, "busiNo");
+		WmsInventoryApplyDO inorder = new WmsInventoryApplyDO();
+		inorder.setApplyNum(CommonUtils.uuid());
+		inorder.setCabinCode(cabinCode);
+		inorder.setCabinName(cabinName);
+		inorder.setSerialNo(CommonUtils.stringOfNow());
+		inorder.setApplyType("claim_loss");
+		inorder.setProposer(user.getUserCode());
+		inorder.setGmtCreated(new Date());
+		inorder.setGmtModified(new Date());
+		inorder.setCreator(user.getUserCode());
+		inorder.setModifier(user.getUserCode());
+		inorder.setStatus("4");
+		inorder.setRemark(remark);
+		
+		WmsInventoryApplyDetailDO indetail = new WmsInventoryApplyDetailDO();
+		indetail.setCabinCode(inorder.getCabinCode());
+		indetail.setCabinName(inorder.getCabinName());
+		indetail.setApplyNum(inorder.getApplyNum());
+		indetail.setApplyType(inorder.getApplyType());
+		indetail.setMaterialCode(materialCode);
+		indetail.setMaterialName(materialName);
+		indetail.setStockAmt(lossAmt);
+		indetail.setStockUnit(stockUnit);
+		indetail.setRealStockAmt(lossAmt);
+		indetail.setGmtCreated(new Date());
+		indetail.setGmtModified(new Date());
+		indetail.setCreator(user.getUserCode());
+		indetail.setModifier(user.getUserCode());
+		indetail.setStatus("0");
+		indetail.setImgBusiNo(imgBusiNo);
+		indetail.setRemark(images);
+		TkMappers.inst().getPurchaseOrderMapper().insert(inorder);
+		TkMappers.inst().getPurchaseOrderDetailMapper().insert(indetail);
+		return ResultBaseBuilder.succ().msg("提交成功").rb(request);
 	}
 }
