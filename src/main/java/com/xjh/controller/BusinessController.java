@@ -1,8 +1,6 @@
 package com.xjh.controller;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
@@ -21,15 +18,11 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
-import com.xjh.dao.dataobject.WmsInventoryApplyDO;
-import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
-import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
-import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
@@ -300,194 +293,4 @@ public class BusinessController {
 		}
 		return ResultBaseBuilder.succ().data(retList).rb(request);
 	}
-
-	/**
-	 * 出库
-	 * 
-	 * @return
-	 */
-	@RequestMapping(value = "/outstock", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object outstock() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String materialCode = CommonUtils.get(request, "materialCode");
-		String outstockAmtStr = CommonUtils.get(request, "outstockAmt");
-		BigDecimal outstockAmt = CommonUtils.parseBigDecimal(outstockAmtStr);
-		String cabinCode = CommonUtils.get(request, "cabinCode");
-		if (outstockAmt == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		if (StringUtils.isAnyBlank(materialCode, cabinCode)) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
-		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(cabinCode);
-		d.setCabinType(cabinType);
-		d.setAmt(-1 * outstockAmt.doubleValue());
-		d.setMaterialCode(materialCode);
-		d.setOpType("out_stock");
-		d.setStatus("0");
-		d.setGmtCreated(new Date());
-		d.setOperator(user.getUserCode());
-		TkMappers.inst().getMaterialStockHistoryMapper().insertSelective(d);
-		return ResultBaseBuilder.succ().rb(request);
-	}
-
-	@RequestMapping(value = "/outstockByRecipes", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object outstockByRecipes() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String storeCode = CommonUtils.get(request, "storeCode");
-		String recipesJson = CommonUtils.get(request, "recipesJson");
-		if (StringUtils.isAnyBlank(storeCode, recipesJson)) {
-			return ResultBaseBuilder.fails("入参错误").rb(request);
-		}
-		WmsStoreDO store = new WmsStoreDO();
-		store.setStoreCode(storeCode);
-		store = this.storeMapper.selectOne(store);
-		if (store == null) {
-			return ResultBaseBuilder.fails("门店不存在").rb(request);
-		}
-		JSONArray recipes = CommonUtils.parseJSONArray(recipesJson);
-		if (recipes.size() == 0) {
-			return ResultBaseBuilder.fails("请输入菜单信息").rb(request);
-		}
-		for (int i = 0; i < recipes.size(); i++) {
-			JSONObject reci = recipes.getJSONObject(i);
-			String recipesCode = reci.getString("recipesCode");
-			Double amt = reci.getDouble("amt");
-			WmsRecipesFormulaDO formula = new WmsRecipesFormulaDO();
-			formula.setRecipesCode(recipesCode);
-			List<WmsRecipesFormulaDO> formulas = TkMappers.inst().getRecipesFormulaMapper().select(formula);
-			for (WmsRecipesFormulaDO f : formulas) {
-				WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-				d.setCabinCode(storeCode);
-				d.setCabinType("2");
-				d.setAmt(-1 * f.getMaterialAmt() * amt);
-				d.setMaterialCode(f.getMaterialCode());
-				d.setOpType("out_stock");
-				d.setStatus("0");
-				d.setGmtCreated(new Date());
-				d.setOperator(user.getUserCode());
-				d.setRemark("按菜单出库:" + recipesCode);
-				d.setRelateCode(recipesCode);
-				TkMappers.inst().getMaterialStockHistoryMapper().insertSelective(d);
-			}
-		}
-		return ResultBaseBuilder.succ().rb(request);
-	}
-
-	@RequestMapping(value = "/instock", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object instock() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String materialCode = CommonUtils.get(request, "materialCode");
-		String instockAmtStr = CommonUtils.get(request, "instockAmt");
-		String cabinCode = CommonUtils.get(request, "cabinCode");
-		BigDecimal instockAmt = CommonUtils.parseBigDecimal(instockAmtStr);
-		if (instockAmt == null || Math.abs(instockAmt.doubleValue()) < 0.009) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		if (CommonUtils.isAnyBlank(materialCode, cabinCode)) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(cabinCode);
-		d.setCabinType(cabinCode.startsWith("WH") ? "1" : "2");
-		d.setAmt(instockAmt.doubleValue());
-		d.setMaterialCode(materialCode);
-		d.setOpType("correct");
-		d.setStatus("0");
-		d.setGmtCreated(new Date());
-		d.setOperator(user.getUserCode());
-		this.stockHistoryMapper.insert(d);
-		return ResultBaseBuilder.succ().rb(request);
-	}
-
-	@RequestMapping(value = "/batchInstock", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object batchInstock() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String dataJson = CommonUtils.get(request, "dataJson");
-		JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
-		// 保存history
-		List<WmsMaterialStockHistoryDO> hisList = new ArrayList<>();
-		for (int i = 0; i < dataArr.size(); i++) {
-			JSONObject j = dataArr.getJSONObject(i);
-			WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-			d.setCabinCode(j.getString("cabinCode"));
-			d.setCabinType(j.getString("cabinType"));
-			d.setAmt(j.getDouble("amt"));
-			d.setUnitPrice(j.getDouble("unitPrice"));
-			d.setTotalPrice(d.getAmt() * d.getUnitPrice());
-			d.setMaterialCode(j.getString("materialCode"));
-			d.setOpType("in_stock");
-			d.setStatus("0");
-			d.setKeepDays(j.getString("storageLifeNum") + j.getString("storageLifeUnit"));
-			d.setProductDate(CommonUtils.parseDate(j.getString("productDate")));
-			d.setGmtCreated(new Date());
-			d.setOperator(user.getUserCode());
-			hisList.add(d);
-		}
-		for (WmsMaterialStockHistoryDO dd : hisList) {
-			TkMappers.inst().getMaterialStockHistoryMapper().insert(dd);
-		}
-		return ResultBaseBuilder.succ().rb(request);
-	}
-
-	@RequestMapping(value = "/correctStock", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object correctStock() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		if (id == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		String materialCode = request.getParameter("materialCode");
-		String realStockStr = request.getParameter("realStock");
-		BigDecimal realStock = CommonUtils.parseBigDecimal(realStockStr);
-		if (realStock == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		// 查询数据库
-		WmsMaterialStockDO t = new WmsMaterialStockDO();
-		t.setId(id);
-		t.setMaterialCode(materialCode);
-		WmsMaterialStockDO stock = stockMapper.selectOne(t);
-		if (stock == null) {
-			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
-		}
-		// 记录history
-		WmsMaterialStockHistoryDO d = new WmsMaterialStockHistoryDO();
-		d.setCabinCode(stock.getCabinCode());
-		d.setCabinType(stock.getCabinType());
-		d.setAmt(realStock.doubleValue());// 修正库存量
-		d.setPreStock(stock.getCurrStock());// 修正前的库存
-		d.setPostStock(realStock.doubleValue());// 修正后的库存
-		d.setMaterialCode(stock.getMaterialCode());
-		d.setMaterialName(stock.getMaterialName());
-		d.setOpType("correct");
-		d.setStatus("0");
-		d.setGmtCreated(new Date());
-		d.setOperator(user.getUserCode());
-		this.stockHistoryMapper.insert(d);
-		return ResultBaseBuilder.succ().rb(request);
-	}
-	
 }

@@ -126,18 +126,19 @@ public class IndexController {
 			j.put("sno", index++);
 			j.put("cabinName", dd.getCabinName());
 			j.put("materialName", dd.getMaterialName());
-			if (dd.getSpecAmt() != null) {
-				j.put("specInfo", dd.getSpecAmt() + dd.getSpecUnit());
+			String stockInfo = dd.getStockAmt() + dd.getStockUnit();
+			if (dd.getSpecAmt() != null && !"无".equals(dd.getSpecUnit())) {
+				stockInfo += "(" + dd.getSpecAmt() + dd.getSpecUnit() + ")";
 			}
-			j.put("stockInfo", dd.getStockAmt() + dd.getStockUnit());
+			j.put("stockInfo", stockInfo);
 			j.put("realStockInfo", dd.getRealStockAmt() + dd.getStockUnit());
 			if ("无".equals(dd.getSpecUnit())) {
 				j.put("specInfo", j.getString("stockInfo"));
 			}
-			if(dd.getTotalPrice() != null){
-				j.put("totalPrice", (dd.getTotalPrice())+"元");
+			if (dd.getTotalPrice() != null) {
+				j.put("totalPrice", (dd.getTotalPrice()) + "元");
 			}
-			
+
 			list2.add(j);
 		}
 		mv.addObject("record", apply);

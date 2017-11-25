@@ -23,6 +23,7 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
+import com.xjh.service.DatabaseService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
@@ -33,6 +34,8 @@ public class DiaoboController {
 	HttpServletRequest request;
 	@Resource
 	CabinService cabinService;
+	@Resource
+	DatabaseService database;
 
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -77,11 +80,12 @@ public class DiaoboController {
 			apply.setRemark(remark);
 			//
 			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
+			List<WmsMaterialStockHistoryDO> historyList = new ArrayList<>();
 			// 保存history
 			for (int i = 0; i < dataArr.size(); i++) {
+				WmsMaterialStockHistoryDO his = new WmsMaterialStockHistoryDO();
+
 				JSONObject j = dataArr.getJSONObject(i);
-				Double storageLifeNum = j.getDouble("storageLifeNum");
-				String storageLifeUnit = j.getString("storageLifeUnit");
 				WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 				detail.setCabinCode(apply.getCabinCode());
 				detail.setCabinName(apply.getCabinName());
@@ -93,7 +97,7 @@ public class DiaoboController {
 				detail.setMaterialName(j.getString("materialName"));
 				detail.setSupplierCode(j.getString("supplierCode"));
 				detail.setSupplierName(j.getString("supplierName"));
-				
+
 				detail.setStockAmt(j.getDouble("outAmt"));
 				detail.setStockUnit(j.getString("stockUnit"));
 				detail.setRealStockAmt(detail.getStockAmt());
@@ -102,14 +106,25 @@ public class DiaoboController {
 				detail.setCreator(user.getUserCode());
 				detail.setModifier(user.getUserCode());
 				detail.setStatus("0");
-
+				// 库存
+				his.setMaterialCode(detail.getMaterialCode());
+				his.setMaterialName(detail.getMaterialName());
+				his.setCabinCode(detail.getFromCabinCode());
+				his.setCabinName(detail.getFromCabinName());
+				his.setOpType("out_stock");
+				his.setCabinType(his.getCabinCode().startsWith("WH") ? "1" : "2");
+				his.setRelateCode(detail.getApplyNum());
+				his.setOperator(user.getUserCode());
+				his.setGmtCreated(new Date());
+				his.setAmt(-1 * detail.getStockAmt());
+				his.setStockUnit(detail.getStockUnit());
+				his.setStatus("0");
+				his.setRemark("调往:" + detail.getCabinName() + "(" + detail.getCabinCode() + ")");
 				indetails.add(detail);
+				historyList.add(his);
 			}
 			// 插入数据库
-			TkMappers.inst().getPurchaseOrderMapper().insert(apply);
-			for (WmsInventoryApplyDetailDO detail : indetails) {
-				TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
-			}
+			this.database.diaoboCommit(apply, indetails, historyList);
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
 			return ResultBaseBuilder.fails("系统异常").rb(request);
@@ -133,6 +148,8 @@ public class DiaoboController {
 		if (!"4".equals(order.getStatus())) {
 			return ResultBaseBuilder.fails("调拨单已处理").rb(request);
 		}
+		List<WmsMaterialStockHistoryDO> historyList = new ArrayList<>();
+		List<WmsInventoryApplyDetailDO> updateList = new ArrayList<>();
 		JSONArray array = CommonUtils.parseJSONArray(dataJson);
 		for (int i = 0; i < array.size(); i++) {
 			JSONObject j = array.getJSONObject(i);
@@ -162,18 +179,18 @@ public class DiaoboController {
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
 			h.setRelateCode(detail.getApplyNum());
-			h.setRemark("调拨入库");
-			TkMappers.inst().getMaterialStockHistoryMapper().insert(h);
+			h.setRemark("从" + order.getFromCabinName() + "(" + order.getFromCabinCode() + ")调入");
+			historyList.add(h);
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());
 			update.setStatus("1");
 			update.setRealStockAmt(realStock);
-			TkMappers.inst().getPurchaseOrderDetailMapper().updateByPrimaryKeySelective(update);
+			updateList.add(update);
 		}
 
 		order.setStatus("5");
-		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(order);
+		database.diaoboConfirm(order, updateList, historyList);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 }

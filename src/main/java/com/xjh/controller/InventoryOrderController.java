@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -23,124 +24,25 @@ import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
+import com.xjh.service.DatabaseService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
-@RequestMapping("/inventoryOrder")
+@RequestMapping("/inventoryApply")
 public class InventoryOrderController {
 	@Resource
 	HttpServletRequest request;
 	@Resource
 	CabinService cabinService;
-
-	@RequestMapping(value = "/commitPurchaseOrder", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public Object commitPurchaseOrder() {
-		try {
-			WmsUserDO user = AccountUtils.getLoginUser(request);
-			if (user == null) {
-				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-			}
-			String cabinCode = CommonUtils.get(request, "cabinCode");
-			CabinVo cabinVo = cabinService.getCabinByCode(cabinCode);
-			String status = CommonUtils.get(request, "status");
-			if (StringUtils.isBlank(status)) {
-				status = "4";// 配送中
-			}
-			if (cabinVo == null) {
-				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("货站信息不存在").rb(request);
-			}
-			String remark = CommonUtils.get(request, "remark");
-			WmsInventoryApplyDO order = new WmsInventoryApplyDO();
-			List<WmsInventoryApplyDetailDO> details = new ArrayList<>();
-			// 保存采购单
-			order.setApplyNum(CommonUtils.uuid());
-			order.setCabinCode(cabinCode);
-			order.setCabinName(cabinVo.getName());
-			order.setSerialNo(CommonUtils.stringOfNow());
-			order.setApplyType("purchase");
-			order.setProposer(user.getUserCode());
-			order.setGmtCreated(new Date());
-			order.setGmtModified(new Date());
-			order.setCreator(user.getUserCode());
-			order.setModifier(user.getUserCode());
-			order.setStatus(status);
-			order.setRemark(remark);
-			//
-			String dataJson = CommonUtils.get(request, "dataJson");
-			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
-			// 保存history
-			for (int i = 0; i < dataArr.size(); i++) {
-				JSONObject j = dataArr.getJSONObject(i);
-				Double storageLifeNum = j.getDouble("storageLifeNum");
-				String storageLifeUnit = j.getString("storageLifeUnit");
-				WmsInventoryApplyDetailDO d = new WmsInventoryApplyDetailDO();
-				d.setCabinCode(order.getCabinCode());
-				d.setCabinName(order.getCabinName());
-				d.setApplyNum(order.getApplyNum());
-				d.setApplyType(order.getApplyType());
-				d.setMaterialCode(j.getString("materialCode"));
-				d.setMaterialName(j.getString("materialName"));
-				d.setSupplierCode(j.getString("supplierCode"));
-				d.setSupplierName(j.getString("supplierName"));
-				d.setSpecAmt(j.getDouble("specAmt"));
-				if (d.getSpecAmt() == null) {
-					d.setSpecAmt(0D);
-				}
-				d.setSpecUnit(j.getString("specUnit"));
-				if (d.getSpecUnit() == null) {
-					d.setSpecUnit("无");
-				}
-				d.setSpecPrice(j.getDouble("specPrice"));
-				if (d.getSpecPrice() == null) {
-					d.setSpecPrice(0D);
-				}
-				double qty = j.getDouble("specQty");
-				if ("无".equals(d.getSpecUnit())) {
-					qty = 1;
-				}
-				d.setStockAmt(d.getSpecAmt() * qty);
-				d.setStockUnit("个");
-				d.setRealStockAmt(d.getStockAmt());
-				d.setTotalPrice(d.getStockAmt() * d.getSpecPrice());
-				d.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
-				d.setExpDate(CommonUtils.parseDate("expDate"));
-				if (d.getExpDate() == null) {
-					switch (storageLifeUnit) {
-					case "D":
-						d.setExpDate(CommonUtils.futureDays(d.getProdDate(), storageLifeNum.intValue()));
-						break;
-					case "M":
-						d.setExpDate(CommonUtils.futureMonth(d.getProdDate(), storageLifeNum.intValue()));
-						break;
-					default:
-						d.setExpDate(CommonUtils.futureYear(d.getProdDate(), 10));
-					}
-				}
-				d.setKeepTime(storageLifeNum + storageLifeUnit);
-				d.setGmtCreated(new Date());
-				d.setGmtModified(new Date());
-				d.setCreator(user.getUserCode());
-				d.setModifier(user.getUserCode());
-				d.setStatus("0");
-				details.add(d);
-			}
-			// 插入数据库
-			TkMappers.inst().getPurchaseOrderMapper().insert(order);
-			for (WmsInventoryApplyDetailDO detail : details) {
-				TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
-			}
-			return ResultBaseBuilder.succ().rb(request);
-		} catch (Exception ex) {
-			return ResultBaseBuilder.fails("系统异常").rb(request);
-		}
-	}
+	@Resource
+	DatabaseService database;
 
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -253,6 +155,107 @@ public class InventoryOrderController {
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 
+	@RequestMapping(value = "/commitPurchaseOrder", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object commitPurchaseOrder() {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String cabinCode = CommonUtils.get(request, "cabinCode");
+			CabinVo cabinVo = cabinService.getCabinByCode(cabinCode);
+			String status = CommonUtils.get(request, "status");
+			if (StringUtils.isBlank(status)) {
+				status = "4";// 配送中
+			}
+			if (cabinVo == null) {
+				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("货站信息不存在").rb(request);
+			}
+			String remark = CommonUtils.get(request, "remark");
+			WmsInventoryApplyDO order = new WmsInventoryApplyDO();
+			List<WmsInventoryApplyDetailDO> details = new ArrayList<>();
+			// 保存采购单
+			order.setApplyNum(CommonUtils.uuid());
+			order.setCabinCode(cabinCode);
+			order.setCabinName(cabinVo.getName());
+			order.setSerialNo(CommonUtils.stringOfNow());
+			order.setApplyType("purchase");
+			order.setProposer(user.getUserCode());
+			order.setGmtCreated(new Date());
+			order.setGmtModified(new Date());
+			order.setCreator(user.getUserCode());
+			order.setModifier(user.getUserCode());
+			order.setStatus(status);
+			order.setRemark(remark);
+			//
+			String dataJson = CommonUtils.get(request, "dataJson");
+			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
+			// 保存history
+			for (int i = 0; i < dataArr.size(); i++) {
+				JSONObject j = dataArr.getJSONObject(i);
+				Double storageLifeNum = j.getDouble("storageLifeNum");
+				String storageLifeUnit = j.getString("storageLifeUnit");
+				WmsInventoryApplyDetailDO d = new WmsInventoryApplyDetailDO();
+				d.setApplyType("purchase");
+				d.setCabinCode(order.getCabinCode());
+				d.setCabinName(order.getCabinName());
+				d.setApplyNum(order.getApplyNum());
+				d.setApplyType(order.getApplyType());
+				d.setMaterialCode(j.getString("materialCode"));
+				d.setMaterialName(j.getString("materialName"));
+				d.setSupplierCode(j.getString("supplierCode"));
+				d.setSupplierName(j.getString("supplierName"));
+				d.setSpecAmt(j.getDouble("specAmt"));
+				if (d.getSpecAmt() == null) {
+					d.setSpecAmt(0D);
+				}
+				d.setSpecUnit(j.getString("specUnit"));
+				if (d.getSpecUnit() == null) {
+					d.setSpecUnit("无");
+				}
+				d.setSpecPrice(j.getDouble("specPrice"));
+				if (d.getSpecPrice() == null) {
+					d.setSpecPrice(0D);
+				}
+				double qty = j.getDouble("specQty");
+				if ("无".equals(d.getSpecUnit())) {
+					qty = 1;
+				}
+				d.setStockAmt(d.getSpecAmt() * qty);
+				d.setStockUnit(j.getString("stockUnit"));
+				d.setRealStockAmt(d.getStockAmt());
+				d.setTotalPrice(d.getSpecAmt() * d.getSpecPrice());
+				d.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
+				d.setExpDate(CommonUtils.parseDate("expDate"));
+				if (d.getExpDate() == null) {
+					switch (storageLifeUnit) {
+					case "D":
+						d.setExpDate(CommonUtils.futureDays(d.getProdDate(), storageLifeNum.intValue()));
+						break;
+					case "M":
+						d.setExpDate(CommonUtils.futureMonth(d.getProdDate(), storageLifeNum.intValue()));
+						break;
+					default:
+						d.setExpDate(CommonUtils.futureYear(d.getProdDate(), 10));
+					}
+				}
+				d.setKeepTime(storageLifeNum + storageLifeUnit);
+				d.setGmtCreated(new Date());
+				d.setGmtModified(new Date());
+				d.setCreator(user.getUserCode());
+				d.setModifier(user.getUserCode());
+				d.setStatus("0");
+				details.add(d);
+			}
+			// 插入数据库
+			database.commitPurchaseOrder(order, details);
+			return ResultBaseBuilder.succ().rb(request);
+		} catch (Exception ex) {
+			return ResultBaseBuilder.fails("系统异常").rb(request);
+		}
+	}
+
 	@RequestMapping(value = "/confirmInventory", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object confirmInventory() {
@@ -270,17 +273,22 @@ public class InventoryOrderController {
 		if (!"4".equals(order.getStatus())) {
 			return ResultBaseBuilder.fails("采购单已处理").rb(request);
 		}
+		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
+		List<WmsMaterialStockHistoryDO> historyInserts = new ArrayList<>();
 		JSONArray array = CommonUtils.parseJSONArray(dataJson);
 		for (int i = 0; i < array.size(); i++) {
 			JSONObject j = array.getJSONObject(i);
 			Long id = j.getLong("id");
 			Double realStock = j.getDouble("realStockAmt");
-			ApplyNum = j.getString("ApplyNum");
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
 			if (detail == null || StringUtils.equals("1", detail.getStatus())) {
 				continue;
+			}
+			double unitPrice = 0D;// 单价
+			if (detail.getTotalPrice() != null && detail.getStockAmt() != null && detail.getStockAmt() > 0.1) {
+				unitPrice = detail.getTotalPrice() / detail.getStockAmt();
 			}
 			// history
 			WmsMaterialStockHistoryDO h = new WmsMaterialStockHistoryDO();
@@ -292,7 +300,7 @@ public class InventoryOrderController {
 			h.setMaterialName(detail.getMaterialName());
 			h.setKeepDays(detail.getKeepTime());
 			h.setTotalPrice(detail.getTotalPrice());
-			h.setUnitPrice(detail.getSpecPrice());
+			h.setUnitPrice(unitPrice);
 			h.setProductDate(detail.getProdDate());
 			h.setStockUnit(detail.getStockUnit());
 			h.setAmt(realStock);
@@ -300,18 +308,40 @@ public class InventoryOrderController {
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
 			h.setRelateCode(detail.getApplyNum());
-			TkMappers.inst().getMaterialStockHistoryMapper().insert(h);
+			h.setRemark("采购入库");
+			historyInserts.add(h);
+
+			if (Math.abs(detail.getStockAmt() - realStock) > 0.001) {
+				WmsMaterialStockHistoryDO loss = new WmsMaterialStockHistoryDO();
+				loss.setOpType("in_stock_loss");
+				loss.setCabinCode(detail.getCabinCode());
+				loss.setCabinName(detail.getCabinName());
+				loss.setCabinType(detail.getCabinCode().startsWith("WH") ? "1" : "2");
+				loss.setMaterialCode(detail.getMaterialCode());
+				loss.setMaterialName(detail.getMaterialName());
+				loss.setKeepDays(detail.getKeepTime());
+				loss.setUnitPrice(unitPrice);
+				loss.setProductDate(detail.getProdDate());
+				loss.setStockUnit(detail.getStockUnit());
+				loss.setAmt(realStock - detail.getStockAmt());
+				loss.setOperator(detail.getModifier());
+				loss.setGmtCreated(new Date());
+				loss.setStatus("1"); // 入库损耗数据不需要更新库存，仅做记录
+				loss.setRelateCode(detail.getApplyNum());
+				loss.setRemark("采购入库损耗");
+				historyInserts.add(loss);
+			}
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());
 			update.setStatus("1");
 			update.setRealStockAmt(realStock);
-			TkMappers.inst().getPurchaseOrderDetailMapper().updateByPrimaryKeySelective(update);
+			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
 
 		order.setStatus("5");
-		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(order);
+		database.diaoboConfirm(order, detailUpdateList, historyInserts);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -342,7 +372,7 @@ public class InventoryOrderController {
 		inorder.setGmtModified(new Date());
 		inorder.setCreator(user.getUserCode());
 		inorder.setModifier(user.getUserCode());
-		inorder.setStatus("4");
+		inorder.setStatus("5");
 		inorder.setRemark(remark);
 
 		WmsInventoryApplyDetailDO indetail = new WmsInventoryApplyDetailDO();
@@ -359,11 +389,88 @@ public class InventoryOrderController {
 		indetail.setGmtModified(new Date());
 		indetail.setCreator(user.getUserCode());
 		indetail.setModifier(user.getUserCode());
-		indetail.setStatus("0");
+		indetail.setStatus("1");// 报损自动处理，状态直接置为1
 		indetail.setImgBusiNo(imgBusiNo);
 		indetail.setRemark(images);
-		TkMappers.inst().getPurchaseOrderMapper().insert(inorder);
-		TkMappers.inst().getPurchaseOrderDetailMapper().insert(indetail);
+
+		WmsMaterialStockHistoryDO h = new WmsMaterialStockHistoryDO();
+		h.setOpType("claim_loss");
+		h.setCabinCode(indetail.getCabinCode());
+		h.setCabinName(indetail.getCabinName());
+		h.setCabinType(indetail.getCabinCode().startsWith("WH") ? "1" : "2");
+		h.setMaterialCode(indetail.getMaterialCode());
+		h.setMaterialName(indetail.getMaterialName());
+		h.setKeepDays(indetail.getKeepTime());
+		h.setTotalPrice(indetail.getTotalPrice());
+		h.setUnitPrice(indetail.getSpecPrice());
+		h.setProductDate(indetail.getProdDate());
+		h.setStockUnit(indetail.getStockUnit());
+		h.setAmt(-1 * lossAmt);
+		h.setOperator(indetail.getModifier());
+		h.setGmtCreated(new Date());
+		h.setStatus("0");
+		h.setRemark("报损");
+		h.setRelateCode(indetail.getApplyNum());
+
+		database.claimLossInsert(inorder, indetail, h);
 		return ResultBaseBuilder.succ().msg("提交成功").rb(request);
+	}
+
+	@RequestMapping(value = "/correctStock", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object correctStock() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
+		if (id == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		String materialCode = request.getParameter("materialCode");
+		String realStockStr = request.getParameter("realStock");
+		BigDecimal realStock = CommonUtils.parseBigDecimal(realStockStr);
+		if (realStock == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		// 查询数据库
+		WmsMaterialStockDO t = new WmsMaterialStockDO();
+		t.setId(id);
+		t.setMaterialCode(materialCode);
+		WmsMaterialStockDO stock = TkMappers.inst().getMaterialStockMapper().selectOne(t);
+		if (stock == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		//
+		WmsMaterialStockHistoryDO prehis = new WmsMaterialStockHistoryDO();
+		prehis.setCabinCode(stock.getCabinCode());
+		prehis.setCabinName(stock.getCabinName());
+		prehis.setCabinType(stock.getCabinType());
+		prehis.setAmt(realStock.doubleValue() - stock.getCurrStock());// 库存不一致的量
+		prehis.setPreStock(stock.getCurrStock());
+		prehis.setPostStock(realStock.doubleValue());
+		prehis.setMaterialCode(stock.getMaterialCode());
+		prehis.setMaterialName(stock.getMaterialName());
+		prehis.setStockUnit(stock.getStockUnit());
+		prehis.setOpType("correct_delta");//
+		prehis.setStatus("1"); // 记录盘点库存和实际库存的差额，只起记录作用，所以状态直接置为1
+		prehis.setRemark("库存盘点差额");
+		prehis.setGmtCreated(new Date());
+		prehis.setOperator(user.getUserCode());
+		// 记录history
+		WmsMaterialStockHistoryDO posthis = new WmsMaterialStockHistoryDO();
+		posthis.setCabinCode(stock.getCabinCode());
+		posthis.setCabinName(stock.getCabinName());
+		posthis.setCabinType(stock.getCabinType());
+		posthis.setAmt(realStock.doubleValue());// 修正库存量
+		posthis.setMaterialCode(stock.getMaterialCode());
+		posthis.setMaterialName(stock.getMaterialName());
+		posthis.setStockUnit(stock.getStockUnit());
+		posthis.setOpType("correct");
+		posthis.setStatus("0");
+		posthis.setGmtCreated(new Date());
+		posthis.setOperator(user.getUserCode());
+		database.correctStock(prehis, posthis);
+		return ResultBaseBuilder.succ().rb(request);
 	}
 }
