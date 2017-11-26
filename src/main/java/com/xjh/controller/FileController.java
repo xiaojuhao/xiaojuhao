@@ -113,14 +113,16 @@ public class FileController {
 					MultipartFile file = multiRequest.getFile(iter.next());
 					if (file != null) {
 						String path = imagepath.getDictVal() + localFileName + ".jpg";
+						String minPath = imagepath.getDictVal() + localFileName + ".r.jpg";
 						File dst = new File(path);
+						File minDst = new File(minPath);
 						file.transferTo(dst);
-						Thumbnails.of(dst).width(800).height(600).outputQuality(0.8).toFile(dst);
+						Thumbnails.of(dst).width(800).height(600).outputQuality(0.8).toFile(minDst);
 						WmsUploadFilesDO dd = new WmsUploadFilesDO();
 						dd.setBusiNo(busiNo);
 						dd.setContentType("image/jpeg");
 						dd.setCreator(user == null ? "system" : user.getUserCode());
-						dd.setFileName(localFileName + ".jpg");
+						dd.setFileName(localFileName + ".r.jpg");
 						dd.setFileOriName(file.getOriginalFilename());
 						dd.setFileLocation("local");
 						dd.setFilePath(imagepath.getDictVal());
