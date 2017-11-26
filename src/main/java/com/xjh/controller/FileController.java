@@ -36,6 +36,8 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DictService;
 import com.xjh.service.TkMappers;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 @Controller
 @RequestMapping("/file")
 public class FileController {
@@ -51,11 +53,13 @@ public class FileController {
 		if (StringUtils.isBlank(image)) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
 		}
-		WmsDictDO imagepath = dict.query("DEFAULT", "image_path");
-		if (imagepath == null) {
-			return ResultBaseBuilder.fails("配置错误").rb(request);
+		WmsUploadFilesDO fileDO = new WmsUploadFilesDO();
+		fileDO.setFileName(image);
+		fileDO = TkMappers.inst().getUploadFilesMapper().selectOne(fileDO);
+		if (fileDO == null) {
+			return ResultBaseBuilder.fails("文件不存在").rb(request);
 		}
-		File file = new File(imagepath.getDictVal() + image);
+		File file = new File(fileDO.getFilePath() + "/" + fileDO.getFileName());
 		if (!file.exists()) {
 			return ResultBaseBuilder.fails("文件不存在").rb(request);
 		}
@@ -109,12 +113,14 @@ public class FileController {
 					MultipartFile file = multiRequest.getFile(iter.next());
 					if (file != null) {
 						String path = imagepath.getDictVal() + localFileName + ".jpg";
-						file.transferTo(new File(path));
+						File dst = new File(path);
+						file.transferTo(dst);
+						Thumbnails.of(dst).width(800).height(600).outputQuality(0.8).toFile(dst);
 						WmsUploadFilesDO dd = new WmsUploadFilesDO();
 						dd.setBusiNo(busiNo);
 						dd.setContentType("image/jpeg");
 						dd.setCreator(user == null ? "system" : user.getUserCode());
-						dd.setFileName(localFileName);
+						dd.setFileName(localFileName + ".jpg");
 						dd.setFileOriName(file.getOriginalFilename());
 						dd.setFileLocation("local");
 						dd.setFilePath(imagepath.getDictVal());

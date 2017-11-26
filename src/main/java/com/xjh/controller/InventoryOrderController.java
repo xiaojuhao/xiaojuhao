@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -26,6 +27,7 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsUploadFilesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
@@ -140,6 +142,48 @@ public class InventoryOrderController {
 		page.setTotalRows(totalRows);
 		page.setValues(list);
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryMyLossApplyDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryMyLossApplyDetail() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+		cond.setApplyType("claim_loss");
+		if (!"1".equals(user.getUserRole()))
+			cond.setCreator(user.getUserCode());
+		cond.setPageNo(CommonUtils.getPageNo(request));
+		cond.setPageSize(CommonUtils.getPageSize(request));
+		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
+		PageHelper.orderBy("gmt_created desc, id desc");
+		List<WmsInventoryApplyDetailDO> list = TkMappers.inst().getPurchaseOrderDetailMapper().select(cond);
+		List<JSONObject> ret = new ArrayList<>();
+		for (WmsInventoryApplyDetailDO dd : list) {
+			List<String> images = new ArrayList<>();
+			JSONObject json = new JSONObject();
+			ret.add(json);
+			json.put("cabinCode", dd.getCabinCode());
+			json.put("cabinName", dd.getCabinName());
+			json.put("materialCode", dd.getMaterialCode());
+			json.put("materialName", dd.getMaterialName());
+			json.put("stockAmt", dd.getStockAmt());
+			json.put("stockUnit", dd.getStockUnit());
+			json.put("creator", dd.getCreator());
+			json.put("createTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dd.getGmtCreated()));
+			json.put("images", images);
+			if (StringUtils.isNotBlank(dd.getImgBusiNo())) {
+				WmsUploadFilesDO img = new WmsUploadFilesDO();
+				img.setBusiNo(dd.getImgBusiNo());
+				List<WmsUploadFilesDO> imgs = TkMappers.inst().getUploadFilesMapper().select(img);
+				for (WmsUploadFilesDO ii : imgs) {
+					images.add(ii.getFileName());
+				}
+			}
+		}
+		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 
 	@RequestMapping(value = "/queryPurchaseOrderDetail", produces = "application/json;charset=UTF-8")

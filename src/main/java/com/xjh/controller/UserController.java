@@ -1,5 +1,7 @@
 package com.xjh.controller;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
@@ -36,6 +39,7 @@ public class UserController {
 		String userCode = request.getParameter("userCode");
 		String password = request.getParameter("password");// 密码原文
 		//
+		
 		if (CommonUtils.isAnyBlank(userCode, password)) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
 		}

@@ -18,6 +18,7 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
@@ -293,4 +294,6 @@ public class BusinessController {
 		}
 		return ResultBaseBuilder.succ().data(retList).rb(request);
 	}
+
+	
 }
