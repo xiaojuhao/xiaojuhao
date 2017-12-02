@@ -106,13 +106,7 @@ public class StoreController {
 
 		List<WmsStoreDO> list = TkMappers.inst().getStoreMapper().select(store);
 		if (!"1".equals(user.getUserRole())) {
-			List<WmsStoreDO> list2 = new ArrayList<>();
-			for (WmsStoreDO t : list) {
-				if (auths.contains(t.getStoreCode())) {
-					list2.add(t);
-				}
-			}
-			list = list2;
+			list = list.stream().filter((v)->auths.contains(v.getStoreCode())).collect(Collectors.toList());
 		}
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}

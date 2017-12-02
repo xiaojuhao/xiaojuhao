@@ -2,6 +2,7 @@ package com.xjh.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -129,13 +130,7 @@ public class WarehouseController {
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		List<WmsWarehouseDO> list = this.warehouseMapper.select(warehouse);
 		if (!"1".equals(user.getUserRole())) {
-			List<WmsWarehouseDO> list2 = new ArrayList<>();
-			for (WmsWarehouseDO t : list) {
-				if (auths.contains(t.getWarehouseCode())) {
-					list2.add(t);
-				}
-			}
-			list = list2;
+			list = list.stream().filter((v)->auths.contains(v.getWarehouseCode())).collect(Collectors.toList());
 		}
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
