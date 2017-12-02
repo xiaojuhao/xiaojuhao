@@ -17,11 +17,13 @@ CREATE TABLE
         apply_num VARCHAR(64) NOT NULL COMMENT '申请单号码',
         cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
         cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
+        from_cabin_code VARCHAR(64),
+        from_cabin_name VARCHAR(64),
         apply_type VARCHAR(32) NOT NULL COMMENT '申请单类型',
         serial_no VARCHAR(64) NOT NULL COMMENT '流水号',
         proposer VARCHAR(128) NOT NULL COMMENT '申请人',
         status VARCHAR(2) NOT NULL COMMENT
-        '采购单状态, 0:草稿, 1:提交待审核 2:审核通过 3:采购中 4:配送中 5:已入库, 6:已撤销,7:驳回',
+        '采购单状态, 0:草稿, 1:提交待审核 2:审核通过 3:处理中 4:待确认 5:已入库, 6:已撤销,7:驳回',
         remark VARCHAR(1024) COMMENT '备注',
         gmt_created DATETIME NOT NULL COMMENT '创建时间',
         gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
@@ -30,7 +32,6 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE
     wms_inventory_apply_detail
     (
@@ -39,6 +40,8 @@ CREATE TABLE
         apply_type VARCHAR(32) NOT NULL COMMENT '申请单类型',
         cabin_code VARCHAR(35) NOT NULL COMMENT '货站代码',
         cabin_name VARCHAR(128) NOT NULL COMMENT '货站名称',
+        from_cabin_code VARCHAR(64),
+        from_cabin_name VARCHAR(64),
         material_code VARCHAR(35) NOT NULL COMMENT '原料代码',
         material_name VARCHAR(128) NOT NULL COMMENT '原料名称',
         supplier_code VARCHAR(35) COMMENT '供应商',
@@ -54,6 +57,7 @@ CREATE TABLE
         prod_date DATETIME COMMENT '生产日期',
         exp_date DATETIME COMMENT '过期日期',
         keep_time VARCHAR(10) COMMENT '保质期，如10天，1月等',
+        img_busi_no VARCHAR(64),
         gmt_created DATETIME NOT NULL COMMENT '创建时间',
         status VARCHAR(2) NOT NULL COMMENT '状态',
         gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
@@ -106,6 +110,7 @@ CREATE TABLE
         gmt_modified DATETIME NOT NULL COMMENT '修改日期',
         check_stock_time DATETIME COMMENT '上次盘点库存时间',
         check_operator VARCHAR(32) COMMENT '盘点人员',
+        status VARCHAR(1) COMMENT '状态 0:无效 1:有效, 2:盘点库存中,3:盘点完成',
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -232,9 +237,10 @@ CREATE TABLE
         manager_phone VARCHAR(64) COMMENT '负责人手机',
         manager_email VARCHAR(64) COMMENT '邮箱',
         out_code VARCHAR(35) COMMENT '外部代码',
+        status VARCHAR(1) COMMENT '状态 0:无效 1:有效, 2:盘点库存中',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='门店信息';
+    ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='门店信息';    
 CREATE TABLE
     wms_supplier
     (
@@ -256,7 +262,23 @@ CREATE TABLE
         gmt_modified DATETIME COMMENT '修改时间',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;    
+CREATE TABLE
+    wms_upload_files
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        busi_no VARCHAR(64) NOT NULL COMMENT '业务代码',
+        content_type VARCHAR(64) NOT NULL COMMENT '文件类型(http)',
+        file_location VARCHAR(64) NOT NULL COMMENT '文件存储位置,local表示本地',
+        file_path VARCHAR(128) NOT NULL COMMENT '文件存储路径,file_location=local时保存为本地目录',
+        file_name VARCHAR(128) NOT NULL COMMENT '文件名称',
+        file_ori_name VARCHAR(128) COMMENT '文件原始名称',
+        remark VARCHAR(256) COMMENT '备注',
+        creator VARCHAR(35) COMMENT '创建人员',
+        gmt_created DATETIME COMMENT '创建时间',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;    
 CREATE TABLE
     wms_user
     (
@@ -285,49 +307,41 @@ CREATE TABLE
         manager_phone VARCHAR(16) COMMENT '负责人手机号',
         manager_email VARCHAR(64) COMMENT '负责人邮箱',
         related_store VARCHAR(512) COMMENT '关联门店,用逗号隔开',
+        status VARCHAR(1) COMMENT '状态 0:无效 1:有效, 2:盘点库存中',
         PRIMARY KEY (id),
         CONSTRAINT uni_wh_code UNIQUE (warehouse_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
 
-create table wms_upload_files(
-   id bigint primary key auto_increment comment '主键',
-   busi_no varchar(64) not null comment '业务代码',
-   content_type varchar(64) not null comment '文件类型(http)',
-   file_location varchar(64) not null comment '文件存储位置,local表示本地',
-   file_path varchar(128) not null comment '文件存储路径,file_location=local时保存为本地目录',
-   file_name varchar(128) not null comment '文件名称',
-   file_ori_name varchar(128) comment '文件原始名称',
-   remark varchar(256) comment '备注',
-   creator varchar(35) comment '创建人员',
-   gmt_created datetime comment '创建时间'
-);
 
-alter table wms_inventory_apply_detail add img_busi_no varchar(64) after keep_time;
-alter table wms_inventory_apply_detail add from_cabin_code varchar(64) after cabin_name;
-alter table wms_inventory_apply_detail add from_cabin_name varchar(64) after from_cabin_code;
-alter table wms_inventory_apply add from_cabin_code varchar(64) after cabin_name;
-alter table wms_inventory_apply add from_cabin_name varchar(64) after from_cabin_code;
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 'all', 1, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 'all', 2, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('基础信息', 'base_nav', 'el-icon-menu', '3', 'root', 1, 'all', 3, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('进销存', 'inventory_nav', 'el-icon-menu', '4', 'root', 1, 'all', 4, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('报表模块', 'task_nav', 'el-icon-menu', '5', 'root', 1, 'all', 5, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('我的任务', 'my_nav', 'el-icon-menu', '6', 'root', 1, 'all', 6, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('用户管理', 'userManage', null, 'userManage', 'sys_nav', 1, 'all', 1, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统设置', 'sysConfig', null, 'sysConfig', 'sys_nav', 1, 'all', 2, 'nav');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('原料管理', 'materialManage', null, 'materialManage', 'base_nav', 1, 'all', null, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('菜品管理', 'recipesManage', null, 'recipesManage', 'base_nav', 1, 'all', null, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('仓库管理', 'warehouseManage', null, 'warehouseManage', 'base_nav', 1, 'all', null, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('门店管理', 'storeManage', null, 'storeManage', 'base_nav', 1, 'all', null, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('供应商管理', 'supplierManage', null, 'supplierManage', 'base_nav', 1, 'all', null, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('采购单处理', 'inventoryIn', null, 'inventoryIn', 'inventory_nav', 1, 'all', 1, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('调拨单处理', 'diaoboHandle', null, 'diaoboHandle', 'inventory_nav', 1, 'all', 2, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('采购单录入', 'purchaseOrder', null, 'purchaseOrder', 'inventory_nav', 1, 'all', 3, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('调拨单录入', 'diaobo', null, 'diaobo', 'inventory_nav', 1, 'all', 4, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('物料报损', 'baosun', null, 'baosun', 'inventory_nav', 1, 'all', 5, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('盘点库存', 'pandian', null, 'pandian', 'inventory_nav', 1, 'all', 6, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('我的采购单', 'myPurchaseOrder', null, 'myPurchaseOrder', 'my_nav', 1, 'all', 1, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('我的报损单', 'myLossApply', null, 'myLossApply', 'my_nav', 1, 'all', 2, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('我的调拨单', 'myAllocate', null, 'myAllocate', 'my_nav', 1, 'all', 3, 'link');
+INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('库存流水', 'reportOfStock', null, 'reportOfStock', 'task_nav', 1, 'all', 2, 'link');
 
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 'all', 1, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 'all', 2, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('基础信息', 'base_nav', 'el-icon-menu', '3', 'root', 1, 'all', 3, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('进销存', 'inventory_nav', 'el-icon-menu', '4', 'root', 1, 'all', 4, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('报表模块', 'task_nav', 'el-icon-menu', '5', 'root', 1, 'all', 5, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('我的任务', 'my_nav', 'el-icon-menu', '6', 'root', 1, 'all', 6, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('用户管理', 'userManage', null, 'userManage', 'sys_nav', 1, 'all', 2, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('系统设置', 'sysConfig', null, 'sysConfig', 'sys_nav', 1, 'all', 2, 'nav');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ('原料管理', 'materialManage', null, 'materialManage', 'base_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '菜品管理', 'recipesManage', null, 'recipesManage', 'base_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '仓库管理', 'warehouseManage', null, 'warehouseManage', 'base_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '门店管理', 'storeManage', null, 'storeManage', 'base_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '供应商管理', 'supplierManage', null, 'supplierManage', 'base_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '入库管理', 'inventoryIn', null, 'inventoryIn', 'inventory_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '采购单录入', 'purchaseOrder', null, 'purchaseOrder', 'inventory_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '调拨单录入', 'diaobo', null, 'diaobo', 'inventory_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '物料报损', 'baosun', null, 'baosun', 'inventory_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '盘点库存', 'pandian', null, 'pandian', 'inventory_nav', 1, 'all', null, 'link');
-INSERT INTO wms_menu ( menu_name, menu_code, menu_icon, menu_index, parent_code, status, roles, order_by, type) VALUES ( '出库管理', 'outStock', null, 'inventoryOut', 'inventory_nav', 0, 'all', null, 'link');
+INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, user_role, password, status, auth_stores, auth_warehouse) VALUES ('admin', '管理员', null, null, '1', 'E10ADC3949BA59ABBE56E057F20F883E', '1', null, null);
+INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, user_role, password, status, auth_stores, auth_warehouse) VALUES ('yinguoliang', '尹国良', null, null, '1', 'E10ADC3949BA59ABBE56E057F20F883E', '1', null, null);
+
+INSERT INTO wms_dict (dict_group, dict_code, dict_name, dict_val) VALUES ( 'DEFAULT', 'image_path', '保存路劲', '/root/pictures/');
 
 INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '生鱼片', 'CD000001', null, '111');
 INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '涮牛肉火锅', 'CD000002', null, null);
@@ -360,21 +374,18 @@ INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( '
 INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_supplier', 4, 4);
 
 
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ( 'MD0001', '常州店', '门店地址', '负责人', '负责人手机', '负责人邮箱', '123');
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ( 'MD0002', '上海店', null, null, null, null, null);
+INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0001', '常州店', '门店地址', '负责人', '负责人手机', '负责人邮箱', '123');
+INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0002', '上海店', null, null, null, null, null);
 INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0003', '南通店', null, null, null, null, null);
 INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0004', '无锡店', null, null, null, null, null);
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ( 'MD0005', '常州万达广场店', null, null, null, null, null);
+INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0005', '常州万达广场店', null, null, null, null, null);
 
 
 INSERT INTO wms_supplier ( supplier_code, supplier_name, short_name, supplier_addr, pay_mode, pay_way, pay_account, bank_name, supplier_tel, supplier_phone, supplier_email, status, remark, modifer, gmt_modified) VALUES ('S0001', '海鲜供应商', '海鲜供应商', null, 'ByNow', 'bank', '234225354435355', '工商银行', null, null, null, '1', '发鼎折覆餗发多少', 'admin', '2017-11-21 23:03:50');
 INSERT INTO wms_supplier ( supplier_code, supplier_name, short_name, supplier_addr, pay_mode, pay_way, pay_account, bank_name, supplier_tel, supplier_phone, supplier_email, status, remark, modifer, gmt_modified) VALUES ('S0002', '蔬菜供应商', '蔬菜供应商', null, 'ByWeek', 'alipay', null, 'alipay', null, null, null, '1', null, 'admin', '2017-11-20 23:00:48');
 INSERT INTO wms_supplier ( supplier_code, supplier_name, short_name, supplier_addr, pay_mode, pay_way, pay_account, bank_name, supplier_tel, supplier_phone, supplier_email, status, remark, modifer, gmt_modified) VALUES ('S0003', '崇明新鲜蔬菜供应', '崇明新鲜蔬菜供应', null, null, 'alipay', null, 'alipay', null, null, null, '1', null, 'admin', '2017-11-20 23:01:21');
 
-INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, user_role, password, status, auth_stores, auth_warehouse) VALUES ('admin', '管理员', null, null, '1', 'E10ADC3949BA59ABBE56E057F20F883E', '1', null, null);
-INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, user_role, password, status, auth_stores, auth_warehouse) VALUES ('yinguoliang', '尹国良', null, null, '1', 'E10ADC3949BA59ABBE56E057F20F883E', '1', null, null);
 
 INSERT INTO wms_warehouse (warehouse_code, warehouse_name, warehouse_addr, warehouse_manager, manager_phone, manager_email, related_store) VALUES ('WH0001', '崇明仓库', null, null, null, null, null);
-INSERT INTO wms_warehouse ( warehouse_code, warehouse_name, warehouse_addr, warehouse_manager, manager_phone, manager_email, related_store) VALUES ( 'WH0002', '昆山仓库', null, null, null, null, null);
+INSERT INTO wms_warehouse ( warehouse_code, warehouse_name, warehouse_addr, warehouse_manager, manager_phone, manager_email, related_store) VALUES ('WH0002', '昆山仓库', null, null, null, null, null);
 
-INSERT INTO wms_dict (dict_group, dict_code, dict_name, dict_val) VALUES ( 'DEFAULT', 'image_path', '保存路劲', '/root/pictures/');

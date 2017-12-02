@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
+import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsNoticeDO;
@@ -26,20 +27,26 @@ public class NoticeController {
 	@Resource
 	TkWmsNoticeMapper noticeMapper;
 
-	@RequestMapping(value = "/lastest", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/latest", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object lastest() {
+	public Object latest() {
+		String msgType = CommonUtils.get(request, "msgType");
 		WmsNoticeDO cond = new WmsNoticeDO();
 		cond.setStatus("1");
+		cond.setMsgType(msgType);
+		cond.setPageSize(CommonUtils.getPageSize(request));
+		cond.setPageNo(CommonUtils.getPageNo(request));
 		PageResult<WmsNoticeDO> page = new PageResult<>();
 		Example example = new Example(WmsNoticeDO.class, false, false);
 		Example.Criteria c = example.createCriteria();
 		c.andEqualTo(cond);
-		c.andLessThan("gmtExpired", new Date());
+		c.andGreaterThan("gmtExpired", new Date());
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
-		PageHelper.orderBy("gmt_created desc");
+		PageHelper.orderBy("gmt_created desc, id desc");
 		List<WmsNoticeDO> list = noticeMapper.selectByExample(example);
+		int totalRows = noticeMapper.selectCountByExample(example);
 		page.setValues(list);
+		page.setTotalRows(totalRows);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 }

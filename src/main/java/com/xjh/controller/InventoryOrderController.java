@@ -27,10 +27,13 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUploadFilesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
+import com.xjh.service.Mappers;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
@@ -389,6 +392,116 @@ public class InventoryOrderController {
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
+	@RequestMapping(value = "/startCorrect", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object startCorrect() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String cabinCode = request.getParameter("cabinCode");
+		if (StringUtils.isBlank(cabinCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		CabinVo vo = cabinService.getCabinByCode(cabinCode);
+		if (vo == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		if ("0".equals(vo.getStatus())) {
+			return ResultBaseBuilder.fails("仓库状态无效").rb(request);
+		}
+//		if ("2".equals(vo.getStatus())) {
+//			return ResultBaseBuilder.fails("仓库正在盘点").rb(request);
+//		}
+		if (vo.getCode().startsWith("WH")) {
+			WmsWarehouseDO warehouse = new WmsWarehouseDO();
+			warehouse.setWarehouseCode(cabinCode);
+			warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
+			WmsWarehouseDO update = new WmsWarehouseDO();
+			update.setId(warehouse.getId());
+			update.setStatus("2");
+			TkMappers.inst().getWarehouseMapper().updateByPrimaryKeySelective(update);
+		} else {
+			WmsStoreDO store = new WmsStoreDO();
+			store.setStoreCode(cabinCode);
+			store = TkMappers.inst().getStoreMapper().selectOne(store);
+			WmsStoreDO update = new WmsStoreDO();
+			update.setId(store.getId());
+			update.setStatus("2");
+			TkMappers.inst().getStoreMapper().updateByPrimaryKeySelective(update);
+		}
+		WmsMaterialStockDO stock = new WmsMaterialStockDO();
+		stock.setCabinCode(cabinCode);
+		stock.setModifier(user.getUserCode());
+		Mappers.inst().getStockMapper().startCorrect(stock);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/finishCorrect", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object finishCorrect() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String cabinCode = request.getParameter("cabinCode");
+		if (StringUtils.isBlank(cabinCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		CabinVo vo = cabinService.getCabinByCode(cabinCode);
+		if (vo == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		if ("0".equals(vo.getStatus())) {
+			return ResultBaseBuilder.fails("仓库状态无效").rb(request);
+		}
+//		if ("1".equals(vo.getStatus())) {
+//			return ResultBaseBuilder.fails("仓库还未开始盘点").rb(request);
+//		}
+		if (vo.getCode().startsWith("WH")) {
+			WmsWarehouseDO warehouse = new WmsWarehouseDO();
+			warehouse.setWarehouseCode(cabinCode);
+			warehouse = TkMappers.inst().getWarehouseMapper().selectOne(warehouse);
+			WmsWarehouseDO update = new WmsWarehouseDO();
+			update.setId(warehouse.getId());
+			update.setStatus("1");
+			TkMappers.inst().getWarehouseMapper().updateByPrimaryKeySelective(update);
+		} else {
+			WmsStoreDO store = new WmsStoreDO();
+			store.setStoreCode(cabinCode);
+			store = TkMappers.inst().getStoreMapper().selectOne(store);
+			WmsStoreDO update = new WmsStoreDO();
+			update.setId(store.getId());
+			update.setStatus("1");
+			TkMappers.inst().getStoreMapper().updateByPrimaryKeySelective(update);
+		}
+		WmsMaterialStockDO cond = new WmsMaterialStockDO();
+		cond.setCabinCode(cabinCode);
+		List<WmsMaterialStockDO> list = Mappers.inst().getStockMapper().selectWaiting(cond);
+		for (WmsMaterialStockDO stock : list) {
+			// 记录history
+			WmsMaterialStockHistoryDO posthis = new WmsMaterialStockHistoryDO();
+			posthis.setCabinCode(stock.getCabinCode());
+			posthis.setCabinName(stock.getCabinName());
+			posthis.setCabinType(stock.getCabinType());
+			posthis.setAmt(stock.getCurrStock());// 修正库存量
+			posthis.setMaterialCode(stock.getMaterialCode());
+			posthis.setMaterialName(stock.getMaterialName());
+			posthis.setStockUnit(stock.getStockUnit());
+			posthis.setOpType("correct");
+			posthis.setStatus("0");
+			posthis.setGmtCreated(new Date());
+			posthis.setOperator(user.getUserCode());
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(posthis);
+			stock.setStatus("1");
+			TkMappers.inst().getMaterialStockMapper().updateByPrimaryKeySelective(stock);
+		}
+		cond = new WmsMaterialStockDO();
+		cond.setCabinCode(cabinCode);
+		Mappers.inst().getStockMapper().finishCorrect(cond);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
 	@RequestMapping(value = "/claimLoss", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object claimLoss() {
@@ -468,10 +581,11 @@ public class InventoryOrderController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		if (id == null) {
+		String materialCode = request.getParameter("materialCode");
+		if (id == null || StringUtils.isBlank(materialCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		String materialCode = request.getParameter("materialCode");
+
 		String realStockStr = request.getParameter("realStock");
 		BigDecimal realStock = CommonUtils.parseBigDecimal(realStockStr);
 		if (realStock == null) {
@@ -515,6 +629,10 @@ public class InventoryOrderController {
 		posthis.setGmtCreated(new Date());
 		posthis.setOperator(user.getUserCode());
 		database.correctStock(prehis, posthis);
+
+		stock.setStatus("3");
+		TkMappers.inst().getMaterialStockMapper().updateByPrimaryKeySelective(stock);
+
 		return ResultBaseBuilder.succ().rb(request);
 	}
 }

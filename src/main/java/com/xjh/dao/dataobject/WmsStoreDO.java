@@ -23,4 +23,5 @@ public class WmsStoreDO extends PageDTO{
 	String managerPhone;
 	String managerEmail;
 	String outCode;
+	String status;
 }

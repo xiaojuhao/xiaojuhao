@@ -62,6 +62,7 @@ public class MaterialServiceImpl implements MaterialService {
 			stockDO.setCabinType(cabinType);
 			stockDO.setCabinName(cabinName);
 			stockDO.setCurrStock(0D);
+			stockDO.setStatus("1");
 			stockDO.setStockUnit(material.getStockUnit());
 			stockDO.setGmtModified(new Date());
 			stockDO.setModifier("system");

@@ -26,6 +26,7 @@ public class CabinServiceImpl implements CabinService {
 				vo.setType("1");
 				vo.setName(ware.getWarehouseName());
 				vo.setCode(cabinCode);
+				vo.setStatus(ware.getStatus());
 				return vo;
 			}
 		} else {
@@ -36,6 +37,7 @@ public class CabinServiceImpl implements CabinService {
 				vo.setType("2");
 				vo.setName(store.getStoreName());
 				vo.setCode(cabinCode);
+				vo.setStatus(store.getStatus());
 				return vo;
 			}
 		}

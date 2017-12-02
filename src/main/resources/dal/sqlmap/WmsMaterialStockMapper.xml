@@ -12,4 +12,27 @@
 		and cabin_code in (#{cabinCode})
 	</update>
 
+	<update id="startCorrect">
+		update wms_material_stock
+		   set status = '2',
+		       gmt_modified = now(),
+		       check_stock_time = now(),
+		       check_operator=#{modifier}
+		 where cabin_code = #{cabinCode}
+		   and status = '1'
+	</update>
+	
+	<update id="finishCorrect">
+		update wms_material_stock
+		   set status = '1',
+		       gmt_modified = now()
+		 where cabin_code = #{cabinCode}
+		   and status = '3'
+	</update>
+	
+	<select id="selectWaiting" resultType="com.xjh.dao.dataobject.WmsMaterialStockDO">
+		select * from wms_material_stock
+		where cabin_code = #{cabinCode}
+		  and status = '2'
+	</select>
 </mapper>

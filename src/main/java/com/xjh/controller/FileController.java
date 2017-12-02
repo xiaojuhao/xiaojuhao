@@ -89,6 +89,7 @@ public class FileController {
 			WmsUserDO user = AccountUtils.getLoginUser(request);
 			CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
 					request.getSession().getServletContext());
+
 			JSONObject ret = new JSONObject();
 
 			List<WmsUploadFilesDO> files = new ArrayList<>();
@@ -103,6 +104,10 @@ public class FileController {
 					user = AccountUtils.getLoginUser(multiRequest);
 				}
 				String busiNo = CommonUtils.get(multiRequest, "busiNo");
+				String contentType = CommonUtils.get(multiRequest, "contentType");
+				if (StringUtils.isBlank(contentType)) {
+
+				}
 				if (StringUtils.isBlank(busiNo)) {
 					busiNo = CommonUtils.uuid();
 				}
@@ -120,7 +125,7 @@ public class FileController {
 						Thumbnails.of(dst).width(800).height(600).outputQuality(0.8).toFile(minDst);
 						WmsUploadFilesDO dd = new WmsUploadFilesDO();
 						dd.setBusiNo(busiNo);
-						dd.setContentType("image/jpeg");
+						dd.setContentType(contentType);
 						dd.setCreator(user == null ? "system" : user.getUserCode());
 						dd.setFileName(localFileName + ".r.jpg");
 						dd.setFileOriName(file.getOriginalFilename());
@@ -128,6 +133,7 @@ public class FileController {
 						dd.setFilePath(imagepath.getDictVal());
 						dd.setGmtCreated(new Date());
 						files.add(dd);
+
 					}
 				}
 			}

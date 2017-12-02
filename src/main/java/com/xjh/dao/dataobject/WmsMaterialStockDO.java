@@ -30,6 +30,7 @@ public class WmsMaterialStockDO extends PageDTO {
 	Date gmtModified;
 	String checkOperator;
 	Date checkStockTime;
+	String status;
 	@Transient
 	String searchKey;
 }
