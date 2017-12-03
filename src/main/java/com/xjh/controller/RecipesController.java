@@ -1,7 +1,10 @@
 package com.xjh.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -13,17 +16,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.HttpUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsRecipesDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.RecipesService;
 import com.xjh.service.TkMappers;
+
+import io.reactivex.Observable;
 
 @Controller
 @RequestMapping("/recipes")
@@ -48,6 +54,7 @@ public class RecipesController {
 		recipes.setRecipesCode(recipesCode);
 		recipes.setRecipesName(recipesName);
 		recipes.setOutCode(outCode);
+		recipes.setStatus("1");
 		this.recipesService.saveRecipes(recipes);
 		//
 		recipesCode = recipes.getRecipesCode();
@@ -76,6 +83,27 @@ public class RecipesController {
 		}
 		//
 		return ResultBaseBuilder.succ().data(recipes).rb(request);
+	}
+
+	@RequestMapping(value = "/deleteRecipes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object deleteRecipes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String recipesCode = CommonUtils.get(request, "recipesCode");
+		if (StringUtils.isBlank(recipesCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsRecipesDO cond = new WmsRecipesDO();
+		cond.setRecipesCode(recipesCode);
+		WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
+		if (recipes == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		TkMappers.inst().getRecipesMapper().deleteByPrimaryKey(recipes.getId());
+		return ResultBaseBuilder.succ().rb(request);
 	}
 
 	@RequestMapping(value = "/queryRecipes", produces = "application/json;charset=UTF-8")

@@ -14,6 +14,7 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsMenuMapper;
+import com.xjh.dao.tkmapper.TkWmsOrderMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsRolesMapper;
@@ -22,6 +23,7 @@ import com.xjh.dao.tkmapper.TkWmsSequenceMapper;
 import com.xjh.dao.tkmapper.TkWmsSessionMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsSupplierMapper;
+import com.xjh.dao.tkmapper.TkWmsTaskMapper;
 import com.xjh.dao.tkmapper.TkWmsUploadFilesMapper;
 import com.xjh.dao.tkmapper.TkWmsUserMapper;
 import com.xjh.dao.tkmapper.TkWmsUserRolesMapper;
@@ -74,6 +76,10 @@ public class TkMappers implements InitializingBean {
 	TkWmsRolesMenusMapper rolesMenusMapper;
 	@Resource
 	TkWmsUserRolesMapper userRolesMapper;
+	@Resource
+	TkWmsOrderMapper ordersMapper;
+	@Resource
+	TkWmsTaskMapper taskMapper;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {

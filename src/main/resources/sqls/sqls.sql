@@ -187,9 +187,15 @@ CREATE TABLE
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
         recipes_name VARCHAR(50) COMMENT '食谱名称',
         recipes_code VARCHAR(35) COMMENT '食谱编码',
+        recipes_type VARCHAR(128),
         store_code VARCHAR(35) COMMENT '门店，默认:DEFAULT',
+        src VARCHAR(128),
         out_code VARCHAR(35) COMMENT '外部代码',
-        PRIMARY KEY (id)
+        status VARCHAR(1) DEFAULT '1' NOT NULL COMMENT '0:无效, 1:有效',
+        search_key VARCHAR(256),
+        PRIMARY KEY (id),
+        CONSTRAINT uni_recipes_code UNIQUE (recipes_code),
+        CONSTRAINT uni_outcode UNIQUE (out_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱';
 CREATE TABLE
@@ -260,7 +266,8 @@ CREATE TABLE
         manager_email VARCHAR(64) COMMENT '邮箱',
         out_code VARCHAR(35) COMMENT '外部代码',
         status VARCHAR(1) COMMENT '状态 0:无效 1:有效, 2:盘点库存中',
-        PRIMARY KEY (id)
+        PRIMARY KEY (id),
+        CONSTRAINT uni_code UNIQUE (store_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='门店信息';
 CREATE TABLE
@@ -344,8 +351,45 @@ CREATE TABLE
         CONSTRAINT uni_wh_code UNIQUE (warehouse_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库';
-
-
+CREATE TABLE
+    wms_task
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        task_id VARCHAR(35) NOT NULL COMMENT '任务ID',
+        task_type VARCHAR(35) NOT NULL COMMENT '任务类型',
+        task_name VARCHAR(128) NOT NULL COMMENT '任务名称',
+        status VARCHAR(1) DEFAULT '0' NOT NULL COMMENT '任务状态 0:未执行 1:正在执行 2:执行成功 3:执行失败',
+        gmt_start DATETIME COMMENT '任务开始时间',
+        gmt_end DATETIME COMMENT '任务结束时间',
+        remark VARCHAR(1024) COMMENT '备注',
+        gmt_created DATETIME NOT NULL COMMENT '任务创建时间',
+        gmt_modified DATETIME NOT NULL COMMENT '最近修改时间',
+        PRIMARY KEY (id),
+        CONSTRAINT uni_typeid UNIQUE (task_id, task_type)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE
+    wms_orders
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        recipes_name VARCHAR(256) COMMENT '菜品名称',
+        recipes_out_code VARCHAR(35) COMMENT '菜品外部代码',
+        recipes_code VARCHAR(35) COMMENT '菜品ID',
+        sale_num INT COMMENT '销售份数',
+        total_price DECIMAL(14,2) COMMENT '销售总金额',
+        store_out_code VARCHAR(35) COMMENT '门店外部编码',
+        store_code VARCHAR(35) COMMENT '门店编码',
+        store_name VARCHAR(128) COMMENT '门店名称',
+        sale_date DATETIME COMMENT '销售日期',
+        status VARCHAR(1) DEFAULT '0' NOT NULL COMMENT '0:待审核 1:待处理 2:已处理 3:处理失败 4:撤销',
+        remark VARCHAR(1024) COMMENT '备注',
+        gmt_created DATETIME NOT NULL COMMENT '创建日期',
+        gmt_modified DATETIME NOT NULL COMMENT '修改时间',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    
+    
 
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 1, 'link');
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 2, 'nav');
@@ -377,15 +421,6 @@ INSERT INTO wms_user ( user_code, user_name, user_mobile, store_code, is_su, pas
 
 INSERT INTO wms_dict (dict_group, dict_code, dict_name, dict_val) VALUES ( 'DEFAULT', 'image_path', '保存路劲', '/root/pictures/');
 
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '生鱼片', 'CD000001', null, '111');
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '涮牛肉火锅', 'CD000002', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '什锦生鱼片', 'CD000003', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '什锦生鱼片船', 'CD000004', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '汁烤鸡排', 'CD000005', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '盐烤三文鱼', 'CD000006', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '煮加吉鱼头', 'CD000007', null, null);
-INSERT INTO wms_recipes ( recipes_name, recipes_code, store_code, out_code) VALUES ( '什锦天妇罗', 'CD000008', null, null);
-
     
 INSERT INTO wms_material ( material_name, material_code, spec_unit, spec_qty, stock_unit, status, search_key, utilization_ratio, storage_life) VALUES ( '香鱼', 'M00003', '无', 0.00, '个', 1, 'xy,xiangyu', 100, '11D');
 INSERT INTO wms_material ( material_name, material_code, spec_unit, spec_qty, stock_unit, status, search_key, utilization_ratio, storage_life) VALUES ( '河鳗', 'M00004', '无', 0.00, '个', 1, 'heman,hm', 100, '11D');
@@ -402,17 +437,8 @@ INSERT INTO wms_material ( material_name, material_code, spec_unit, spec_qty, st
 INSERT INTO wms_material ( material_name, material_code, spec_unit, spec_qty, stock_unit, status, search_key, utilization_ratio, storage_life) VALUES ( '莼菜', 'M00015', '包', 123.00, '千克', 1, 'cc,chuncai', 100, '12D');
 
 INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_material', 16, 16);
-INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_recipes', 9, 9);
 INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_warehouse', 3, 3);
-INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_store', 6, 6);
 INSERT INTO wms_sequence ( sequence_code, next_value, modify_version) VALUES ( 'wms_supplier', 4, 4);
-
-
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0001', '常州店', '门店地址', '负责人', '负责人手机', '负责人邮箱', '123');
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0002', '上海店', null, null, null, null, null);
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0003', '南通店', null, null, null, null, null);
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0004', '无锡店', null, null, null, null, null);
-INSERT INTO wms_store ( store_code, store_name, store_addr, store_manager, manager_phone, manager_email, out_code) VALUES ('MD0005', '常州万达广场店', null, null, null, null, null);
 
 
 INSERT INTO wms_supplier ( supplier_code, supplier_name, short_name, supplier_addr, pay_mode, pay_way, pay_account, bank_name, supplier_tel, supplier_phone, supplier_email, status, remark, modifer, gmt_modified) VALUES ('S0001', '海鲜供应商', '海鲜供应商', null, 'ByNow', 'bank', '234225354435355', '工商银行', null, null, null, '1', '发鼎折覆餗发多少', 'admin', '2017-11-21 23:03:50');

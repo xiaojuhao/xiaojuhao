@@ -1012,7 +1012,10 @@ public class CommonUtils {
 		return null;
 	}
 
-	public static String genSearchKey(String src, String base) {
+	public static String genSearchKey(String input, String base) {
+		if (StringUtils.isBlank(input)) {
+			return base;
+		}
 		Set<String> set = new HashSet<>();
 		if (StringUtils.isNotBlank(base)) {
 			for (String str : base.split(",")) {
@@ -1020,17 +1023,23 @@ public class CommonUtils {
 					set.add(str.trim());
 			}
 		}
-		try {
-			String pinyin = PinyinHelper.convertToPinyinString(src, ",", PinyinFormat.WITHOUT_TONE);
-			set.add(pinyin.replaceAll(",", ""));
-			StringBuffer hh = new StringBuffer();
-			for (String str : pinyin.split(",")) {
-				if (StringUtils.isNotBlank(str))
-					hh.append(str.substring(0, 1));
+		String[] array = input.split(",");
+		for (String src : array) {
+			if (StringUtils.isBlank(src)) {
+				continue;
 			}
-			set.add(hh.toString());
-		} catch (PinyinException e) {
-			e.printStackTrace();
+			try {
+				String pinyin = PinyinHelper.convertToPinyinString(src, ",", PinyinFormat.WITHOUT_TONE);
+				set.add(pinyin.replaceAll(",", ""));
+				StringBuffer hh = new StringBuffer();
+				for (String str : pinyin.split(",")) {
+					if (StringUtils.isNotBlank(str))
+						hh.append(str.substring(0, 1));
+				}
+				set.add(hh.toString());
+			} catch (PinyinException e) {
+				e.printStackTrace();
+			}
 		}
 		return set.stream().collect(Collectors.joining(","));
 	}

@@ -15,25 +15,30 @@ public enum ResultCode {
 	activity_invalid("502","5","活动无效","活动无效"),
 	activity_notstart("503","5","活动未开始","活动未开始"),
 	activity_finished("504","5","活动已结束","活动已结束"),
-	activity_config_error("505","5","活动配置错误","活动配置错误")
-	;
-	
-	ResultCode(String code,String codeGroup,String msg1,String msg2){
+	activity_config_error("505","5","活动配置错误","活动配置错误"),
+	task_exists("1000","10","任务已经存在", "任务已经存在"),
+	task_not_exists("1001","10","任务不存在", "任务不存在"),
+	task_is_running("1002","10","任务正在执行", "任务正在执行");
+
+	ResultCode(String code, String codeGroup, String msg1, String msg2) {
 		this.code = code;
 		this.codeGroup = codeGroup;
 		this.msg1 = msg1;
 	}
+
 	private String code;
 	private String codeGroup;
 	private String msg1;
-	
-	public String msg(){
-		return this.msg1 + " "+ this.code;
+
+	public String msg() {
+		return this.msg1 + " " + this.code;
 	}
-	public String code(){
+
+	public String code() {
 		return this.code;
 	}
-	public String codeGroup(){
+
+	public String codeGroup() {
 		return this.codeGroup;
 	}
 }

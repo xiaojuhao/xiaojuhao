@@ -51,6 +51,7 @@ public class RecipesServiceImpl implements RecipesService {
 		PageResult<WmsRecipesDO> page = new PageResult<WmsRecipesDO>();
 		int totalRows = this.recipesMapper.selectCount(wmsRecipesDO);
 		PageHelper.startPage(wmsRecipesDO.getPageNo(),wmsRecipesDO.getPageSize());
+		PageHelper.orderBy("id desc");
 		List<WmsRecipesDO> list = this.recipesMapper.select(wmsRecipesDO);
 		page.setTotalRows(totalRows);
 		page.setValues(list);
