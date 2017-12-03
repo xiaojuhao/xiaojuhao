@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
 import com.xjh.commons.CookieUtils;
@@ -49,8 +50,13 @@ public class UserServiceImpl implements UserService {
 			userDO = new WmsUserDO();
 		}
 		PageResult<WmsUserDO> page = new PageResult<>();
+		PageHelper.startPage(userDO.getPageNo(),userDO.getPageSize());
 		List<WmsUserDO> list = this.userMapper.select(userDO);
+		int totalRows = this.userMapper.selectCount(userDO);
+		page.setTotalRows(totalRows);
 		page.setValues(list);
+		page.setPageNo(userDO.getPageNo());
+		page.setPageSize(userDO.getPageSize());
 		return page;
 	}
 

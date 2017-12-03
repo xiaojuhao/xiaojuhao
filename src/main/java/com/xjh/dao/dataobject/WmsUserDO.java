@@ -21,8 +21,8 @@ public class WmsUserDO extends PageDTO {
 	String userName;
 	String userMobile;
 	String storeCode;
-	String userRole;
 	String password;
+	String isSu;
 	String status;
 	String authStores;
 	String authWarehouse;

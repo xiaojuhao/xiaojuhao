@@ -28,6 +28,7 @@ import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
+import com.xjh.service.UserRolesService;
 import com.xjh.valueobject.MenuVo;
 
 @Controller
@@ -42,6 +43,8 @@ public class IndexController {
 	TkWmsInventoryApplyMapper inventoryMapper;
 	@Resource
 	TkWmsInventoryApplyDetailMapper inventoryDetailMapper;
+	@Resource
+	UserRolesService userRolesService;
 
 	@RequestMapping(value = "/menu", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -56,9 +59,6 @@ public class IndexController {
 		rootCond.setStatus(1);
 		List<WmsMenuDO> root = TkMappers.inst().getMenuMapper().select(rootCond);
 		for (WmsMenuDO r : root) {
-			if (!r.getRoles().contains(user.getUserRole()) && !r.getRoles().contains("all")) {
-				continue;
-			}
 			MenuVo m = new MenuVo();
 			m.setId(r.getId());
 			m.setMenuCode(r.getMenuCode());
@@ -84,6 +84,95 @@ public class IndexController {
 			}
 			m.setSubs(subs);
 			menus.add(m);
+		}
+
+		return ResultBaseBuilder.succ().data(menus).rb(request);
+	}
+
+	@RequestMapping(value = "/menu2", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object menu2() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		List<String> myMenus = userRolesService.getUserMenus(user.getUserCode());
+		List<MenuVo> menus = new ArrayList<>();
+		WmsMenuDO rootCond = new WmsMenuDO();
+		rootCond.setParentCode("root");
+		rootCond.setStatus(1);
+		List<WmsMenuDO> root = TkMappers.inst().getMenuMapper().select(rootCond);
+		for (WmsMenuDO r : root) {
+			if (!"1".equals(user.getIsSu()) && !myMenus.contains(r.getMenuCode())) {
+				continue;
+			}
+			MenuVo m = new MenuVo();
+			m.setId(r.getId());
+			m.setMenuCode(r.getMenuCode());
+			m.setMenuName(r.getMenuName());
+			m.setMenuIndex(r.getMenuIndex());
+			m.setMenuIcon(r.getMenuIcon());
+			m.setType(r.getType());
+			WmsMenuDO subCond = new WmsMenuDO();
+			subCond.setParentCode(r.getMenuCode());
+			subCond.setStatus(1);
+			PageHelper.orderBy(" order_by");
+			List<WmsMenuDO> sub = TkMappers.inst().getMenuMapper().select(subCond);
+			List<MenuVo> subs = new ArrayList<>();
+			for (WmsMenuDO s : sub) {
+				if (!"1".equals(user.getIsSu()) && !myMenus.contains(s.getMenuCode())) {
+					continue;
+				}
+				MenuVo sv = new MenuVo();
+				sv.setId(s.getId());
+				sv.setMenuCode(s.getMenuCode());
+				sv.setMenuName(s.getMenuName());
+				sv.setMenuIndex(s.getMenuIndex());
+				sv.setMenuIcon(s.getMenuIcon());
+				sv.setType(s.getType());
+				subs.add(sv);
+			}
+			m.setSubs(subs);
+			menus.add(m);
+		}
+
+		return ResultBaseBuilder.succ().data(menus).rb(request);
+	}
+
+	@RequestMapping(value = "/menuTree", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object menuTree() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		List<JSONObject> menus = new ArrayList<>();
+		WmsMenuDO rootCond = new WmsMenuDO();
+		rootCond.setParentCode("root");
+		rootCond.setStatus(1);
+		List<WmsMenuDO> root = TkMappers.inst().getMenuMapper().select(rootCond);
+		for (WmsMenuDO r : root) {
+			JSONObject m1 = new JSONObject();
+			m1.put("id", r.getMenuCode());
+			m1.put("label", r.getMenuName());
+			m1.put("type", r.getType());
+			m1.put("menuCode", r.getMenuCode());
+			WmsMenuDO subCond = new WmsMenuDO();
+			subCond.setParentCode(r.getMenuCode());
+			subCond.setStatus(1);
+			PageHelper.orderBy(" order_by");
+			List<WmsMenuDO> sub = TkMappers.inst().getMenuMapper().select(subCond);
+			List<JSONObject> subs = new ArrayList<>();
+			for (WmsMenuDO s : sub) {
+				JSONObject m2 = new JSONObject();
+				m2.put("id", s.getMenuCode());
+				m2.put("label", s.getMenuName());
+				m2.put("type", s.getType());
+				m2.put("menuCode", s.getMenuCode());
+				subs.add(m2);
+			}
+			m1.put("children", subs);
+			menus.add(m1);
 		}
 
 		return ResultBaseBuilder.succ().data(menus).rb(request);

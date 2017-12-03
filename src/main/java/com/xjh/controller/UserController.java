@@ -1,7 +1,5 @@
 package com.xjh.controller;
 
-import java.io.IOException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSON;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
@@ -20,10 +17,14 @@ import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsRolesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.dataobject.WmsUserRolesDO;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.valueobject.UserVo;
+
+import io.reactivex.Observable;
 
 @Controller
 @RequestMapping("/user")
@@ -39,7 +40,7 @@ public class UserController {
 		String userCode = request.getParameter("userCode");
 		String password = request.getParameter("password");// 密码原文
 		//
-		
+
 		if (CommonUtils.isAnyBlank(userCode, password)) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
 		}
@@ -53,7 +54,7 @@ public class UserController {
 		UserVo ret = new UserVo();
 		ret.setUserName(loginRs.getValue().getUserName());
 		ret.setLoginCookie(loginRs.getValue().getLoginCookie());
-		ret.setUserRole(loginRs.getValue().getUserRole());
+		ret.setIsSu(loginRs.getValue().getIsSu());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 
@@ -105,6 +106,7 @@ public class UserController {
 		if (loginUser == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String userRoleStr = CommonUtils.get(request, "userRoleStr");
 		// 密码保存为MD5
 		if (StringUtils.isNotBlank(input.getPassword())) {
 			input.setPassword(CommonUtils.md5(input.getPassword()));
@@ -113,9 +115,6 @@ public class UserController {
 		ResultBase<WmsUserDO> rs = userService.queryUser(input.getUserCode());
 		if (rs.getIsSuccess() == false) {
 			// 用户不存在，新建用户
-			if (CommonUtils.isAnyBlank(input.getUserRole())) {
-				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-			}
 			if (StringUtils.isBlank(input.getPassword())) {
 				input.setPassword(CommonUtils.md5("123456"));
 			}
@@ -133,15 +132,40 @@ public class UserController {
 				user.setPassword(input.getPassword());
 			if (StringUtils.isNotBlank(input.getUserMobile()))
 				user.setUserMobile(input.getUserMobile());
-			if (StringUtils.isNotBlank(input.getUserRole()))
-				user.setUserRole(input.getUserRole());
+			if (StringUtils.isNotBlank(input.getIsSu()))
+				user.setIsSu(input.getIsSu());
 			if (StringUtils.isNotBlank(input.getStoreCode()))
 				user.setStoreCode(input.getStoreCode());
 			if (StringUtils.isNotBlank(input.getStatus()))
 				user.setStatus(input.getStatus());
 			user.setAuthStores(input.getAuthStores());
 			user.setAuthWarehouse(input.getAuthWarehouse());
-			TkMappers.inst().getUserMapper().updateByPrimaryKeySelective(user);
+			TkMappers.inst().getUserMapper().updateByPrimaryKey(user);
+		}
+
+		assert StringUtils.isNotBlank(input.getUserCode());
+		///user roles
+		WmsUserRolesDO delete = new WmsUserRolesDO();
+		delete.setUserCode(input.getUserCode());
+		TkMappers.inst().getUserRolesMapper().delete(delete);
+		if (userRoleStr != null) {
+			Observable.fromArray(userRoleStr.split(",")) //
+					.filter((roleCode) -> StringUtils.isNotBlank(roleCode))//
+					.map((roleCode) -> {
+						WmsRolesDO cond = new WmsRolesDO();
+						cond.setRoleCode(roleCode);
+						return TkMappers.inst().getRolesMapper().selectOne(cond);
+					}) //
+					.filter((roleDO) -> roleDO != null) //
+					.map((roleDO) -> {
+						WmsUserRolesDO role = new WmsUserRolesDO();
+						role.setRoleCode(roleDO.getRoleCode());
+						role.setRoleName(roleDO.getRoleName());
+						role.setUserCode(input.getUserCode());
+						return role;
+					})//
+					.forEach((userRoleDO) -> TkMappers.inst().getUserRolesMapper().insert(userRoleDO))//
+			;
 		}
 		return ResultBaseBuilder.succ().rb(request);
 	}

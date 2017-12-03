@@ -132,12 +132,9 @@ public class WarehouseController {
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		List<WmsWarehouseDO> list = this.warehouseMapper.select(warehouse);
 		List<WmsWarehouseDO> list2 = new ArrayList<>();
-		if (!"1".equals(user.getUserRole())) {
-			//list = list.stream().filter((v)->auths.contains(v.getWarehouseCode())).collect(Collectors.toList());
-			Observable.fromIterable(list) //
-					.filter((v) -> auths.contains(v.getWarehouseCode())) //
-					.subscribe((v) -> list2.add(v));
-		}
+		Observable.fromIterable(list) //
+				.filter((v) -> "1".equals(user.getIsSu()) || auths.contains(v.getWarehouseCode())) //
+				.subscribe((v) -> list2.add(v));
 		return ResultBaseBuilder.succ().data(list2).rb(request);
 	}
 }

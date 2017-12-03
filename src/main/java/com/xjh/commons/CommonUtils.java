@@ -1000,6 +1000,18 @@ public class CommonUtils {
 		return list;
 	}
 
+	public static String toPinYin(String str) {
+		if (StringUtils.isBlank(str)) {
+			return null;
+		}
+		try {
+			return PinyinHelper.convertToPinyinString(str, "", PinyinFormat.WITHOUT_TONE);
+		} catch (PinyinException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static String genSearchKey(String src, String base) {
 		Set<String> set = new HashSet<>();
 		if (StringUtils.isNotBlank(base)) {

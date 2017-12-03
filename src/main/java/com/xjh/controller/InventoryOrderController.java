@@ -156,7 +156,8 @@ public class InventoryOrderController {
 		}
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyType("claim_loss");
-		if (!"1".equals(user.getUserRole()))
+		//超管可以查看所有的记录
+		if (!"1".equals(user.getIsSu()))
 			cond.setCreator(user.getUserCode());
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		cond.setPageSize(CommonUtils.getPageSize(request));
@@ -410,9 +411,9 @@ public class InventoryOrderController {
 		if ("0".equals(vo.getStatus())) {
 			return ResultBaseBuilder.fails("仓库状态无效").rb(request);
 		}
-//		if ("2".equals(vo.getStatus())) {
-//			return ResultBaseBuilder.fails("仓库正在盘点").rb(request);
-//		}
+		//		if ("2".equals(vo.getStatus())) {
+		//			return ResultBaseBuilder.fails("仓库正在盘点").rb(request);
+		//		}
 		if (vo.getCode().startsWith("WH")) {
 			WmsWarehouseDO warehouse = new WmsWarehouseDO();
 			warehouse.setWarehouseCode(cabinCode);
@@ -455,9 +456,9 @@ public class InventoryOrderController {
 		if ("0".equals(vo.getStatus())) {
 			return ResultBaseBuilder.fails("仓库状态无效").rb(request);
 		}
-//		if ("1".equals(vo.getStatus())) {
-//			return ResultBaseBuilder.fails("仓库还未开始盘点").rb(request);
-//		}
+		//		if ("1".equals(vo.getStatus())) {
+		//			return ResultBaseBuilder.fails("仓库还未开始盘点").rb(request);
+		//		}
 		if (vo.getCode().startsWith("WH")) {
 			WmsWarehouseDO warehouse = new WmsWarehouseDO();
 			warehouse.setWarehouseCode(cabinCode);

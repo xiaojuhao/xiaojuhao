@@ -7,5 +7,5 @@ public class UserVo {
 	String userCode;
 	String userName;
 	String loginCookie;
-	String userRole;
+	String isSu;
 }

@@ -122,7 +122,7 @@ public class MaterialServiceImpl implements MaterialService {
 		Example exam = new Example(WmsMaterialStockDO.class, false, false);
 		Example.Criteria cri = exam.createCriteria();
 		cri.andEqualTo(example);
-		if (user != null && !"1".equals(user.getUserRole())) {
+		if (user != null && !"1".equals(user.getIsSu())) {
 			List<String> cabinCodes = new ArrayList<>();
 			if (StringUtils.isNotBlank(user.getAuthStores())) {
 				String[] arr = user.getAuthStores().split(",");

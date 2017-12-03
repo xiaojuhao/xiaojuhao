@@ -105,8 +105,8 @@ public class StoreController {
 		final String auths = user.getAuthStores() == null ? "" : user.getAuthStores();
 
 		List<WmsStoreDO> list = TkMappers.inst().getStoreMapper().select(store);
-		if (!"1".equals(user.getUserRole())) {
-			list = list.stream().filter((v)->auths.contains(v.getStoreCode())).collect(Collectors.toList());
+		if (!"1".equals(user.getIsSu())) {
+			list = list.stream().filter((v) -> auths.contains(v.getStoreCode())).collect(Collectors.toList());
 		}
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
