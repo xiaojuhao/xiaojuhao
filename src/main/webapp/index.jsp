@@ -9,8 +9,6 @@
 		<input name="age" value="100"> <br>
 		<input name="addr" value="上海市黄浦区协进大楼"> <br>
 		<input name="remark" value="test file upload"> <br>
-		<input name="file1" type="file">  <br>
-		<input name="file2" type="file"> <br>
 		<input type="submit">
 	</form>
 </body>

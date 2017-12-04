@@ -105,6 +105,8 @@ public class FileController {
 				}
 				String busiNo = CommonUtils.get(multiRequest, "busiNo");
 				String contentType = CommonUtils.get(multiRequest, "contentType");
+				String addr = CommonUtils.get(multiRequest, "addr");
+				System.out.println(addr);
 				if (StringUtils.isBlank(contentType)) {
 
 				}

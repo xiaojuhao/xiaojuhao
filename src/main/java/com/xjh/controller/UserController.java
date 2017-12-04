@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
@@ -56,6 +57,23 @@ public class UserController {
 		ret.setLoginCookie(loginRs.getValue().getLoginCookie());
 		ret.setIsSu(loginRs.getValue().getIsSu());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
+	}
+	
+	@RequestMapping(value = "/loginInfo", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object loginInfo(HttpServletResponse response) {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		JSONObject json = new JSONObject();
+		json.put("userCode", user.getUserCode());
+		json.put("userName", user.getUserName());
+		json.put("status", user.getStatus());
+		json.put("authStores", user.getAuthStores());
+		json.put("authWarehouse", user.getAuthWarehouse());
+		json.put("isSu", user.getIsSu());
+		return ResultBaseBuilder.succ().data(json).rb(request);
 	}
 
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
