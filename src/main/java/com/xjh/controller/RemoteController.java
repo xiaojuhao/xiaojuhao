@@ -165,7 +165,7 @@ public class RemoteController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String date = CommonUtils.get(request, "date");
-		Date saleDate = CommonUtils.parseDate(date, "yyyyMMdd");
+		Date saleDate = CommonUtils.parseDate(date, "yyyy-MM-dd");
 		return ResultBaseBuilder.wrap(diandanSystemService.syncOrders(saleDate)).rb(request);
 	}
 }

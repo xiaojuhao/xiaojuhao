@@ -18,12 +18,12 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
-import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
+import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
@@ -295,5 +295,33 @@ public class BusinessController {
 		return ResultBaseBuilder.succ().data(retList).rb(request);
 	}
 
-	
+	@RequestMapping(value = "/queryWmsOrder", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryWmsOrder() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String storeCode = CommonUtils.get(request, "storeCode");
+		String saleDate = CommonUtils.get(request, "saleDate");
+		String recipesCode = CommonUtils.get(request, "recipesCode");
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
+		WmsOrdersDO cond = new WmsOrdersDO();
+		cond.setStoreCode(storeCode);
+		cond.setRecipesCode(recipesCode);
+		cond.setSaleDate(CommonUtils.parseDate(saleDate));
+		cond.setPageNo(pageNo);
+		cond.setPageSize(pageSize);
+		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
+		PageHelper.orderBy("sale_date desc, id desc");
+		List<WmsOrdersDO> list = TkMappers.inst().getOrdersMapper().select(cond);
+		int totalRows = TkMappers.inst().getOrdersMapper().selectCount(cond);
+		PageResult<WmsOrdersDO> page = new PageResult<>();
+		page.setValues(list);
+		page.setTotalRows(totalRows);
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
 }
