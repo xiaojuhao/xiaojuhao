@@ -753,6 +753,15 @@ public class CommonUtils {
 		return null;
 	}
 
+	public static String formatDate(Date date, String dateFormats) {
+		try {
+			return new SimpleDateFormat(dateFormats).format(date);
+		} catch (Exception ex) {
+			log.error("format date error:" + dateFormats, ex);
+		}
+		return null;
+	}
+
 	public static Double parseDouble(String numberStr, Double defaultVal) {
 		BigDecimal r = parseBigDecimal(numberStr);
 		return r == null ? defaultVal : r.doubleValue();
@@ -820,6 +829,10 @@ public class CommonUtils {
 		if (obj == null)
 			return "";
 		return obj.toString();
+	}
+
+	public static Date todayDate() {
+		return parseDate(stringOfToday(), "yyyyMMdd");
 	}
 
 	public static String stringOfNow() {

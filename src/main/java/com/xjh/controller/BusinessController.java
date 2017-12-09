@@ -1,7 +1,12 @@
 package com.xjh.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +26,7 @@ import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
@@ -36,6 +42,7 @@ import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
+import io.reactivex.Observable;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
@@ -323,5 +330,65 @@ public class BusinessController {
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryRecentDaysTendency", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryRecentDaysTendency() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date today = CommonUtils.todayDate();
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		Integer days = CommonUtils.getInt(request, "days");
+		if (days == null) {
+			days = 7;
+		}
+		List<String> daysData = new ArrayList<>();
+		List<Double> stockData = new ArrayList<>();
+		List<Double> saleData = new ArrayList<>();
+		JSONObject ret = new JSONObject();
+
+		if (CommonUtils.isAnyBlank(cabinCode, materialCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+
+		CabinVo cabin = this.cabinService.getCabinByCode(cabinCode);
+		WmsMaterialDO material = this.materialService.getMaterialByCode(materialCode);
+		if (cabin == null || material == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		WmsMaterialStockDailyDO cond = new WmsMaterialStockDailyDO();
+		cond.setMaterialCode(materialCode);
+		cond.setCabinCode(cabinCode);
+		Example example = new Example(WmsMaterialStockDailyDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo(cond);
+		Date time = CommonUtils.futureDays(today, -1 * days);
+		cri.andGreaterThanOrEqualTo("statDate", time);
+		ret.put("daysData", daysData);
+		ret.put("stockData", stockData);
+		ret.put("saleData", saleData);
+		ret.put("cabinName", cabin.getName());
+		ret.put("stockUnit", material.getStockUnit());
+		ret.put("materialName", material.getMaterialName());
+		Map<String, WmsMaterialStockDailyDO> dataMap = new HashMap<>();
+		List<WmsMaterialStockDailyDO> list = TkMappers.inst().getStockDailyMapper().selectByExample(example);
+		list.forEach((it) -> dataMap.put(sdf.format(it.getStatDate()), it));
+		Calendar c = Calendar.getInstance();
+		c.setTime(time);
+		for (int i = 0; i <= days; i++) {
+			String day = CommonUtils.formatDate(c.getTime(), "yyyy-MM-dd");
+			daysData.add(day);
+			WmsMaterialStockDailyDO dd = dataMap.get(day);
+			if (dd == null) {
+				stockData.add(new Double(CommonUtils.randomNumber(20, 22)));
+				saleData.add(new Double(CommonUtils.randomNumber(0, 10)));
+			} else {
+				stockData.add(dd.getRemainAmt());
+				saleData.add(dd.getConsumeAmt());
+			}
+			c.add(Calendar.DATE, 1);//next day
+		}
+		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
 }

@@ -10,6 +10,7 @@ import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSplitMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialStockDailyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
@@ -80,7 +81,9 @@ public class TkMappers implements InitializingBean {
 	TkWmsOrderMapper ordersMapper;
 	@Resource
 	TkWmsTaskMapper taskMapper;
-	
+	@Resource
+	TkWmsMaterialStockDailyMapper stockDailyMapper;
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		holder.setValue(this);
