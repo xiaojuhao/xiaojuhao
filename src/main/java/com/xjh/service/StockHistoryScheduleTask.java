@@ -1,5 +1,7 @@
 package com.xjh.service;
 
+import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -9,8 +11,11 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
+import com.xjh.commons.CommonUtils;
+import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsTaskDO;
 import com.xjh.dao.mapper.WmsMaterialStockHistoryMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
 import com.xjh.valueobject.MaterialStockChangeVo;
@@ -18,12 +23,16 @@ import com.xjh.valueobject.MaterialStockChangeVo;
 @Service
 public class StockHistoryScheduleTask implements InitializingBean {
 	public static AtomicBoolean isRunning = new AtomicBoolean(false);
+	static StockHistoryScheduleTask self = null;
+	static ExecutorService service = Executors.newFixedThreadPool(10);
 	@Resource
 	WmsMaterialStockHistoryMapper wmsMaterialStockHistoryMapper;
 	@Resource
 	MaterialService materialService;
 	@Resource
 	WmsMaterialStockMapper wmsMaterialStockMapper;
+	@Resource
+	StockDailyService stockDailyService;
 	@Resource
 	CabinService cabinService;
 
@@ -94,22 +103,68 @@ public class StockHistoryScheduleTask implements InitializingBean {
 					this.changeStock(dd);
 				}
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		} finally {
 			isRunning.set(false);
 		}
 	}
 
+	public static void startTask() {
+		if (self != null) {
+			service.submit(() -> self.start());
+		}
+	}
+
+	public static void initDailyStock() {
+		if (self == null) {
+			return;
+		}
+		Calendar c = Calendar.getInstance();
+		int m = c.get(Calendar.MINUTE);
+		if (m % 10 != 0) { //每10分钟启动一次
+			return;
+		}
+		String today = CommonUtils.stringOfToday("yyyyMMdd");
+		ResultBase<WmsTaskDO> task = TaskService.initTask("init-stock-daily", today, "初始化每日库存");
+		if (!task.getIsSuccess()) {
+			return;
+		}
+		task = TaskService.reStartTask(task.getValue());
+		if (!task.getIsSuccess()) {
+			return;
+		}
+		final WmsTaskDO taskDO = task.getValue();
+		service.submit(() -> {
+			try {
+				TkMappers.inst().materialStockMapper.selectAll()//
+						.forEach((d) -> {
+							self.stockDailyService.getOrInitStockDaily( //
+									d.getMaterialCode(), //
+									d.getCabinCode(), //
+									today);
+						});
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				TaskService.finishTask(taskDO);
+			}
+		});
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		self = this;
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					start();
+					//self.start();
+					initDailyStock();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 			}
-		}, 0, 5, TimeUnit.SECONDS);
+		}, 0, 60, TimeUnit.SECONDS);
 	}
 }

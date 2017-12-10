@@ -35,6 +35,33 @@ public class TaskService {
 		return ResultBaseBuilder.succ().data(task).rb();
 	}
 
+	public static ResultBase<WmsTaskDO> reStartTask(WmsTaskDO task) {
+		if (task == null || CommonUtils.isAnyBlank(task.getTaskType(), task.getTaskId())) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
+		}
+		WmsTaskDO cond = new WmsTaskDO();
+		cond.setTaskId(task.getTaskId());
+		cond.setTaskType(task.getTaskType());
+		WmsTaskDO taskdd = TkMappers.inst().getTaskMapper().selectOne(cond);
+		if (taskdd == null) {
+			return ResultBaseBuilder.fails(ResultCode.task_not_exists).data(task).rb();
+		}
+		//重启task：只要task不正在执行都可以启动
+		if ("1".equals(taskdd.getStatus())) {
+			return ResultBaseBuilder.fails(ResultCode.task_is_running).msg("无法启动").data(task).rb();
+		}
+		WmsTaskDO update = new WmsTaskDO();
+		update.setId(taskdd.getId());
+		update.setStatus("1");
+		update.setGmtStart(new Date());
+		try {
+			TkMappers.inst().taskMapper.updateByPrimaryKeySelective(update);
+		} catch (Exception ex) {
+			return ResultBaseBuilder.fails("启动异常").rb();
+		}
+		return ResultBaseBuilder.succ().data(taskdd).rb();
+	}
+
 	public static ResultBase<WmsTaskDO> startTask(WmsTaskDO task) {
 		if (task == null || CommonUtils.isAnyBlank(task.getTaskType(), task.getTaskId())) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();

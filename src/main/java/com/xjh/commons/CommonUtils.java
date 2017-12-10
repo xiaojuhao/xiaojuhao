@@ -832,15 +832,15 @@ public class CommonUtils {
 	}
 
 	public static Date todayDate() {
-		return parseDate(stringOfToday(), "yyyyMMdd");
+		return parseDate(stringOfToday("yyyyMMdd"), "yyyyMMdd");
 	}
 
 	public static String stringOfNow() {
 		return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 	}
 
-	public static String stringOfToday() {
-		return new SimpleDateFormat("yyyyMMdd").format(new Date());
+	public static String stringOfToday(String datePatten) {
+		return new SimpleDateFormat(datePatten).format(new Date());
 	}
 
 	public static String stringOfYesterday() {

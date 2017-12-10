@@ -24,6 +24,7 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
+import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
@@ -125,6 +126,7 @@ public class DiaoboController {
 			}
 			// 插入数据库
 			this.database.diaoboCommit(apply, indetails, historyList);
+			StockHistoryScheduleTask.startTask();
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
 			return ResultBaseBuilder.fails("系统异常").rb(request);

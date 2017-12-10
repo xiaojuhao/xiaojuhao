@@ -384,7 +384,7 @@ public class BusinessController {
 				stockData.add(new Double(CommonUtils.randomNumber(20, 22)));
 				saleData.add(new Double(CommonUtils.randomNumber(0, 10)));
 			} else {
-				stockData.add(dd.getRemainAmt());
+				stockData.add(dd.getInitAmt() - dd.getConsumeAmt() - dd.getLossAmt());
 				saleData.add(dd.getConsumeAmt());
 			}
 			c.add(Calendar.DATE, 1);//next day

@@ -34,6 +34,7 @@ import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.Mappers;
+import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
@@ -298,6 +299,7 @@ public class InventoryOrderController {
 			}
 			// 插入数据库
 			database.commitPurchaseOrder(order, details);
+			StockHistoryScheduleTask.startTask();
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
 			return ResultBaseBuilder.fails("系统异常").rb(request);
@@ -390,6 +392,7 @@ public class InventoryOrderController {
 
 		order.setStatus("5");
 		database.diaoboConfirm(order, detailUpdateList, historyInserts);
+		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -500,6 +503,7 @@ public class InventoryOrderController {
 		cond = new WmsMaterialStockDO();
 		cond.setCabinCode(cabinCode);
 		Mappers.inst().getStockMapper().finishCorrect(cond);
+		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -571,6 +575,7 @@ public class InventoryOrderController {
 		h.setRelateCode(indetail.getApplyNum());
 
 		database.claimLossInsert(inorder, indetail, h);
+		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().msg("提交成功").rb(request);
 	}
 
@@ -630,7 +635,7 @@ public class InventoryOrderController {
 		posthis.setGmtCreated(new Date());
 		posthis.setOperator(user.getUserCode());
 		database.correctStock(prehis, posthis);
-
+		StockHistoryScheduleTask.startTask();
 		stock.setStatus("3");
 		TkMappers.inst().getMaterialStockMapper().updateByPrimaryKeySelective(stock);
 
