@@ -51,7 +51,7 @@ public class DiandanSystemService {
 				continue;
 			}
 			//启动任务
-			task = TaskService.startTask(task.getValue());
+			task = TaskService.reStartTask(task.getValue());
 			if (task.getIsSuccess() == false) {
 				rb.setMessage(rb.getMessage() + store.getStoreName() + ":" + task.getMessage());
 				continue;
@@ -78,7 +78,39 @@ public class DiandanSystemService {
 				Observable.fromArray(dishesOrders.toArray()) //
 						.map((o) -> (JSONObject) o) //
 						.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("id")) //
-						.subscribe((jsonObj) -> {
+						.map((jsonObj) -> {
+							WmsOrdersDO cond = new WmsOrdersDO();
+							cond.setStoreOutCode(store.getOutCode());
+							cond.setRecipesOutCode(jsonObj.getString("id"));
+							cond.setSaleDate(todayDate);
+							WmsOrdersDO order = TkMappers.inst().getOrdersMapper().selectOne(cond);
+							//销售数据不存在，继续处理
+							if (order == null)
+								return jsonObj;
+							//销售数据存在，重新处理
+							if ("2".equals(order.getStatus())) {
+								//如果销售数据已经处理过了，需要特别处理
+								// @TODO
+							}
+							int saleNum = CommonUtils.parseBigDecimal(jsonObj.getString("saleNums"), ZERO).intValue();
+							double allPrice = CommonUtils.parseBigDecimal(jsonObj.getString("allPrice"), ZERO)
+									.doubleValue();
+							//只有销售数据不等，或者销售金额不等时，才进行更新
+							if (saleNum != order.getSaleNum() //
+									|| Math.abs(allPrice - order.getTotalPrice()) > 0.01) {
+								WmsOrdersDO update = new WmsOrdersDO();
+								update.setId(order.getId());
+								update.setStatus("0");
+								order.setRecipesName(jsonObj.getString("name"));
+								update.setSaleNum(saleNum);
+								update.setTotalPrice(allPrice);
+								update.setGmtModified(new Date());
+								update.setRemark("重新拉取");
+								TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
+							}
+							return null;
+						}).filter((o) -> o != null) //
+						.map((jsonObj) -> {
 							WmsOrdersDO order = new WmsOrdersDO();
 							order.setStatus("0");
 							order.setGmtCreated(new Date());
@@ -98,7 +130,9 @@ public class DiandanSystemService {
 							order.setTotalPrice(CommonUtils.parseBigDecimal(allPrice, ZERO).doubleValue());
 							order.setSaleDate(todayDate);
 							TkMappers.inst().getOrdersMapper().insert(order);
-						});
+							return null;
+						}).filter((o) -> o != null) //
+						.subscribe();
 				task.getValue().setRemark("同步成功");
 				task = TaskService.finishTask(task.getValue());
 			} catch (Exception e) {
