@@ -85,8 +85,10 @@ public class DiandanSystemService {
 							cond.setSaleDate(todayDate);
 							WmsOrdersDO order = TkMappers.inst().getOrdersMapper().selectOne(cond);
 							//销售数据不存在，继续处理
-							if (order == null)
+							if (order == null){
+								jsonObj.put("_hasDealed", false);
 								return jsonObj;
+							}
 							//销售数据存在，重新处理
 							if ("2".equals(order.getStatus())) {
 								//如果销售数据已经处理过了，需要特别处理
@@ -108,8 +110,9 @@ public class DiandanSystemService {
 								update.setRemark("重新拉取");
 								TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
 							}
-							return null;
-						}).filter((o) -> o != null) //
+							jsonObj.put("_hasDealed", true);
+							return jsonObj;
+						}).filter((o) -> !o.getBoolean("_hasDealed")) //
 						.map((jsonObj) -> {
 							WmsOrdersDO order = new WmsOrdersDO();
 							order.setStatus("0");
@@ -130,7 +133,7 @@ public class DiandanSystemService {
 							order.setTotalPrice(CommonUtils.parseBigDecimal(allPrice, ZERO).doubleValue());
 							order.setSaleDate(todayDate);
 							TkMappers.inst().getOrdersMapper().insert(order);
-							return null;
+							return jsonObj;
 						}).filter((o) -> o != null) //
 						.subscribe();
 				task.getValue().setRemark("同步成功");
