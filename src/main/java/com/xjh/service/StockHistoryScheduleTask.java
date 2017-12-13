@@ -159,7 +159,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			@Override
 			public void run() {
 				try {
-					//self.start();
+					self.start();
 					initDailyStock();
 				} catch (Exception ex) {
 					ex.printStackTrace();
