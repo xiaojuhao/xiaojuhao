@@ -1,11 +1,14 @@
 package com.xjh.service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,8 @@ public class DiandanSystemService {
 	static BigDecimal ZERO = BigDecimal.ZERO;
 	final String api_key = "djo3ej38K23hkjsnd!Dkd";
 	final String api_url = "http://www.xiaojuhao.org/baoBiaoWeb/api_handle.do";
+	@Resource
+	SequenceService sequenceService;
 
 	public ResultBase<String> syncOrders(Date syncDate) {
 		if (syncDate == null) {
@@ -178,5 +183,101 @@ public class DiandanSystemService {
 			rb.setMessage("同步成功");
 		}
 		return rb;
+	}
+
+	public void syncRecipes() {
+		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
+		stores.forEach((store) -> {
+
+			String nonce = CommonUtils.uuid().toLowerCase();
+			String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+			Map<String, String> params = new HashMap<>();
+			params.put("nonStr", nonce);
+			params.put("sign", sign);
+			params.put("jsonParameter",
+					CommonUtils.asJSONObject(//
+							"API_TYPE", "getDishes", //
+							"store_num", store.getOutCode()//
+			).toJSONString());
+			try {
+				String resp = HttpUtils.post(api_url, params);
+				JSONObject json = CommonUtils.parseJSON(resp);
+				JSONArray dishes = json.getJSONArray("allDishes");
+				Observable.fromArray(dishes.toArray()) //
+						.map((o) -> (JSONObject) o) //
+						.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
+						.subscribe((jsonObj) -> {
+							WmsRecipesDO cond = new WmsRecipesDO();
+							cond.setOutCode(jsonObj.getString("dishes_id"));
+							WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
+							if (recipes == null) {
+								long val = sequenceService.next("wms_recipes");
+								String recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
+								recipes = new WmsRecipesDO();
+								recipes.setRecipesCode(recipesCode);
+								recipes.setOutCode(jsonObj.getString("dishes_id"));
+								recipes.setRecipesName(jsonObj.getString("dishes_name"));
+								recipes.setStoreCode("000000");
+								recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
+								recipes.setStatus("1");
+								recipes.setSrc("auto_sync");
+								recipes.setSearchKey(CommonUtils.genSearchKey(//
+										recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
+								TkMappers.inst().getRecipesMapper().insert(recipes);
+							} else {
+								WmsRecipesDO update = new WmsRecipesDO();
+								update.setId(recipes.getId());
+								update.setRecipesName(jsonObj.getString("dishes_name"));
+								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
+							}
+						});
+
+			} catch (Exception e) {
+
+			}
+
+		});
+	}
+
+	public void syncStores() {
+		String nonce = CommonUtils.uuid().toLowerCase();
+		String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+		Map<String, String> params = new HashMap<>();
+		params.put("nonStr", nonce);
+		params.put("sign", sign);
+		params.put("jsonParameter", CommonUtils.asJSONObject("API_TYPE", "getStores").toJSONString());
+		try {
+			String resp = HttpUtils.post(api_url, params);
+			JSONObject json = CommonUtils.parseJSON(resp);
+			if (!"0".equals(json.getString("status"))) {
+				return;
+			}
+			JSONArray stores = json.getJSONArray("allStore");
+			Observable.fromArray(stores.toArray()) //
+					.map((o) -> (JSONObject) o) //
+					.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("store_num")) //
+					.subscribe((jsonObj) -> {
+						WmsStoreDO cond = new WmsStoreDO();
+						cond.setOutCode(jsonObj.getString("store_num"));
+						WmsStoreDO store = TkMappers.inst().getStoreMapper().selectOne(cond);
+						if (store == null) {
+							long val = sequenceService.next("wms_store");
+							String storeCode = "MD" + StringUtils.leftPad(val + "", 4, "0");
+							store = new WmsStoreDO();
+							store.setStoreName(jsonObj.getString("store_name"));
+							store.setOutCode(jsonObj.getString("store_num"));
+							store.setStoreCode(storeCode);
+							store.setStatus("1");
+							TkMappers.inst().getStoreMapper().insert(store);
+						} else {
+							WmsStoreDO update = new WmsStoreDO();
+							update.setId(store.getId());
+							update.setStoreName(jsonObj.getString("store_num"));
+							TkMappers.inst().getStoreMapper().updateByPrimaryKeySelective(update);
+						}
+					});
+		} catch (IOException e) {
+			return;
+		}
 	}
 }
