@@ -57,6 +57,7 @@ public class OrderController {
 		Example.Criteria cri = example.createCriteria();
 		cri.andEqualTo("recipesCode", recipesCode);
 		cri.andEqualTo("storeCode", storeCode);
+		cri.andEqualTo("isDeleted", "N");
 		Date time = CommonUtils.futureDays(new Date(), -8);
 		cri.andGreaterThanOrEqualTo("saleDate", time);
 		List<WmsOrdersDO> orders = TkMappers.inst().getOrdersMapper().selectByExample(example);

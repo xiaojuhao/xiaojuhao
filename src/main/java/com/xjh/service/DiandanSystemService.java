@@ -23,6 +23,9 @@ import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsTaskDO;
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class DiandanSystemService {
@@ -30,8 +33,8 @@ public class DiandanSystemService {
 	final String api_key = "djo3ej38K23hkjsnd!Dkd";
 	final String api_url = "http://www.xiaojuhao.org/baoBiaoWeb/api_handle.do";
 
-	public ResultBase<String> syncOrders(Date date) {
-		if (date == null) {
+	public ResultBase<String> syncOrders(Date syncDate) {
+		if (syncDate == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
 		List<WmsRecipesDO> recipes = TkMappers.inst().getRecipesMapper().select(new WmsRecipesDO());
@@ -39,12 +42,12 @@ public class DiandanSystemService {
 		recipes.stream().forEach((item) -> recipesMap.put(item.getOutCode(), item));
 		ResultBase<String> rb = ResultBaseBuilder.succ().msg("").rb();
 		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
-		String today = new SimpleDateFormat("yyyy-MM-dd").format(date);
-		Date todayDate = CommonUtils.parseDate(today, "yyyy-MM-dd");
-		String shortToday = today.replaceAll("-", "");
+		String syncDateStr = new SimpleDateFormat("yyyy-MM-dd").format(syncDate);
+		Date saleDate = CommonUtils.parseDate(syncDateStr, "yyyy-MM-dd");
+		String shortSyncDate = syncDateStr.replaceAll("-", "");
 		for (WmsStoreDO store : stores) {
 			//初始化任务
-			ResultBase<WmsTaskDO> task = TaskService.initTask("sync_order", shortToday + "_" + store.getStoreCode(),
+			ResultBase<WmsTaskDO> task = TaskService.initTask("sync_order", shortSyncDate + "_" + store.getStoreCode(),
 					"同步订单:" + store.getStoreName());
 			if (task.getIsSuccess() == false) {
 				rb.setMessage(rb.getMessage() + store.getStoreName() + ":" + task.getMessage());
@@ -56,19 +59,29 @@ public class DiandanSystemService {
 				rb.setMessage(rb.getMessage() + store.getStoreName() + ":" + task.getMessage());
 				continue;
 			}
-			//开始执行任务
-			String nonce = CommonUtils.uuid().toLowerCase();
-			String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
-			Map<String, String> params = new HashMap<>();
-			params.put("nonStr", nonce);
-			params.put("sign", sign);
-			params.put("jsonParameter",
-					CommonUtils.asJSONObject(//
-							"API_TYPE", "getOrderDishesCounts", //
-							"store_num", store.getOutCode(), //
-							"startDate", today, //
-							"endDate", today).toJSONString());
 			try {
+				Example orderExample = new Example(WmsOrdersDO.class, false, false);
+				Example.Criteria cri = orderExample.createCriteria();
+				cri.andEqualTo("storeCode", store.getStoreCode());
+				cri.andEqualTo("saleDate", saleDate);
+				cri.andEqualTo("isDeleted", "N");
+				WmsOrdersDO orderUpdate = new WmsOrdersDO();
+				orderUpdate.setHandleState("0");//当日所有的数据都设置为初始态
+				TkMappers.inst().getOrdersMapper().updateByExampleSelective(orderUpdate, orderExample);
+
+				//开始执行任务
+				String nonce = CommonUtils.uuid().toLowerCase();
+				String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+				Map<String, String> params = new HashMap<>();
+				params.put("nonStr", nonce);
+				params.put("sign", sign);
+				params.put("jsonParameter",
+						CommonUtils.asJSONObject(//
+								"API_TYPE", "getOrderDishesCounts", //
+								"store_num", store.getOutCode(), //
+								"startDate", syncDateStr, //
+								"endDate", syncDateStr).toJSONString());
+
 				String resp = HttpUtils.post(api_url, params);
 				JSONObject json = CommonUtils.parseJSON(resp);
 				if (!"0".equals(json.getString("status"))) {
@@ -82,60 +95,78 @@ public class DiandanSystemService {
 							WmsOrdersDO cond = new WmsOrdersDO();
 							cond.setStoreOutCode(store.getOutCode());
 							cond.setRecipesOutCode(jsonObj.getString("id"));
-							cond.setSaleDate(todayDate);
+							cond.setSaleDate(saleDate);
+							cond.setIsDeleted("N");
 							WmsOrdersDO order = TkMappers.inst().getOrdersMapper().selectOne(cond);
 							//销售数据不存在，继续处理
-							if (order == null){
+							if (order == null) {
 								jsonObj.put("_hasDealed", false);
 								return jsonObj;
 							}
-							//销售数据存在，重新处理
+							BigDecimal saleNum = CommonUtils.parseBigDecimal(jsonObj.getString("saleNums"), ZERO);
+							BigDecimal allPrice = CommonUtils.parseBigDecimal(jsonObj.getString("allPrice"), ZERO);
+							//如果销售数据已经处理过了，需要特别处理
 							if ("2".equals(order.getStatus())) {
-								//如果销售数据已经处理过了，需要特别处理
-								// @TODO
-							}
-							int saleNum = CommonUtils.parseBigDecimal(jsonObj.getString("saleNums"), ZERO).intValue();
-							double allPrice = CommonUtils.parseBigDecimal(jsonObj.getString("allPrice"), ZERO)
-									.doubleValue();
-							//只有销售数据不等，或者销售金额不等时，才进行更新
-							if (saleNum != order.getSaleNum() //
-									|| Math.abs(allPrice - order.getTotalPrice()) > 0.01) {
 								WmsOrdersDO update = new WmsOrdersDO();
 								update.setId(order.getId());
-								update.setStatus("0");
+								update.setIsDeleted("Y");
+								update.setGmtModified(new Date());
+								update.setRemark("删除记录");
+								update.setHandleState("1");
+								TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
+								jsonObj.put("_hasDealed", false);
+							} else {
+								WmsOrdersDO update = new WmsOrdersDO();
+								update.setId(order.getId());
+								update.setStatus("1");
+								update.setHandleState("1");
 								order.setRecipesName(jsonObj.getString("name"));
-								update.setSaleNum(saleNum);
-								update.setTotalPrice(allPrice);
+								update.setSaleNum(saleNum.intValue());
+								update.setTotalPrice(allPrice.doubleValue());
 								update.setGmtModified(new Date());
 								update.setRemark("重新拉取");
 								TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
+								jsonObj.put("_hasDealed", true);
 							}
-							jsonObj.put("_hasDealed", true);
 							return jsonObj;
 						}).filter((o) -> !o.getBoolean("_hasDealed")) //
 						.map((jsonObj) -> {
-							WmsOrdersDO order = new WmsOrdersDO();
-							order.setStatus("0");
-							order.setGmtCreated(new Date());
-							order.setGmtModified(order.getGmtCreated());
-							order.setStoreOutCode(store.getOutCode());
-							order.setStoreCode(store.getStoreCode());
-							order.setStoreName(store.getStoreName());
-							order.setRecipesOutCode(jsonObj.getString("id"));
-							WmsRecipesDO reci = recipesMap.get(order.getRecipesOutCode());
+							WmsOrdersDO newDO = new WmsOrdersDO();
+							newDO.setStatus("1");
+							newDO.setGmtCreated(new Date());
+							newDO.setGmtModified(newDO.getGmtCreated());
+							newDO.setStoreOutCode(store.getOutCode());
+							newDO.setStoreCode(store.getStoreCode());
+							newDO.setStoreName(store.getStoreName());
+							newDO.setRecipesOutCode(jsonObj.getString("id"));
+							WmsRecipesDO reci = recipesMap.get(newDO.getRecipesOutCode());
 							if (reci != null) {
-								order.setRecipesCode(reci.getRecipesCode());
+								newDO.setRecipesCode(reci.getRecipesCode());
 							}
-							order.setRecipesName(jsonObj.getString("name"));
+							newDO.setRecipesName(jsonObj.getString("name"));
 							String saleNum = jsonObj.getString("saleNums");
-							order.setSaleNum(CommonUtils.parseBigDecimal(saleNum, ZERO).intValue());
+							newDO.setSaleNum(CommonUtils.parseBigDecimal(saleNum, ZERO).intValue());
 							String allPrice = jsonObj.getString("allPrice");
-							order.setTotalPrice(CommonUtils.parseBigDecimal(allPrice, ZERO).doubleValue());
-							order.setSaleDate(todayDate);
-							TkMappers.inst().getOrdersMapper().insert(order);
+							newDO.setTotalPrice(CommonUtils.parseBigDecimal(allPrice, ZERO).doubleValue());
+							newDO.setSaleDate(saleDate);
+							newDO.setHandleState("1");
+							newDO.setIsDeleted("N");
+							TkMappers.inst().getOrdersMapper().insert(newDO);
 							return jsonObj;
-						}).filter((o) -> o != null) //
-						.subscribe();
+						}).doOnComplete(() -> {
+							//结束时，把不在返回结果里面的多余数据清理掉
+							WmsOrdersDO cond = new WmsOrdersDO();
+							cond.setStoreCode(store.getStoreCode());
+							cond.setSaleDate(saleDate);
+							cond.setHandleState("0");
+							Example example = new Example(WmsOrdersDO.class, false, false);
+							Example.Criteria cri2 = example.createCriteria();
+							cri2.andEqualTo(cond);
+							WmsOrdersDO update = new WmsOrdersDO();
+							update.setIsDeleted("Y");
+							update.setHandleState("1");
+							TkMappers.inst().getOrdersMapper().updateByExampleSelective(update, example);
+						}).subscribe();
 				task.getValue().setRemark("同步成功");
 				task = TaskService.finishTask(task.getValue());
 			} catch (Exception e) {

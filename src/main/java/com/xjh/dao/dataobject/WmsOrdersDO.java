@@ -28,7 +28,9 @@ public class WmsOrdersDO extends PageDTO {
 	String storeName;
 	Date saleDate;
 	String status;
+	String handleState;
 	String remark;
 	Date gmtCreated;
 	Date gmtModified;
+	String isDeleted;
 }

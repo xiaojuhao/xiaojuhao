@@ -320,6 +320,7 @@ public class BusinessController {
 		cond.setSaleDate(CommonUtils.parseDate(saleDate));
 		cond.setPageNo(pageNo);
 		cond.setPageSize(pageSize);
+		cond.setIsDeleted("N");
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
 		PageHelper.orderBy("sale_date desc, id desc");
 		List<WmsOrdersDO> list = TkMappers.inst().getOrdersMapper().select(cond);
