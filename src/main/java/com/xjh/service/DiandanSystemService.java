@@ -93,7 +93,7 @@ public class DiandanSystemService {
 						.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("id")) //
 						.map((jsonObj) -> {
 							WmsOrdersDO cond = new WmsOrdersDO();
-							cond.setStoreOutCode(store.getOutCode());
+							cond.setStoreCode(store.getStoreCode());
 							cond.setRecipesOutCode(jsonObj.getString("id"));
 							cond.setSaleDate(saleDate);
 							cond.setIsDeleted("N");
