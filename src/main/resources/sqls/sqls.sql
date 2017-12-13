@@ -393,20 +393,23 @@ CREATE TABLE
     wms_orders
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-        recipes_name VARCHAR(256) COMMENT '菜品名称',
-        recipes_out_code VARCHAR(35) COMMENT '菜品外部代码',
-        recipes_code VARCHAR(35) COMMENT '菜品ID',
-        sale_num INT COMMENT '销售份数',
-        total_price DECIMAL(14,2) COMMENT '销售总金额',
         store_out_code VARCHAR(35) COMMENT '门店外部编码',
         store_code VARCHAR(35) COMMENT '门店编码',
         store_name VARCHAR(128) COMMENT '门店名称',
-        sale_date DATETIME COMMENT '销售日期',
+        recipes_name VARCHAR(256) COMMENT '菜品名称',
+        recipes_out_code VARCHAR(35) COMMENT '菜品外部代码',
+        recipes_code VARCHAR(35) COMMENT '菜品ID',
+        sale_date DATE COMMENT '销售日期',
+        sale_num INT COMMENT '销售份数',
+        total_price DECIMAL(14,2) COMMENT '销售总金额',
         status VARCHAR(1) DEFAULT '0' NOT NULL COMMENT '0:待审核 1:待处理 2:已处理 3:处理失败 4:撤销',
+        handle_state VARCHAR(1) COMMENT '处理状态 0:待处理 1:已处理',
         remark VARCHAR(1024) COMMENT '备注',
         gmt_created DATETIME NOT NULL COMMENT '创建日期',
         gmt_modified DATETIME NOT NULL COMMENT '修改时间',
-        PRIMARY KEY (id)
+        is_deleted VARCHAR(1) COMMENT '是否删除 Y:是 N:否',
+        PRIMARY KEY (id),
+        INDEX idx_store_saledate_recipes (store_code, sale_date, recipes_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
     
