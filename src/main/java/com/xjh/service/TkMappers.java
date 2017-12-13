@@ -16,6 +16,7 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsMenuMapper;
 import com.xjh.dao.tkmapper.TkWmsOrderMapper;
+import com.xjh.dao.tkmapper.TkWmsOrdersMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesMapper;
 import com.xjh.dao.tkmapper.TkWmsRolesMapper;
@@ -79,6 +80,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsUserRolesMapper userRolesMapper;
 	@Resource
 	TkWmsOrderMapper ordersMapper;
+	@Resource
+	TkWmsOrdersMaterialMapper ordersMaterialMapper;
 	@Resource
 	TkWmsTaskMapper taskMapper;
 	@Resource

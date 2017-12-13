@@ -5,6 +5,8 @@ import java.util.List;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsOrdersDO;
+import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
 
 public interface DatabaseService {
 	public void diaoboCommit(//
@@ -31,4 +33,11 @@ public interface DatabaseService {
 	public void correctStock(//
 			WmsMaterialStockHistoryDO preHis, //
 			WmsMaterialStockHistoryDO postHis);
+	
+	//销售数据同步，集中更新数据库
+	public void salesCommit(//
+			List<WmsOrdersDO> ordersList, //
+			List<WmsOrdersMaterialDO> ordersMaterialList, //
+			List<WmsMaterialStockHistoryDO> historyList//
+	);
 }

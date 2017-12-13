@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
+import com.xjh.dao.dataobject.WmsOrdersDO;
+import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.TkMappers;
 
@@ -73,6 +75,24 @@ public class DatabaseServiceImpl implements DatabaseService {
 		// prehis和posthis具有先后顺序
 		TkMappers.inst().getMaterialStockHistoryMapper().insert(preHis);
 		TkMappers.inst().getMaterialStockHistoryMapper().insert(postHis);
+	}
+	
+	@Override
+	@Transactional
+	//销售数据同步，集中更新数据库
+	public void salesCommit(List<WmsOrdersDO> ordersList,List<WmsOrdersMaterialDO> ordersMaterialList, List<WmsMaterialStockHistoryDO> historyList){
+		// 1.
+		for (WmsOrdersDO orders : ordersList) {
+			TkMappers.inst().getOrdersMapper().updateByPrimaryKey(orders);
+		}
+		// 2.
+		for (WmsOrdersMaterialDO ordersMaterial : ordersMaterialList) {
+			TkMappers.inst().getOrdersMaterialMapper().insert(ordersMaterial);
+		}
+		// 3.
+		for (WmsMaterialStockHistoryDO insert : historyList) {
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
+		}
 	}
 
 }
