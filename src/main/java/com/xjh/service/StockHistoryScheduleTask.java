@@ -35,6 +35,8 @@ public class StockHistoryScheduleTask implements InitializingBean {
 	StockDailyService stockDailyService;
 	@Resource
 	CabinService cabinService;
+	@Resource
+	DiandanSystemService diandanService;
 
 	public void changeStock(WmsMaterialStockHistoryDO record) {
 		// 更新状态为处理中.....
@@ -152,6 +154,15 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		});
 	}
 
+	public void syncOrders() {
+		Calendar c = Calendar.getInstance();
+		int m = c.get(Calendar.MINUTE);
+		int h = c.get(Calendar.HOUR_OF_DAY);
+		if (h > 23 && m > 50) { //每10分钟启动一次
+			diandanService.syncOrders(CommonUtils.todayDate(), false);
+		}
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		self = this;
@@ -160,6 +171,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			public void run() {
 				try {
 					self.start();
+					self.syncOrders();
 					initDailyStock();
 				} catch (Exception ex) {
 					ex.printStackTrace();

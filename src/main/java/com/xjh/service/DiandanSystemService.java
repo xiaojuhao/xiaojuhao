@@ -26,8 +26,6 @@ import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsTaskDO;
 
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -39,17 +37,26 @@ public class DiandanSystemService {
 	SequenceService sequenceService;
 
 	public ResultBase<String> syncOrders(Date syncDate) {
+		return syncOrders(syncDate, true);
+	}
+
+	public ResultBase<String> syncOrders(Date syncDate, boolean canRedo) {
 		if (syncDate == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
+		//先同步菜单信息
+		this.syncRecipes();
+		//查询菜单信息，保存到map中，供后面使用
 		List<WmsRecipesDO> recipes = TkMappers.inst().getRecipesMapper().select(new WmsRecipesDO());
 		Map<String, WmsRecipesDO> recipesMap = new HashMap<>();
 		recipes.stream().forEach((item) -> recipesMap.put(item.getOutCode(), item));
+		//
 		ResultBase<String> rb = ResultBaseBuilder.succ().msg("").rb();
-		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
 		String syncDateStr = new SimpleDateFormat("yyyy-MM-dd").format(syncDate);
 		Date saleDate = CommonUtils.parseDate(syncDateStr, "yyyy-MM-dd");
 		String shortSyncDate = syncDateStr.replaceAll("-", "");
+		//遍历每个门店，拉取销售数据
+		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectAll();
 		for (WmsStoreDO store : stores) {
 			//初始化任务
 			ResultBase<WmsTaskDO> task = TaskService.initTask("sync_order", shortSyncDate + "_" + store.getStoreCode(),
@@ -59,7 +66,11 @@ public class DiandanSystemService {
 				continue;
 			}
 			//启动任务
-			task = TaskService.reStartTask(task.getValue());
+			if (canRedo) {
+				task = TaskService.reStartTask(task.getValue());
+			} else {
+				task = TaskService.startTask(task.getValue());
+			}
 			if (task.getIsSuccess() == false) {
 				rb.setMessage(rb.getMessage() + store.getStoreName() + ":" + task.getMessage());
 				continue;
@@ -225,15 +236,15 @@ public class DiandanSystemService {
 										recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
 								TkMappers.inst().getRecipesMapper().insert(recipes);
 							} else {
-								WmsRecipesDO update = new WmsRecipesDO();
-								update.setId(recipes.getId());
-								update.setRecipesName(jsonObj.getString("dishes_name"));
-								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
+								//								WmsRecipesDO update = new WmsRecipesDO();
+								//								update.setId(recipes.getId());
+								//								update.setRecipesName(jsonObj.getString("dishes_name"));
+								//								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
 							}
 						});
 
 			} catch (Exception e) {
-
+				e.printStackTrace();
 			}
 
 		});
