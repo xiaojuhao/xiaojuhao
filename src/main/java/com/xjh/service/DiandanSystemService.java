@@ -201,57 +201,68 @@ public class DiandanSystemService {
 	}
 
 	public void syncRecipes() {
-		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
-		stores.forEach((store) -> {
+		ResultBase<WmsTaskDO> task = TaskService.initTask("sync_recipes", "sync_recipes", "同步菜单");
+		if (task.getIsSuccess() == false) {
+			return;
+		}
+		task = TaskService.reStartTask(task.getValue());
+		if (task.getIsSuccess() == false) {
+			return;
+		}
+		try {
+			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
+			stores.forEach((store) -> {
 
-			String nonce = CommonUtils.uuid().toLowerCase();
-			String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
-			Map<String, String> params = new HashMap<>();
-			params.put("nonStr", nonce);
-			params.put("sign", sign);
-			params.put("jsonParameter",
-					CommonUtils.asJSONObject(//
-							"API_TYPE", "getDishes", //
-							"store_num", store.getOutCode()//
-			).toJSONString());
-			try {
-				String resp = HttpUtils.post(api_url, params);
-				JSONObject json = CommonUtils.parseJSON(resp);
-				JSONArray dishes = json.getJSONArray("allDishes");
-				Observable.fromArray(dishes.toArray()) //
-						.map((o) -> (JSONObject) o) //
-						.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
-						.subscribe((jsonObj) -> {
-							WmsRecipesDO cond = new WmsRecipesDO();
-							cond.setOutCode(jsonObj.getString("dishes_id"));
-							WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
-							if (recipes == null) {
-								long val = sequenceService.next("wms_recipes");
-								String recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
-								recipes = new WmsRecipesDO();
-								recipes.setRecipesCode(recipesCode);
-								recipes.setOutCode(jsonObj.getString("dishes_id"));
-								recipes.setRecipesName(jsonObj.getString("dishes_name"));
-								recipes.setStoreCode("000000");
-								recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
-								recipes.setStatus("1");
-								recipes.setSrc("auto_sync");
-								recipes.setSearchKey(CommonUtils.genSearchKey(//
-										recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
-								TkMappers.inst().getRecipesMapper().insert(recipes);
-							} else {
-								//								WmsRecipesDO update = new WmsRecipesDO();
-								//								update.setId(recipes.getId());
-								//								update.setRecipesName(jsonObj.getString("dishes_name"));
-								//								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
-							}
-						});
+				String nonce = CommonUtils.uuid().toLowerCase();
+				String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+				Map<String, String> params = new HashMap<>();
+				params.put("nonStr", nonce);
+				params.put("sign", sign);
+				params.put("jsonParameter",
+						CommonUtils.asJSONObject(//
+								"API_TYPE", "getDishes", //
+								"store_num", store.getOutCode()//
+				).toJSONString());
+				try {
+					String resp = HttpUtils.post(api_url, params);
+					JSONObject json = CommonUtils.parseJSON(resp);
+					JSONArray dishes = json.getJSONArray("allDishes");
+					Observable.fromArray(dishes.toArray()) //
+							.map((o) -> (JSONObject) o) //
+							.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
+							.subscribe((jsonObj) -> {
+								WmsRecipesDO cond = new WmsRecipesDO();
+								cond.setOutCode(jsonObj.getString("dishes_id"));
+								WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
+								if (recipes == null) {
+									long val = sequenceService.next("wms_recipes");
+									String recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
+									recipes = new WmsRecipesDO();
+									recipes.setRecipesCode(recipesCode);
+									recipes.setOutCode(jsonObj.getString("dishes_id"));
+									recipes.setRecipesName(jsonObj.getString("dishes_name"));
+									recipes.setStoreCode("000000");
+									recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
+									recipes.setStatus("1");
+									recipes.setSrc("auto_sync");
+									recipes.setSearchKey(CommonUtils.genSearchKey(//
+											recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
+									TkMappers.inst().getRecipesMapper().insert(recipes);
+								} else {
+									//								WmsRecipesDO update = new WmsRecipesDO();
+									//								update.setId(recipes.getId());
+									//								update.setRecipesName(jsonObj.getString("dishes_name"));
+									//								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
+								}
+							});
 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		} finally {
+			TaskService.finishTask(task.getValue());
+		}
 	}
 
 	public void syncStores() {
