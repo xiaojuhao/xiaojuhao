@@ -24,4 +24,5 @@ public class WmsRecipesDO extends PageDTO {
 	String outCode;
 	String status;
 	String searchKey;
+	String hadFormula;
 }

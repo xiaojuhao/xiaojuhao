@@ -29,7 +29,7 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
     }
   }, [_c('el-col', {
     attrs: {
-      "span": 4
+      "span": 16
     }
   }, [_c('RecipesSelection', {
     on: {
@@ -37,11 +37,32 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
         this$1.queryCond.recipesCode = v;
       }
     }
-  })], 1), _vm._v(" "), _c('el-col', {
+  }), _vm._v(" "), _c('el-select', {
+    staticStyle: {
+      "width": "160px"
+    },
     attrs: {
-      "span": 4
+      "clearable": "",
+      "placeholder": "配料完善状态"
+    },
+    model: {
+      value: (_vm.queryCond.hadFormula),
+      callback: function($$v) {
+        _vm.$set(_vm.queryCond, "hadFormula", $$v)
+      },
+      expression: "queryCond.hadFormula"
     }
-  }, [_c('el-button', {
+  }, [_c('el-option', {
+    attrs: {
+      "label": "已完善",
+      "value": "Y"
+    }
+  }), _vm._v(" "), _c('el-option', {
+    attrs: {
+      "label": "未完善",
+      "value": "N"
+    }
+  })], 1), _vm._v(" "), _c('el-button', {
     attrs: {
       "type": "primary",
       "icon": "search"
@@ -49,9 +70,9 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
     on: {
       "click": _vm.search
     }
-  }, [_vm._v("搜索")])], 1), _vm._v(" "), _c('el-col', {
+  }, [_vm._v("查询")])], 1), _vm._v(" "), _c('el-col', {
     attrs: {
-      "span": 16
+      "span": 7
     }
   }, [_c('div', {
     staticStyle: {
@@ -139,6 +160,12 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
     }
   }), _vm._v(" "), _c('el-table-column', {
     attrs: {
+      "prop": "hadFormula",
+      "label": "是否已完善配料",
+      "width": "150"
+    }
+  }), _vm._v(" "), _c('el-table-column', {
+    attrs: {
       "prop": "src",
       "label": "来源",
       "width": "150"
@@ -169,11 +196,15 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   }, [_c('el-pagination', {
     attrs: {
       "layout": "prev, pager, next",
-      "total": _vm.totalRows,
-      "page-size": _vm.pageSize
+      "total": _vm.queryCond.totalRows,
+      "page-size": _vm.queryCond.pageSize,
+      "current-page": _vm.queryCond.pageNo
     },
     on: {
-      "current-change": _vm.handleCurrentChange
+      "current-change": _vm.handleCurrentChange,
+      "update:currentPage": function($event) {
+        _vm.$set(_vm.queryCond, "pageNo", $event)
+      }
     }
   })], 1)], 1)])
 },staticRenderFns: []}
@@ -413,6 +444,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -425,18 +458,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data() {
         return {
             tableData: [],
-            pageNo: 1,
-            pageSize: 10,
-            totalRows: 0,
             loadingState: false,
             isShowMessage: false,
             queryCond: {
-                recipesCode: ''
+                pageNo: 1,
+                pageSize: 10,
+                totalRows: 0,
+                recipesCode: '',
+                hadFormula: ''
             },
             queryList: []
         };
     },
     mounted() {
+        this.loadParam();
         this.queryData();
     },
     methods: {
@@ -444,14 +479,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.pageNo = val;
             this.queryData();
         },
+        keepParam() {
+            let p = {
+                pageNo: this.queryCond.pageNo,
+                pageSize: this.queryCond.pageSize,
+                totalRows: this.queryCond.totalRows,
+                recipesCode: this.queryCond.recipesCode,
+                hadFormula: this.queryCond.hadFormula
+            };
+            this.$store.commit("setQueryCond", p);
+        },
+        loadParam() {
+            Object.assign(this.queryCond, this.$store.state.queryCond);
+        },
         queryData() {
             this.loadingState = true;
             __WEBPACK_IMPORTED_MODULE_0__common_bus_js__["a" /* api */].queryRecipesPage({
-                pageNo: this.pageNo,
-                pageSize: this.pageSize,
-                recipesCode: this.queryCond.recipesCode
+                pageNo: this.queryCond.pageNo,
+                pageSize: this.queryCond.pageSize,
+                recipesCode: this.queryCond.recipesCode,
+                hadFormula: this.queryCond.hadFormula
             }).then(page => {
-                this.totalRows = page.totalRows;
+                this.queryCond.totalRows = page.totalRows;
                 this.queryList = [];
                 page.values.forEach(item => {
                     __WEBPACK_IMPORTED_MODULE_2_vue___default.a.set(item, "formulas", []);
@@ -465,21 +514,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.queryList = [];
             this.queryData();
         },
-        handleSelectionChange(val) {
-            this.multipleSelection = val;
-        },
         handleSelect(item) {
             this.$data.query.name = item.value;
         },
-        querySearch(queryString, cb) {
-            var data = [];
-            data.push({ id: 1, value: 'aaaaa' });
-            data.push({ id: 2, value: 'bbbbb' });
-            data.push({ id: 3, value: 'ccccc' });
-            console.log(this.$data.query);
-            cb(data);
-        },
         edit(item) {
+            this.keepParam();
             this.$router.push({ path: "/recipesManagePage", query: { code: item && item.recipesCode } });
         },
         syncMenu() {

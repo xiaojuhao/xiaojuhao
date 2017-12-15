@@ -214,11 +214,13 @@ CREATE TABLE
         out_code VARCHAR(35) COMMENT '外部代码',
         status VARCHAR(1) DEFAULT '1' NOT NULL COMMENT '0:无效, 1:有效',
         search_key VARCHAR(256),
+        had_formula VARCHAR(1) DEFAULT 'N' NOT NULL COMMENT '是否配置了配方 Y:是 N:否',
         PRIMARY KEY (id),
         CONSTRAINT uni_recipes_code UNIQUE (recipes_code),
         CONSTRAINT uni_outcode UNIQUE (out_code)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='食谱';
+    
 CREATE TABLE
     wms_recipes_formula
     (

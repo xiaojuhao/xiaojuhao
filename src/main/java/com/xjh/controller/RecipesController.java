@@ -50,17 +50,13 @@ public class RecipesController {
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String recipesName = CommonUtils.get(request, "recipesName");
 		String outCode = CommonUtils.get(request, "outCode");
+		//菜单信息
 		WmsRecipesDO recipes = new WmsRecipesDO();
 		recipes.setRecipesCode(recipesCode);
 		recipes.setRecipesName(recipesName);
 		recipes.setOutCode(outCode);
 		recipes.setStatus("1");
-		this.recipesService.saveRecipes(recipes);
-		//
-		recipesCode = recipes.getRecipesCode();
-		if (StringUtils.isBlank(recipesCode)) {
-			return ResultBaseBuilder.fails("保存失败").rb(request);
-		}
+		//配料信息
 		JSONArray arr = CommonUtils.parseJSONArray(formula);
 		List<WmsRecipesFormulaDO> formulas = new ArrayList<>();
 		for (int i = 0; i < arr.size(); i++) {
@@ -71,10 +67,24 @@ public class RecipesController {
 			f.setMaterialName(j.getString("materialName"));
 			f.setMaterialAmt(CommonUtils.parseDouble(j.getString("materialAmt"), 0D));
 			f.setMaterialUnit(j.getString("materialUnit"));
-			f.setRecipesCode(recipesCode);
 			f.setRecipesName(recipesName);
 		}
-		// 先删后插
+
+		if (formulas.size() > 0) {
+			recipes.setHadFormula("Y");
+		} else {
+			recipes.setHadFormula("N");
+		}
+		//保存菜单
+		this.recipesService.saveRecipes(recipes);
+		recipesCode = recipes.getRecipesCode();
+		if (StringUtils.isBlank(recipesCode)) {
+			return ResultBaseBuilder.fails("保存失败").rb(request);
+		}
+		//配料对象补充字段
+		final String finalRecipesCode = recipesCode;
+		formulas.forEach((d) -> d.setRecipesCode(finalRecipesCode));
+		//先删除现有配料，再插入新记录
 		WmsRecipesFormulaDO formulaExample = new WmsRecipesFormulaDO();
 		formulaExample.setRecipesCode(recipesCode);
 		TkMappers.inst().getRecipesFormulaMapper().delete(formulaExample);
@@ -114,8 +124,10 @@ public class RecipesController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String recipesCode = CommonUtils.get(request, "recipesCode");
+		String hadFormula = CommonUtils.get(request, "hadFormula");
 		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
 		wmsRecipesDO.setRecipesCode(recipesCode);
+		wmsRecipesDO.setHadFormula(hadFormula);
 		wmsRecipesDO.setPageNo(CommonUtils.getPageNo(request));
 		wmsRecipesDO.setPageSize(CommonUtils.getPageSize(request));
 		PageResult<WmsRecipesDO> page = recipesService.queryRecipes(wmsRecipesDO);
