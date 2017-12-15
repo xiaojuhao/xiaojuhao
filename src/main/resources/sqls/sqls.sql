@@ -413,10 +413,11 @@ CREATE TABLE
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
     
-        CREATE TABLE
-    wms_ordersMaterial
+CREATE TABLE
+    wms_orders_material
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        order_id bigint not null comment '订单表主键',
         recipes_name VARCHAR(256) COMMENT '菜品名称',
         recipes_code VARCHAR(35) COMMENT '菜品ID',
         sale_num INT COMMENT '销售份数',
@@ -429,8 +430,7 @@ CREATE TABLE
         material_unit VARCHAR(10) COMMENT '食材单位',
         PRIMARY KEY (id)
     )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;    
     
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 1, 'link');
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 2, 'nav');

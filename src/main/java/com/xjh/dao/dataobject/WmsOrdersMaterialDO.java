@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "wms_ordersMaterial")
+@Table(name = "wms_orders_material")
 public class WmsOrdersMaterialDO extends PageDTO {
 	private static final long serialVersionUID = 1L;
 	@Id
@@ -22,6 +22,7 @@ public class WmsOrdersMaterialDO extends PageDTO {
 	 * id 原料名、原料编号、原料单位、原料使用总量、日期、门店名、门店编号、菜品名、菜品编号、销售数量
 	 * */
 	Long id;
+	Long orderId;
 	String recipesName;
 	String recipesCode;
 	Integer saleNum;
