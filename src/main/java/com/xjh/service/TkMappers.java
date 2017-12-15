@@ -26,6 +26,7 @@ import com.xjh.dao.tkmapper.TkWmsSessionMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsTaskMapper;
+import com.xjh.dao.tkmapper.TkWmsTimerJobMapper;
 import com.xjh.dao.tkmapper.TkWmsUploadFilesMapper;
 import com.xjh.dao.tkmapper.TkWmsUserMapper;
 import com.xjh.dao.tkmapper.TkWmsUserRolesMapper;
@@ -86,6 +87,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsTaskMapper taskMapper;
 	@Resource
 	TkWmsMaterialStockDailyMapper stockDailyMapper;
+	@Resource
+	TkWmsTimerJobMapper timerJobMapper;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

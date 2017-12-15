@@ -433,6 +433,25 @@ CREATE TABLE
         PRIMARY KEY (id)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;    
+
+CREATE TABLE
+    wms_timer_job
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        job_name VARCHAR(128) NOT NULL COMMENT 'job名称',
+        job_type VARCHAR(64) NOT NULL COMMENT 'job类型',
+        status VARCHAR(1) NOT NULL COMMENT '0:待处理 1:处理中 2：已处理 3:处理失败',
+        remark VARCHAR(1024) COMMENT '备注',
+        execute_result VARCHAR(1024) COMMENT '执行结果',
+        scheduled_time DATETIME NOT NULL COMMENT '执行时间',
+        start_time DATETIME COMMENT '任务开始时间',
+        end_time DATETIME COMMENT '任务结束时间',
+        gmt_created DATETIME COMMENT '任务创建时间',
+        version INT DEFAULT '0' NOT NULL COMMENT '版本号',
+        PRIMARY KEY (id),
+        INDEX idx_st (scheduled_time)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
     
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('首页', 'index', 'el-icon-location', 'home', 'root', 1, 1, 'link');
 INSERT INTO wms_menu (menu_name, menu_code, menu_icon, menu_index, parent_code, status, order_by, type) VALUES ('系统管理', 'sys_nav', 'el-icon-setting', '2', 'root', 1, 2, 'nav');
