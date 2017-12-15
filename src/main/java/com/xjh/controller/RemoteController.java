@@ -1,40 +1,24 @@
 package com.xjh.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
-import com.xjh.commons.HttpUtils;
+import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
-import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
-import com.xjh.dao.dataobject.WmsOrdersDO;
-import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
-import com.xjh.dao.dataobject.WmsRecipesDO;
-import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
-import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
-import com.xjh.service.DatabaseService;
 import com.xjh.service.DiandanSystemService;
-import com.xjh.service.SequenceService;
-import com.xjh.service.TkMappers;
-
-import io.reactivex.Observable;
+import com.xjh.service.OrderMaterialService;
 
 @Controller
 @RequestMapping("/remote")
@@ -45,7 +29,9 @@ public class RemoteController {
 	@Resource
 	DiandanSystemService diandanSystemService;
 	@Resource
-	DatabaseService database;
+	OrderMaterialService orderMaterialService;
+
+	ExecutorService executor = Executors.newFixedThreadPool(1);
 
 	final String api_key = "djo3ej38K23hkjsnd!Dkd";
 	final String api_url = "http://www.xiaojuhao.org/baoBiaoWeb/api_handle.do";
@@ -81,6 +67,8 @@ public class RemoteController {
 		}
 		String date = CommonUtils.get(request, "date");
 		Date saleDate = CommonUtils.parseDate(date, "yyyy-MM-dd");
-		return ResultBaseBuilder.wrap(diandanSystemService.syncOrders(saleDate)).rb(request);
+		ResultBase<String> rb = diandanSystemService.syncOrders(saleDate);
+		executor.submit(() -> orderMaterialService.handleOrders());
+		return ResultBaseBuilder.wrap(rb).rb(request);
 	}
 }
