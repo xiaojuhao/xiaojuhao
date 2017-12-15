@@ -26,9 +26,11 @@ import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsTaskDO;
 
 import io.reactivex.Observable;
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
+@Slf4j
 public class DiandanSystemService {
 	static BigDecimal ZERO = BigDecimal.ZERO;
 	final String api_key = "djo3ej38K23hkjsnd!Dkd";
@@ -58,6 +60,7 @@ public class DiandanSystemService {
 		//遍历每个门店，拉取销售数据
 		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectAll();
 		for (WmsStoreDO store : stores) {
+			log.info("同步" + store.getStoreName() + "@" + shortSyncDate + "。。。开始。。。");
 			//初始化任务
 			ResultBase<WmsTaskDO> task = TaskService.initTask("sync_order", shortSyncDate + "_" + store.getStoreCode(),
 					"同步订单:" + store.getStoreName());
@@ -189,6 +192,7 @@ public class DiandanSystemService {
 				TaskService.onError(task.getValue());
 				e.printStackTrace();
 			}
+			log.info("同步" + store.getStoreName() + "@" + shortSyncDate + "。。。结束。。。");
 		}
 		if (StringUtils.isBlank(rb.getMessage())) {
 			rb.setMessage("同步成功");

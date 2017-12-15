@@ -12,6 +12,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.Holder;
 import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
@@ -20,10 +21,13 @@ import com.xjh.dao.mapper.WmsMaterialStockHistoryMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
 import com.xjh.valueobject.MaterialStockChangeVo;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class StockHistoryScheduleTask implements InitializingBean {
 	public static AtomicBoolean isRunning = new AtomicBoolean(false);
-	static StockHistoryScheduleTask self = null;
+	static Holder<StockHistoryScheduleTask> self = new Holder<>();
 	static ExecutorService service = Executors.newFixedThreadPool(10);
 	@Resource
 	WmsMaterialStockHistoryMapper wmsMaterialStockHistoryMapper;
@@ -115,15 +119,12 @@ public class StockHistoryScheduleTask implements InitializingBean {
 	}
 
 	public static void startTask() {
-		if (self != null) {
-			service.submit(() -> self.start());
+		if (self.get() != null) {
+			service.submit(() -> self.get().start());
 		}
 	}
 
-	public static void initDailyStock() {
-		if (self == null) {
-			return;
-		}
+	public void initDailyStock() {
 		Calendar c = Calendar.getInstance();
 		int m = c.get(Calendar.MINUTE);
 		if (m % 10 != 0) { //每10分钟启动一次
@@ -143,7 +144,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			try {
 				TkMappers.inst().materialStockMapper.selectAll()//
 						.forEach((d) -> {
-							self.stockDailyService.getOrInitStockDaily( //
+							stockDailyService.getOrInitStockDaily( //
 									d.getMaterialCode(), //
 									d.getCabinCode(), //
 									today);
@@ -160,7 +161,8 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		Calendar c = Calendar.getInstance();
 		int m = c.get(Calendar.MINUTE);
 		int h = c.get(Calendar.HOUR_OF_DAY);
-		if (h > 23 && m > 50) {
+		if (h >= 23 && m > 50) {
+			log.info("开始同步订单。。。。。");
 			diandanService.syncOrders(CommonUtils.todayDate(), false);
 			orderMaterialService.handleOrders();//处理订单原料数据
 		}
@@ -168,16 +170,16 @@ public class StockHistoryScheduleTask implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		self = this;
+		self.set(this);
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					self.start();
-					self.syncOrders();
+					start();
+					syncOrders();
 					initDailyStock();
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					log.error("定时任务", ex);
 				}
 			}
 		}, 0, 60, TimeUnit.SECONDS);
