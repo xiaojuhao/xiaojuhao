@@ -161,8 +161,7 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		Calendar c = Calendar.getInstance();
 		int m = c.get(Calendar.MINUTE);
 		int h = c.get(Calendar.HOUR_OF_DAY);
-		//		if (h >= 23 && m > 50) {
-		if (m % 10 == 0) {
+		if (h >= 23 && m > 50) {
 			log.info("开始同步订单。。。。。");
 			diandanService.syncOrders(CommonUtils.todayDate(), false);
 			orderMaterialService.handleOrders();//处理订单原料数据
