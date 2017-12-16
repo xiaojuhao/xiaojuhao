@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -1063,5 +1064,26 @@ public class CommonUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String fileSuffix(String fileName) {
+		if (StringUtils.isBlank(fileName)) {
+			return null;
+		}
+		int index = fileName.lastIndexOf(".");
+		if (index <= 0) {
+			return null;
+		}
+		String suffix = fileName.substring(index + 1);
+		return StringUtils.isBlank(suffix) ? null : suffix;
+	}
+
+	static List<String> imageTypes = Arrays.asList("jpg", "jpeg", "png", "gif", "webp", "bmp", "ico");
+
+	public static boolean isImage(String suffix) {
+		if (StringUtils.isBlank(suffix)) {
+			return false;
+		}
+		return imageTypes.contains(suffix.toLowerCase());
 	}
 }

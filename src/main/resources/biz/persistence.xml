@@ -9,7 +9,7 @@
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
 	<bean id="dataSourceWms" class="com.xjh.support.datasource.WmsDataSource"></bean>
 
-	<bean id="transactionManagerWms" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSourceWms" />
 	</bean>
 

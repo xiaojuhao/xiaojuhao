@@ -3,6 +3,7 @@ package com.xjh.controller;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -25,26 +28,31 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
-import com.xjh.dao.dataobject.WmsDictDO;
 import com.xjh.dao.dataobject.WmsUploadFilesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DictService;
+import com.xjh.service.OssService;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Controller
 @RequestMapping("/file")
+@Slf4j
 public class FileController {
 	@Resource
 	HttpServletRequest request;
 	@Resource
 	DictService dict;
+	@Resource
+	OssService ossService;
+
+	ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	@RequestMapping(value = "/show", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -59,25 +67,42 @@ public class FileController {
 		if (fileDO == null) {
 			return ResultBaseBuilder.fails("文件不存在").rb(request);
 		}
-		File file = new File(fileDO.getFilePath() + "/" + fileDO.getFileName());
-		if (!file.exists()) {
-			return ResultBaseBuilder.fails("文件不存在").rb(request);
-		}
-		response.setDateHeader("Expires", 0);
-		response.setHeader("Cache-Control", "no-store,no-cache");
-		response.addHeader("Cache-Control", "post-check=0,pre-check=0");
-		response.setHeader("Pragma", "no-cache");
-		response.setContentType("image/jpeg");
-		OutputStream out = null;
-		try {
-			BufferedImage bi = ImageIO.read(file);
-			out = response.getOutputStream();
-			ImageIO.write(bi, "png", out);
-			out.flush();
-		} catch (Exception e) {
+		//
+		if ("local".equals(fileDO.getFileLocation())) {
+			File file = new File(fileDO.getFilePath() + "/" + fileDO.getFileName());
+			if (!file.exists()) {
+				return ResultBaseBuilder.fails("文件不存在").rb(request);
+			}
+			response.setDateHeader("Expires", 0);
+			response.setHeader("Cache-Control", "no-store,no-cache");
+			response.addHeader("Cache-Control", "post-check=0,pre-check=0");
+			response.setHeader("Pragma", "no-cache");
+			response.setContentType("image/jpeg");
+			OutputStream out = null;
+			try {
+				BufferedImage bi = ImageIO.read(file);
+				out = response.getOutputStream();
+				ImageIO.write(bi, "png", out);
+				out.flush();
+			} catch (Exception e) {
 
-		} finally {
-			IOUtils.closeQuietly(out);
+			} finally {
+				IOUtils.closeQuietly(out);
+			}
+		}
+		if ("oss".equals(fileDO.getFileLocation())) {
+			if (StringUtils.isBlank(fileDO.getFilePath())) {
+				return null;
+			}
+			try {
+				String url = fileDO.getFilePath();
+				if (!url.endsWith("/")) {
+					url = url + "/";
+				}
+				response.sendRedirect(url + fileDO.getFileName());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -94,9 +119,9 @@ public class FileController {
 
 			List<WmsUploadFilesDO> files = new ArrayList<>();
 			if (multipartResolver.isMultipart(request)) {
-				WmsDictDO imagepath = dict.query("DEFAULT", "image_path");
-				if (imagepath == null) {
-					return ResultBaseBuilder.fails("上传文件失败").rb(request);
+				File dir = new File(System.getProperty("user.home") + "/wmsuploadfiles/");
+				if (dir.exists() == false) {
+					dir.mkdirs();
 				}
 				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
 				Iterator<String> iter = multiRequest.getFileNames();
@@ -104,12 +129,6 @@ public class FileController {
 					user = AccountUtils.getLoginUser(multiRequest);
 				}
 				String busiNo = CommonUtils.get(multiRequest, "busiNo");
-				String contentType = CommonUtils.get(multiRequest, "contentType");
-				String addr = CommonUtils.get(multiRequest, "addr");
-				System.out.println(addr);
-				if (StringUtils.isBlank(contentType)) {
-
-				}
 				if (StringUtils.isBlank(busiNo)) {
 					busiNo = CommonUtils.uuid();
 				}
@@ -119,29 +138,44 @@ public class FileController {
 					ret.put("filename", localFileName);
 					MultipartFile file = multiRequest.getFile(iter.next());
 					if (file != null) {
-						String path = imagepath.getDictVal() + localFileName + ".jpg";
-						String minPath = imagepath.getDictVal() + localFileName + ".r.jpg";
+						String suffix = CommonUtils.fileSuffix(file.getOriginalFilename());
+						String path = dir.getAbsolutePath() + "/" + localFileName + "." + suffix;
 						File dst = new File(path);
-						File minDst = new File(minPath);
 						file.transferTo(dst);
-						Thumbnails.of(dst).width(800).height(600).outputQuality(0.8).toFile(minDst);
 						WmsUploadFilesDO dd = new WmsUploadFilesDO();
 						dd.setBusiNo(busiNo);
-						dd.setContentType(contentType);
+						dd.setContentType("application/octet-stream");
 						dd.setCreator(user == null ? "system" : user.getUserCode());
-						dd.setFileName(localFileName + ".r.jpg");
+						dd.setFileName(dst.getName());
 						dd.setFileOriName(file.getOriginalFilename());
 						dd.setFileLocation("local");
-						dd.setFilePath(imagepath.getDictVal());
+						dd.setFilePath(dir.getAbsolutePath() + "/");
 						dd.setGmtCreated(new Date());
 						files.add(dd);
-
+						//如果是图片，则压缩
+						if (CommonUtils.isImage(suffix)) {
+							dd.setContentType("image/jpg");
+							if (dst.length() > 2097152) { //大于2M
+								String minPath = dir.getAbsolutePath() + "/" + localFileName + "-min." + suffix;
+								File minDst = new File(minPath);
+								Thumbnails.of(dst).width(1600).height(1200).outputQuality(1.0).toFile(minDst);
+								dd.setFileName(minDst.getName());
+								dst.delete();//删除原始文件
+							}
+						}
 					}
 				}
 			}
 			// 保存数据库
 			for (WmsUploadFilesDO file : files) {
 				TkMappers.inst().getUploadFilesMapper().insert(file);
+				executor.submit(() -> {
+					try {
+						ossService.upload(file);
+					} catch (Exception ex) {
+						log.error("", ex);
+					}
+				});
 			}
 			return ResultBaseBuilder.succ().data(ret).rb(request);
 		} catch (Exception e) {
@@ -192,6 +226,6 @@ public class FileController {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(Long.toHexString(24 * 60 * 60 * 1000));
+		System.out.println(new File("/Users/yinguoliang/Pictures/1FFB015EBB9E4469931C2C39414C9916.png").length());
 	}
 }
