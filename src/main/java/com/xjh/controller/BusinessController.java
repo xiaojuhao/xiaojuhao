@@ -30,6 +30,7 @@ import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
+import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
@@ -391,5 +392,26 @@ public class BusinessController {
 			c.add(Calendar.DATE, 1);//next day
 		}
 		return ResultBaseBuilder.succ().data(ret).rb(request);
+	}
+
+	@RequestMapping(value = "/queryOrderMaterials", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryOrderMaterials() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		Long orderId = CommonUtils.getLong(request, "orderId");
+		String storeCode = CommonUtils.get(request, "storeCode");
+		String recipesCode = CommonUtils.get(request, "recipesCode");
+		if (orderId == null || CommonUtils.isAnyBlank(storeCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsOrdersMaterialDO cond = new WmsOrdersMaterialDO();
+		cond.setOrderId(orderId);
+		cond.setStoreCode(storeCode);
+		cond.setRecipesCode(recipesCode);
+		List<WmsOrdersMaterialDO> list = TkMappers.inst().getOrdersMaterialMapper().select(cond);
+		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }
