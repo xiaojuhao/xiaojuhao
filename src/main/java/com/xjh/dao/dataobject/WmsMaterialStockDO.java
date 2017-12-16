@@ -26,8 +26,10 @@ public class WmsMaterialStockDO extends PageDTO {
 	String cabinName;
 	String cabinType;
 	String stockUnit;
+	Double warningStock;
 	String modifier;
 	Date gmtModified;
+	Date gmtSetWarningStock;
 	String checkOperator;
 	Date checkStockTime;
 	String status;

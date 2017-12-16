@@ -24,6 +24,11 @@ public class DateBuilder {
 		return this;
 	}
 
+	public DateBuilder futureDays(int i) {
+		calendar.add(Calendar.DATE, i);
+		return this;
+	}
+
 	public DateBuilder year(int year) {
 		calendar.set(Calendar.YEAR, year);
 		return this;

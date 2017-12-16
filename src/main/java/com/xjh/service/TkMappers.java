@@ -15,6 +15,7 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsMenuMapper;
+import com.xjh.dao.tkmapper.TkWmsNoticeMapper;
 import com.xjh.dao.tkmapper.TkWmsOrderMapper;
 import com.xjh.dao.tkmapper.TkWmsOrdersMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
@@ -89,6 +90,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsMaterialStockDailyMapper stockDailyMapper;
 	@Resource
 	TkWmsTimerJobMapper timerJobMapper;
+	@Resource
+	TkWmsNoticeMapper noticeMapper;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

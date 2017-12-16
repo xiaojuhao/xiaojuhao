@@ -182,6 +182,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 					log.error("定时任务", ex);
 				}
 			}
-		}, 0, 60, TimeUnit.SECONDS);
+		}, 60, 60, TimeUnit.SECONDS);
 	}
 }

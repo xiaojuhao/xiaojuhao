@@ -31,26 +31,29 @@ public class TimerJobService implements InitializingBean, ApplicationContextAwar
 
 	public WmsTimerJobDO nextJob() {
 		for (int i = 0; i < 100; i++) {
-			WmsTimerJobDO cond = new WmsTimerJobDO();
-			cond.setStatus("0"); ///待处理
+			Example example = new Example(WmsTimerJobDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andLessThanOrEqualTo("version", 30);
+			cri.andLessThanOrEqualTo("scheduledTime", new Date());
+			cri.andEqualTo("status", "0");//未处理
 			PageHelper.startPage(1, 1);
-			PageHelper.orderBy("scheduled_time desc");
-			List<WmsTimerJobDO> list = jobMapper.select(cond);
+			PageHelper.orderBy("scheduled_time asc");
+			List<WmsTimerJobDO> list = jobMapper.selectByExample(example);
 			if (list == null || list.size() == 0) {
 				return null;
 			}
 			WmsTimerJobDO job = list.get(0);
-			Example example = new Example(WmsTimerJobDO.class, false, false);
-			Example.Criteria cri = example.createCriteria();
-			cri.andEqualTo("id", job.getId());
-			cri.andEqualTo("version", job.getVersion());
-			cri.andLessThanOrEqualTo("scheduledTime", new Date());
-			cri.andLessThan("version", 30);
+			Example example2 = new Example(WmsTimerJobDO.class, false, false);
+			Example.Criteria cri2 = example2.createCriteria();
+			cri2.andLessThanOrEqualTo("version", 30);
+			cri2.andEqualTo("status", "0");//未处理
+			cri2.andEqualTo("version", job.getVersion());
+			cri2.andEqualTo("id", job.getId());
 			WmsTimerJobDO update = new WmsTimerJobDO();
 			update.setStatus("1"); ///处理中
 			update.setVersion(job.getVersion() + 1);
 			update.setStartTime(new Date());
-			int effected = jobMapper.updateByExampleSelective(update, example);
+			int effected = jobMapper.updateByExampleSelective(update, example2);
 			if (effected == 1) {
 				return job;
 			}
@@ -98,12 +101,18 @@ public class TimerJobService implements InitializingBean, ApplicationContextAwar
 				}
 				job.setExecuteResult("没有找到处理器");//初始化消息，处理器中会替换
 				for (TimerJobHandler h : this.handlers) {
-					if (h.accept(job)) {
-						h.handle(job);
-						job.setExecuteResult("执行成功【S1】");
+					try {
+						if (h.accept(job)) {
+							h.handle(job);
+							job.setExecuteResult("S1执行成功");
+							h.postHandle(job);
+							job.setExecuteResult("S1&S2执行成功");
+							break;
+						}
+					} catch (Exception ex) {
 						h.postHandle(job);
-						job.setExecuteResult("执行成功【S2】");
-						break;
+						job.setExecuteResult(job.getExecuteResult() + ":S2执行失败");
+						throw ex;
 					}
 				}
 				finishJob(job);
@@ -133,5 +142,7 @@ public class TimerJobService implements InitializingBean, ApplicationContextAwar
 		if (handlerMap != null) {
 			this.handlers.addAll(handlerMap.values());
 		}
+		//系统启动时执行
+		this.handlers.forEach((h) -> h.onSystemStart());
 	}
 }
