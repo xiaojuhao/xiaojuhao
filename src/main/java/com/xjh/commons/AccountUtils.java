@@ -27,8 +27,7 @@ public class AccountUtils {
 		if (session == null) {
 			return null;
 		}
-		JSONObject json = CommonUtils.parseJSON(session.getUserInfo());
-		String userCode = json.getString("userCode");
+		String userCode = session.getUserCode();
 		if (StringUtils.isBlank(userCode)) {
 			return null;
 		}

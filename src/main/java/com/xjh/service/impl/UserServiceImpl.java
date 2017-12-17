@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 			userDO = new WmsUserDO();
 		}
 		PageResult<WmsUserDO> page = new PageResult<>();
-		PageHelper.startPage(userDO.getPageNo(),userDO.getPageSize());
+		PageHelper.startPage(userDO.getPageNo(), userDO.getPageSize());
 		List<WmsUserDO> list = this.userMapper.select(userDO);
 		int totalRows = this.userMapper.selectCount(userDO);
 		page.setTotalRows(totalRows);
@@ -85,7 +85,12 @@ public class UserServiceImpl implements UserService {
 		WmsSessionDO sessionDO = new WmsSessionDO();
 		sessionDO.setSessionId("WmsLogin" + CommonUtils.uuid().toUpperCase());
 		sessionDO.setExpiredTime(CommonUtils.future(Constants.default_session_expired_seconds));
-		sessionDO.setUserInfo(CommonUtils.toJsonString(userDO));
+		userDO.setPassword(null);
+		sessionDO.setUserCode(userDO.getUserCode());
+		sessionDO.setUserAgent(request.getHeader("User-Agent"));
+		sessionDO.setRemoteHost(request.getRemoteHost());
+		sessionDO.setRemoteIp(CommonUtils.remoteIp(request));
+		sessionDO.setRemoteUser(request.getRemoteUser());
 		sessionMapper.insert(sessionDO);
 		CookieUtils.addCookie(request, response, Constants.WMS_LOGIN_KEY, sessionDO.getSessionId(), null);
 		user.setLoginCookie(sessionDO.getSessionId());
