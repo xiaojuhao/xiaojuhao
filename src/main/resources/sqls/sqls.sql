@@ -272,11 +272,18 @@ CREATE TABLE
     wms_session
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-        session_id VARCHAR(50),
+        session_id VARCHAR(50) NOT NULL,
         user_code VARCHAR(35) COMMENT '用户CODE',
         expired_time DATETIME COMMENT '过期时间',
         user_info VARCHAR(1024) COMMENT '用户信息',
-        PRIMARY KEY (id)
+        remote_ip VARCHAR(512),
+        referer_ip VARCHAR(512),
+        user_agent VARCHAR(512),
+        remote_user VARCHAR(512),
+        remote_host VARCHAR(512),
+        PRIMARY KEY (id),
+        CONSTRAINT uni_sid UNIQUE (session_id),
+        INDEX idx_exp_date (expired_time)
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='session信息';
 CREATE TABLE
