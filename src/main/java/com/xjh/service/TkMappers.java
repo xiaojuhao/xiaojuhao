@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.xjh.dao.tkmapper.TkWmsDictMapper;
 import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialDepleteReportMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSplitMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockDailyMapper;
@@ -92,6 +93,8 @@ public class TkMappers implements InitializingBean {
 	TkWmsTimerJobMapper timerJobMapper;
 	@Resource
 	TkWmsNoticeMapper noticeMapper;
+	@Resource
+	TkWmsMaterialDepleteReportMapper materialDepleteReportMapper;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

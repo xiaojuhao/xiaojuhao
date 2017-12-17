@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 			return ResultBaseBuilder.fails("用户名或密码错误").rb();
 		}
 		WmsSessionDO sessionDO = new WmsSessionDO();
-		sessionDO.setSessionId("WmsLogin" + CommonUtils.uuid().toUpperCase());
+		sessionDO.setSessionId("WMSLOGINSESSION" + CommonUtils.uuid().toUpperCase());
 		sessionDO.setExpiredTime(CommonUtils.future(Constants.default_session_expired_seconds));
 		userDO.setPassword(null);
 		sessionDO.setUserCode(userDO.getUserCode());

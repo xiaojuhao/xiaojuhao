@@ -6,14 +6,19 @@ import java.util.Date;
 public class DateBuilder {
 	private Calendar calendar = Calendar.getInstance();
 
-	public static DateBuilder newInstance() {
-		return new DateBuilder();
+	public static DateBuilder base(Date date) {
+		DateBuilder inst = new DateBuilder();
+		if (date != null)
+			inst.calendar.setTime(date);
+		return inst;
 	}
 
-	public DateBuilder base(Date date) {
-		if (date != null)
-			calendar.setTime(date);
-		return this;
+	public static DateBuilder now() {
+		return base(new Date());
+	}
+
+	public static DateBuilder today() {
+		return now().zeroAM();
 	}
 
 	public DateBuilder zeroAM() {

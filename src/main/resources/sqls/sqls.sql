@@ -84,6 +84,32 @@ CREATE TABLE
     )
     ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE
+    wms_material_deplete_report
+    (
+        id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+        report_no VARCHAR(56) NOT NULL COMMENT '报告编号',
+        report_title VARCHAR(128) NOT NULL COMMENT '报告名称',
+        cabin_code VARCHAR(35) NOT NULL COMMENT '货栈代码',
+        cabin_name VARCHAR(128) NOT NULL COMMENT '货栈名称',
+        material_code VARCHAR(35) NOT NULL COMMENT '原料编码',
+        material_name VARCHAR(50) NOT NULL COMMENT '材料名称',
+        stock_unit VARCHAR(10) NOT NULL COMMENT '库存单位',
+        report_time DATETIME NOT NULL COMMENT '报告时间',
+        deplete_amt DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '总消耗量',
+        claim_loss DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '报损量',
+        claim_loss_ratio DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '报损占比',
+        sale_amt DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '销售额',
+        sale_amt_ratio DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '销售占比',
+        correct_loss DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '盘点损耗',
+        correct_loss_ratio DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '盘点损耗占比',
+        other_loss DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '其他损耗',
+        other_loss_ratio DECIMAL(14,2) DEFAULT '0.00' NOT NULL COMMENT '其他损耗占比',
+        gmt_created DATETIME NOT NULL COMMENT '创建时间',
+        PRIMARY KEY (id)
+    )
+    ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    
+CREATE TABLE
     wms_material_split_cfg
     (
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -449,6 +475,7 @@ CREATE TABLE
         id bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
         job_name VARCHAR(128) NOT NULL COMMENT 'job名称',
         job_type VARCHAR(64) NOT NULL COMMENT 'job类型',
+        job_param varchar(1024) comment '任务参数',
         status VARCHAR(1) NOT NULL COMMENT '0:待处理 1:处理中 2：已处理 3:处理失败',
         remark VARCHAR(1024) COMMENT '备注',
         execute_result VARCHAR(1024) COMMENT '执行结果',

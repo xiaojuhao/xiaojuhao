@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
 import com.xjh.dao.dataobject.WmsNoticeDO;
@@ -18,6 +19,7 @@ import com.xjh.dao.dataobject.WmsTimerJobDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockDailyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsTimerJobMapper;
+import com.xjh.service.MaterialService;
 import com.xjh.service.TimerJobHandler;
 import com.xjh.service.TkMappers;
 
@@ -37,6 +39,8 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	TkWmsMaterialStockMapper materialStockMapper;
 	@Resource
 	TkWmsMaterialStockDailyMapper stockDailyMapper;
+	@Resource
+	MaterialService materialService;
 
 	@Override
 	public void onSystemStart() {
@@ -88,6 +92,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	 * @param stock
 	 */
 	private void doBusiness(WmsMaterialStockDO stock, Date date) {
+		WmsMaterialDO material = materialService.getMaterialByCode(stock.getMaterialCode());
 		boolean isBusy = this.isBusiDay(date);
 		//以3天销售额作为预警值
 		Example example = new Example(WmsMaterialStockDailyDO.class, false, false);
@@ -109,7 +114,11 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 		update.setGmtSetWarningStock(new Date());
 		materialStockMapper.updateByPrimaryKeySelective(update);
 		//设置告警信息
-		if (stock.getCurrStock() < warningStock) {
+		Integer ratio = material.getUtilizationRatio(); //利用率
+		if (ratio == null) {
+			ratio = 100;
+		}
+		if (stock.getCurrStock() * ratio / 100 < warningStock) {//当前库存*利用率
 			WmsNoticeDO notice = new WmsNoticeDO();
 			notice.setStatus("1");
 			notice.setTitle("库存预警");
@@ -132,7 +141,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 		if (list == null || list.size() == 0) {
 			//增加一条任务(00:10执行）
 			Date scheduledTime = DateBuilder//
-					.newInstance()//默认当天
+					.now()//默认当天
 					.zeroAM() // 凌晨
 					.futureDays(1)//推迟一天
 					.minute(10)//

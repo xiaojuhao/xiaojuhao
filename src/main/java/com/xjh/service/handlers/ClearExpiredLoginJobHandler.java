@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.xjh.commons.DateBuilder;
 import com.xjh.dao.dataobject.WmsSessionDO;
@@ -16,7 +16,7 @@ import com.xjh.service.TkMappers;
 
 import tk.mybatis.mapper.entity.Example;
 
-@Service
+@Component
 public class ClearExpiredLoginJobHandler implements TimerJobHandler {
 	static String JOB_TYPE = "clear_expired_login";
 	@Resource
@@ -53,9 +53,8 @@ public class ClearExpiredLoginJobHandler implements TimerJobHandler {
 		if (list == null || list.size() == 0) {
 			//增加一条任务(00:10执行）
 			Date scheduledTime = DateBuilder//
-					.newInstance()//默认当天
-					.base(prev != null ? prev.getScheduledTime() : null)//
-					.futureMinutes(1)//
+					.today().futureDays(1)//
+					.futureMinutes(10)//
 					.date();
 			WmsTimerJobDO record = new WmsTimerJobDO();
 			record.setJobType(JOB_TYPE);

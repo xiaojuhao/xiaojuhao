@@ -36,6 +36,7 @@ import com.xjh.service.DatabaseService;
 import com.xjh.service.Mappers;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
+import com.xjh.service.handlers.PostCheckStockJobHandler;
 import com.xjh.valueobject.CabinVo;
 
 import tk.mybatis.mapper.entity.Example;
@@ -276,7 +277,7 @@ public class InventoryOrderController {
 				d.setRealStockAmt(d.getStockAmt());
 				d.setTotalPrice(d.getSpecAmt() * d.getSpecPrice());
 				d.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
-				d.setExpDate(CommonUtils.parseDate("expDate"));
+				d.setExpDate(CommonUtils.parseDate(j.getString("expDate")));
 				if (d.getExpDate() == null) {
 					switch (storageLifeUnit) {
 					case "D":
@@ -438,6 +439,7 @@ public class InventoryOrderController {
 		stock.setCabinCode(cabinCode);
 		stock.setModifier(user.getUserCode());
 		Mappers.inst().getStockMapper().startCorrect(stock);
+
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -504,6 +506,8 @@ public class InventoryOrderController {
 		cond.setCabinCode(cabinCode);
 		Mappers.inst().getStockMapper().finishCorrect(cond);
 		StockHistoryScheduleTask.startTask();
+		String today = CommonUtils.stringOfToday("yyyyMMdd");
+		PostCheckStockJobHandler.addNewJob(today, cabinCode);//添加库存盘点报告任务
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

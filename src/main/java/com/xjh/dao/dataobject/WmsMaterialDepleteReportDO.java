@@ -13,21 +13,29 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "wms_timer_job")
-public class WmsTimerJobDO extends PageDTO implements Serializable {
+@Table(name = "wms_material_deplete_report")
+public class WmsMaterialDepleteReportDO extends PageDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
-	String jobName;
-	String jobType;
-	String jobParam;
-	String status;
-	String remark;
-	String executeResult;
-	Date scheduledTime;
-	Date startTime;
-	Date endTime;
+	String reportNo;
+	String reportTitle;
+	String cabinCode;
+	String cabinName;
+	String materialCode;
+	String materialName;
+	String stockUnit;
+	Date reportTime;
+	Double depleteAmt;
+	Double claimLoss;
+	Double claimLossRatio;
+	Double saleAmt;
+	Double saleAmtRatio;
+	Double correctLoss;
+	Double correctLossRatio;
+	Double otherLoss;
+	Double otherLossRatio;
 	Date gmtCreated;
-	Integer version;
+
 }
