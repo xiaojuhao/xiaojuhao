@@ -1,9 +1,14 @@
 package com.xjh.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.xjh.commons.CommonUtils;
 import com.xjh.dao.dataobject.WmsStoreDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.TkMappers;
@@ -42,6 +47,21 @@ public class CabinServiceImpl implements CabinService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> getMyCabinCodes(WmsUserDO user) {
+		List<String> cabins = new ArrayList<>();
+		if ("1".equals(user.getIsSu())) {
+			TkMappers.inst().getWarehouseMapper().selectAll()//
+					.forEach((it) -> cabins.add(it.getWarehouseCode()));
+			TkMappers.inst().getStoreMapper().selectAll()//
+					.forEach((it) -> cabins.add(it.getStoreCode()));
+		} else {
+			cabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+			cabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
+		}
+		return cabins;
 	}
 
 }

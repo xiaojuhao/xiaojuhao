@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
+import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsNoticeDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsNoticeMapper;
 
 import tk.mybatis.mapper.entity.Example;
@@ -30,6 +33,10 @@ public class NoticeController {
 	@RequestMapping(value = "/latest", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object latest() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String msgType = CommonUtils.get(request, "msgType");
 		WmsNoticeDO cond = new WmsNoticeDO();
 		cond.setStatus("1");

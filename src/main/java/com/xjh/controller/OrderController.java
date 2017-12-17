@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsRecipesDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.RecipesService;
 import com.xjh.service.TkMappers;
@@ -42,6 +44,11 @@ public class OrderController {
 	@RequestMapping(value = "/lastSevenDaysSaleData", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object lastSevenDaysSaleData() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String storeCode = CommonUtils.get(request, "storeCode");
 		if (CommonUtils.isAnyBlank(recipesCode, storeCode)) {

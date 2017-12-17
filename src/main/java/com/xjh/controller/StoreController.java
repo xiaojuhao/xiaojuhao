@@ -73,6 +73,10 @@ public class StoreController {
 	@RequestMapping(value = "/getAllStore", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getAllStore() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		WmsStoreDO cond = new WmsStoreDO();
 		cond.setPageSize(300);
 		PageResult<WmsStoreDO> page = storeService.queryStore(cond);

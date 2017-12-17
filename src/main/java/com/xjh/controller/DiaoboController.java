@@ -41,6 +41,11 @@ public class DiaoboController {
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object commit() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		String inCabinCode = CommonUtils.get(request, "inCabinCode");
 		String outCabinCode = CommonUtils.get(request, "outCabinCode");
 		String dataJson = CommonUtils.get(request, "dataJson");
@@ -48,10 +53,6 @@ public class DiaoboController {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
 		}
 		try {
-			WmsUserDO user = AccountUtils.getLoginUser(request);
-			if (user == null) {
-				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-			}
 			CabinVo inCabin = cabinService.getCabinByCode(inCabinCode);
 			CabinVo outCabin = cabinService.getCabinByCode(outCabinCode);
 			String status = CommonUtils.get(request, "status");
@@ -136,6 +137,11 @@ public class DiaoboController {
 	@RequestMapping(value = "/confirm", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object confirm() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		String dataJson = CommonUtils.get(request, "dataJson");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {

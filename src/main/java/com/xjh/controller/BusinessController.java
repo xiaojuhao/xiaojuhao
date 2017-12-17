@@ -116,7 +116,7 @@ public class BusinessController {
 	public Object queryMaterials() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
-
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
@@ -136,7 +136,7 @@ public class BusinessController {
 	public Object queryMaterialSplitByMaterialCode() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
-
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String materialCode = CommonUtils.get(request, "materialCode");
 		List<WmsMaterialSplitDO> splits = new ArrayList<>();
@@ -154,7 +154,7 @@ public class BusinessController {
 	public Object queryMaterialById() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
-
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		Long id = CommonUtils.getLong(request, "id");
 		if (id == null) {
@@ -205,6 +205,10 @@ public class BusinessController {
 	@RequestMapping(value = "/queryMaterialsStockById", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStockById() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		if (id == null) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
@@ -260,6 +264,11 @@ public class BusinessController {
 	@RequestMapping(value = "/queryMaterialSupplerByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialSuppler() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		if (CommonUtils.isAllBlank(materialCode, supplierCode)) {
@@ -275,6 +284,11 @@ public class BusinessController {
 	@RequestMapping(value = "/getCabinByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object getCabinByCode() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (StringUtils.isBlank(cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -289,6 +303,11 @@ public class BusinessController {
 	@RequestMapping(value = "/queryAllMaterialSuppler", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryAllMaterialSuppler() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setPageSize(3000);
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);

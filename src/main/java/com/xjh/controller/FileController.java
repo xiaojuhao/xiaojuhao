@@ -32,6 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsUploadFilesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DictService;
@@ -119,15 +120,19 @@ public class FileController {
 
 			List<WmsUploadFilesDO> files = new ArrayList<>();
 			if (multipartResolver.isMultipart(request)) {
+				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
+				if (user == null) {
+					user = AccountUtils.getLoginUser(multiRequest);
+				}
+				if (user == null) {
+					return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+				}
 				File dir = new File(System.getProperty("user.home") + "/wmsuploadfiles/");
 				if (dir.exists() == false) {
 					dir.mkdirs();
 				}
-				MultipartHttpServletRequest multiRequest = multipartResolver.resolveMultipart(request);
 				Iterator<String> iter = multiRequest.getFileNames();
-				if (user == null) {
-					user = AccountUtils.getLoginUser(multiRequest);
-				}
+
 				String busiNo = CommonUtils.get(multiRequest, "busiNo");
 				if (StringUtils.isBlank(busiNo)) {
 					busiNo = CommonUtils.uuid();

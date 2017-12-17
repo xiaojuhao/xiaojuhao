@@ -21,6 +21,7 @@ import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
+import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
@@ -54,6 +55,10 @@ public class InventoryOrderController {
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryInventoryApply() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String status = CommonUtils.get(request, "status");
 		String applyTypes = CommonUtils.get(request, "applyTypes");
 		int pageNo = CommonUtils.getPageNo(request);
@@ -65,6 +70,7 @@ public class InventoryOrderController {
 			cri.andIn("applyType", types);
 		}
 		cri.andEqualTo("status", status);
+		cri.andIn("cabinCode", this.cabinService.getMyCabinCodes(user));
 		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCountByExample(example);
 		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("gmt_created desc, id desc");
