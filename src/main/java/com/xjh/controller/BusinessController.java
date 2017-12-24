@@ -80,6 +80,28 @@ public class BusinessController {
 	@Resource
 	TkWmsMaterialSpecDetailMapper detailMapper;
 
+	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object deleteMaterials() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String materialCode = CommonUtils.get(request, "materialCode");
+
+		if (StringUtils.isBlank(materialCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		assert StringUtils.isNotBlank(materialCode);
+
+		WmsMaterialDO cond = new WmsMaterialDO();
+		cond.setMaterialCode(materialCode);
+		cond = TkMappers.inst().getMaterialMapper().selectOne(cond);
+		cond.setStatus(2);//无效状态
+		TkMappers.inst().getMaterialMapper().updateByPrimaryKeySelective(cond);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
 	@RequestMapping(value = "/addMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object addMaterials() {
@@ -110,6 +132,9 @@ public class BusinessController {
 		}
 		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
 		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
+		if (material.getUtilizationRatio() == null) {
+			material.setUtilizationRatio(100);
+		}
 		material.setStatus(1);
 
 		if (StringUtils.isBlank(material.getMaterialName())) {
@@ -130,6 +155,11 @@ public class BusinessController {
 			sd.setWeight(json.getString("weight"));
 			sd.setHomeplace(json.getString("homeplace"));
 			sd.setBrandName(json.getString("brandName"));
+			Integer utilizationRatio = CommonUtils.parseInt(json.getString("utilizationRatio"), -1);
+			if (utilizationRatio <= 0 || utilizationRatio > 100) {
+				return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须在[0,100]内").rb(request);
+			}
+			sd.setUtilizationRatio(utilizationRatio);
 			if (StringUtils.isBlank(sd.getSpecName())) {
 				return ResultBaseBuilder.fails("规格名称不能为空").rb(request);
 			}
@@ -178,11 +208,13 @@ public class BusinessController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String searchKey = CommonUtils.get(request, "searchKey");
 		Long id = CommonUtils.getLong(request, "id");
+		Integer status = CommonUtils.getInt(request, "status");
 		PageResult<WmsMaterialDO> page = new PageResult<WmsMaterialDO>();
 		WmsMaterialDO cond = new WmsMaterialDO();
 		cond.setId(id);
 		cond.setMaterialCode(materialCode);
 		cond.setSearchKey(searchKey);
+		cond.setStatus(status);
 		int totalRows = this.wmsMaterialMapper.count(cond);
 		List<WmsMaterialDO> list = wmsMaterialMapper.query(cond);
 		page.setPageNo(pageNo);

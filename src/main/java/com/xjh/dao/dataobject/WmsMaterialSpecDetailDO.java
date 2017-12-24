@@ -31,4 +31,5 @@ public class WmsMaterialSpecDetailDO extends PageDTO implements Serializable {
 	String homeplace;
 	String isDeleted;
 	String isDefault;
+	Integer utilizationRatio;
 }
