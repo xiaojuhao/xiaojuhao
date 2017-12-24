@@ -38,6 +38,33 @@ public class OrderMaterialService {
 			return;
 		}
 		try {
+			//删除的记录: status=2 & isDeleted = Y
+			for (;;) {
+				WmsOrdersDO example = new WmsOrdersDO();
+				example.setStatus("2");
+				example.setIsDeleted("Y");
+				PageHelper.startPage(1, 20);//每次取20记录
+				List<WmsOrdersDO> orders = TkMappers.inst().getOrdersMapper().select(example);
+				if (CollectionUtils.isEmpty(orders)) {
+					break;//没有数据就退出
+				}
+				//遍历每一个order
+				for (WmsOrdersDO order : orders) {
+					WmsOrdersDO update = new WmsOrdersDO();
+					update.setId(order.getId());
+					ResultBase<Boolean> rb = this.handleRevertOrders(order);
+					if (rb.getIsSuccess()) {
+						update.setStatus("4");//撤销状态
+						update.setRemark(rb.getMessage());
+					} else {
+						update.setStatus("3");
+						update.setRemark(rb.getMessage());
+					}
+					//update order status
+					orderMapper.updateByPrimaryKeySelective(update);
+				}
+			}
+			//待处理的记录: status = 1
 			for (;;) {
 				WmsOrdersDO example = new WmsOrdersDO();
 				example.setStatus("1");
@@ -65,6 +92,44 @@ public class OrderMaterialService {
 		} finally {
 			TaskService.finishTask(task.getValue());
 		}
+	}
+
+	public ResultBase<Boolean> handleRevertOrders(WmsOrdersDO order) {
+		WmsOrdersMaterialDO cond = new WmsOrdersMaterialDO();
+		cond.setOrderId(order.getId());
+		List<WmsOrdersMaterialDO> ordersMaterialList = TkMappers.inst().getOrdersMaterialMapper().select(cond);
+		List<WmsMaterialStockHistoryDO> materialStockHistoryList = new ArrayList<>();
+		String saleDate = CommonUtils.formatDate(order.getSaleDate(), "yyyMMdd");
+		for (WmsOrdersMaterialDO ordersMaterial : ordersMaterialList) {
+			//将原料消耗额取反
+			ordersMaterial.setMaterialTotalAmt(-1 * ordersMaterial.getMaterialTotalAmt());
+			//恢复库存
+			WmsMaterialStockHistoryDO materialStockHistory = new WmsMaterialStockHistoryDO();
+			materialStockHistory.setAmt(-1 * ordersMaterial.getMaterialTotalAmt()); //库存恢复
+			materialStockHistory.setCabinCode(order.getStoreCode());
+			materialStockHistory.setCabinName(order.getStoreName());
+			materialStockHistory.setCabinType("2");
+			materialStockHistory.setGmtCreated(new Date());
+			materialStockHistory.setMaterialCode(ordersMaterial.getMaterialCode());
+			materialStockHistory.setMaterialName(ordersMaterial.getMaterialName());
+			materialStockHistory.setOperator("system");
+			materialStockHistory.setOpType("sale");
+			materialStockHistory.setStatus("0");
+			String remark = "对冲" + order.getRecipesName() + saleDate + "销售";
+			materialStockHistory.setRemark(remark);
+			materialStockHistory.setStockUnit(ordersMaterial.getMaterialUnit());
+			materialStockHistory.setTotalPrice(order.getTotalPrice());
+			materialStockHistory.setRelateCode(order.getId() + "");
+			materialStockHistoryList.add(materialStockHistory);
+		}
+
+		for (WmsOrdersMaterialDO ordersMaterial : ordersMaterialList) {
+			TkMappers.inst().getOrdersMaterialMapper().insert(ordersMaterial);
+		}
+		for (WmsMaterialStockHistoryDO insert : materialStockHistoryList) {
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
+		}
+		return ResultBaseBuilder.succ().rb();
 	}
 
 	public ResultBase<Boolean> handleOrders(WmsOrdersDO order) {
@@ -106,7 +171,7 @@ public class OrderMaterialService {
 			materialStockHistory.setOperator("system");
 			materialStockHistory.setOpType("sale");
 			materialStockHistory.setStatus("0");
-			String remark = order.getRecipesCode() + order.getRecipesName() + saleDate + "销售";
+			String remark = order.getRecipesName() + saleDate + "销售";
 			materialStockHistory.setRemark(remark);
 			materialStockHistory.setStockUnit(recipesformula.getMaterialUnit());
 			materialStockHistory.setTotalPrice(order.getTotalPrice());
