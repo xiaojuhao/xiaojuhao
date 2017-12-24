@@ -215,6 +215,8 @@ public class BusinessController {
 		cond.setMaterialCode(materialCode);
 		cond.setSearchKey(searchKey);
 		cond.setStatus(status);
+		cond.setPageNo(pageNo);
+		cond.setPageSize(pageSize);
 		int totalRows = this.wmsMaterialMapper.count(cond);
 		List<WmsMaterialDO> list = wmsMaterialMapper.query(cond);
 		page.setPageNo(pageNo);
