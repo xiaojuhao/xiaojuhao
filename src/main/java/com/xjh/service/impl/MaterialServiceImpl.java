@@ -67,6 +67,8 @@ public class MaterialServiceImpl implements MaterialService {
 			stockDO.setGmtModified(new Date());
 			stockDO.setModifier("system");
 			stockDO.setWarningStock(0D);
+			stockDO.setWarningValue1(0D);
+			stockDO.setWarningValue2(0D);
 			this.tkWmsMaterialStockMapper.insert(stockDO);
 		}
 		return ResultBaseBuilder.succ().data(stockDO).rb();

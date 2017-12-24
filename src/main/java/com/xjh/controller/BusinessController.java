@@ -37,6 +37,7 @@ import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
 import com.xjh.dao.dataobject.WmsUnitGroupDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.WmsMaterialMapper;
+import com.xjh.dao.mapper.WmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
@@ -46,6 +47,7 @@ import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.service.CabinService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.MaterialStockService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
@@ -79,6 +81,10 @@ public class BusinessController {
 	MaterialSpecService materialSpecService;
 	@Resource
 	TkWmsMaterialSpecDetailMapper detailMapper;
+	@Resource
+	MaterialStockService materialStockService;
+	@Resource
+	WmsMaterialStockMapper wmsMaterialStockMapper;
 
 	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -193,6 +199,7 @@ public class BusinessController {
 		for (WmsMaterialSpecDetailDO sd : specDetailList) {
 			detailMapper.insert(sd);
 		}
+		materialStockService.initStock(material.getMaterialCode());
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
@@ -277,7 +284,7 @@ public class BusinessController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String cabCode = CommonUtils.get(request, "cabinCode");
 		String cabType = CommonUtils.get(request, "cabinType");
-
+		String searchKey = CommonUtils.get(request, "searchKey");
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		example.setMaterialCode(materialCode);
@@ -285,15 +292,21 @@ public class BusinessController {
 		example.setCabinType(cabType);
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
-		PageResult<WmsMaterialStockDO> page = this.materialService.queryMaterialsStock(example, user);
-		List<WmsMaterialStockDO> tempList = page.getValues();
+		example.setSearchKey(searchKey);
+		PageResult<WmsMaterialStockDO> page = new PageResult<>();
+		List<WmsMaterialStockDO> tempList = this.wmsMaterialStockMapper.query(example);
+		int totalRows = this.wmsMaterialStockMapper.count(example);
 		if (tempList != null) {
 			for (WmsMaterialStockDO stock : tempList) {
-				String searchKey = CommonUtils.genSearchKey(stock.getMaterialName(), "");
-				searchKey += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
-				stock.setSearchKey(searchKey);
+				String sk = CommonUtils.genSearchKey(stock.getMaterialName(), "");
+				sk += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
+				stock.setSearchKey(sk);
 			}
 		}
+		page.setValues(tempList);
+		page.setTotalRows(totalRows);
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 

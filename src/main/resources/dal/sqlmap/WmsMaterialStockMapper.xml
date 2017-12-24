@@ -35,4 +35,36 @@
 		where cabin_code = #{cabinCode}
 		  and status = '2'
 	</select>
+	
+	<select id="query" resultType="com.xjh.dao.dataobject.WmsMaterialStockDO">
+		select * from wms_material_stock
+		<include refid="where_sql"></include>
+		order by id limit #{start},#{pageSize}
+	</select>
+	<select id="count" resultType="int">
+		select count(*) from wms_material_stock
+		<include refid="where_sql"></include>
+	</select>
+	<sql id="where_sql">
+		<where>
+			<if test="searchKey!=null and searchKey!=''">
+				and exists (select 1 from wms_material wm
+				where wm.material_code = wms_material_stock.material_code 
+				and  concat(wm.material_name,',',wm.search_key) like "%"#{searchKey}"%"
+				)
+			</if>
+			<if test="materialCode != null and materialCode != ''">
+				and material_code = #{materialCode}
+			</if>
+			<if test="cabinCode != null and cabinCode != ''">
+				and cabin_code = #{cabinCode}
+			</if>
+			<if test="cabinType != null and cabinType != ''">
+				and cabin_type = #{cabinType}
+			</if>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+		</where>
+	</sql>
 </mapper>

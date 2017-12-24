@@ -14,4 +14,8 @@ public interface WmsMaterialStockMapper {
 	
 	public List<WmsMaterialStockDO> selectWaiting(WmsMaterialStockDO cond);
 	
+	public List<WmsMaterialStockDO> query(WmsMaterialStockDO example);
+	
+	public int count(WmsMaterialStockDO example);
+	
 }
