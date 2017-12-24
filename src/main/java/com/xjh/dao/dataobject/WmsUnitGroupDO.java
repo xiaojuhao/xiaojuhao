@@ -21,4 +21,5 @@ public class WmsUnitGroupDO extends PageDTO implements Serializable {
 	String groupCode;
 	String unitCode;
 	String unitName;
+	Integer orderBy;
 }

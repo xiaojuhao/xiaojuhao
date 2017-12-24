@@ -21,7 +21,6 @@ import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
-import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
@@ -60,7 +59,9 @@ public class InventoryOrderController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String status = CommonUtils.get(request, "status");
+		String paidStatus = CommonUtils.get(request, "paidStatus");
 		String applyTypes = CommonUtils.get(request, "applyTypes");
+		String applyNum = CommonUtils.get(request, "applyNum");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 		List<String> types = CommonUtils.splitAsList(applyTypes, ",");
@@ -70,6 +71,8 @@ public class InventoryOrderController {
 			cri.andIn("applyType", types);
 		}
 		cri.andEqualTo("status", status);
+		cri.andEqualTo("paidStatus", paidStatus);
+		cri.andEqualTo("applyNum", applyNum);
 		cri.andIn("cabinCode", this.cabinService.getMyCabinCodes(user));
 		int totalRows = TkMappers.inst().getPurchaseOrderMapper().selectCountByExample(example);
 		PageHelper.startPage(pageNo, pageSize);
@@ -232,6 +235,8 @@ public class InventoryOrderController {
 			WmsInventoryApplyDO order = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> details = new ArrayList<>();
 			// 保存采购单
+			String supplierCode = null;
+			String supplierName = null;
 			order.setApplyNum(CommonUtils.uuid());
 			order.setCabinCode(cabinCode);
 			order.setCabinName(cabinVo.getName());
@@ -244,6 +249,7 @@ public class InventoryOrderController {
 			order.setModifier(user.getUserCode());
 			order.setStatus(status);
 			order.setRemark(remark);
+			Double sumPrice = 0D;
 			//
 			String dataJson = CommonUtils.get(request, "dataJson");
 			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
@@ -263,8 +269,14 @@ public class InventoryOrderController {
 				d.setSupplierCode(j.getString("supplierCode"));
 				d.setSupplierName(j.getString("supplierName"));
 				d.setSpecCode(j.getString("specCode"));
-				if(StringUtils.isBlank(d.getSpecCode())){
-					return ResultBaseBuilder.fails(d.getMaterialName()+"没有填写规格信息").rb(request);
+				if (supplierCode == null) {
+					supplierCode = d.getSupplierCode();
+					supplierName = d.getSupplierName();
+				} else if (!StringUtils.equals(supplierCode, d.getSupplierCode())) {
+					return ResultBaseBuilder.fails("目前采购单仅支持录入【一个】供应商").rb(request);
+				}
+				if (StringUtils.isBlank(d.getSpecCode())) {
+					return ResultBaseBuilder.fails(d.getMaterialName() + "没有填写规格信息").rb(request);
 				}
 				d.setSpecAmt(j.getDouble("specAmt"));
 				if (d.getSpecAmt() == null) {
@@ -306,8 +318,17 @@ public class InventoryOrderController {
 				d.setCreator(user.getUserCode());
 				d.setModifier(user.getUserCode());
 				d.setStatus("0");
+				sumPrice += d.getTotalPrice();
 				details.add(d);
 			}
+			//收款信息
+			order.setTotalPrice(sumPrice);
+			order.setPayables(sumPrice);
+			order.setPaidAmt(0D);
+			order.setPaidStatus("0");
+			//供应商
+			order.setSupplierCode(supplierCode);
+			order.setSupplierName(supplierName);
 			// 插入数据库
 			database.commitPurchaseOrder(order, details);
 			StockHistoryScheduleTask.startTask();
@@ -404,6 +425,53 @@ public class InventoryOrderController {
 		order.setStatus("5");
 		database.diaoboConfirm(order, detailUpdateList, historyInserts);
 		StockHistoryScheduleTask.startTask();
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/paidInventory", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object paidInventory() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String applyNum = CommonUtils.get(request, "applyNum");
+		String paidWay = CommonUtils.get(request, "paidWay");
+		Double paidAmt = CommonUtils.getDbl(request, "paidAmt", null);
+		String paytoBank = CommonUtils.get(request, "paytoBank");
+		String paytoAccount = CommonUtils.get(request, "paytoAccount");
+		String paytoAccountName = CommonUtils.get(request, "paytoAccountName");
+		if (CommonUtils.isAnyBlank(applyNum, paidWay, paytoAccount, paytoAccountName)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		if (paidAmt == null) {
+			return ResultBaseBuilder.fails("支付金额不能为空").rb(request);
+		}
+		if (paidAmt <= 0) {
+			return ResultBaseBuilder.fails("支付金额金额必须大于0").rb(request);
+		}
+		assert StringUtils.isNotBlank(applyNum);
+		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
+		cond.setApplyNum(applyNum);
+		WmsInventoryApplyDO apply = TkMappers.inst().getPurchaseOrderMapper().selectOne(cond);
+		if (apply == null) {
+			return ResultBaseBuilder.fails("采购单不存在").rb(request);
+		}
+		if (!"0".equals(apply.getPaidStatus())) {
+			return ResultBaseBuilder.fails("采购单已支付,请勿重复操作").rb(request);
+		}
+		//设置更新信息
+		WmsInventoryApplyDO update = new WmsInventoryApplyDO();
+		update.setId(apply.getId());
+		update.setPaidStatus("1");
+		update.setPaidAmt(paidAmt);
+		update.setPaytoBank(paytoBank);
+		update.setPaytoAccount(paytoAccount);
+		update.setPaytoAccountName(paytoAccountName);
+		update.setPaidWay(paidWay);
+		update.setPaidOperator(user.getUserCode());
+		update.setPaidTime(new Date());
+		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(update);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
