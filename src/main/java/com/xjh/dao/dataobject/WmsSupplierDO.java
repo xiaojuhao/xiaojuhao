@@ -24,8 +24,14 @@ public class WmsSupplierDO extends PageDTO {
 	String supplierAddr;
 	String payMode;
 	String payWay;
-	String payAccount;
 	String bankName;
+	String depositBank;
+	String bankAccount;
+	String bankAccountName;
+	String alipayAccount;
+	String alipayAccountName;
+	String weixinAccount;
+	String weixinAccountName;
 	String supplierTel;
 	String supplierPhone;
 	String supplierEmail;

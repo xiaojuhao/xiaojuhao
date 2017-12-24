@@ -262,6 +262,10 @@ public class InventoryOrderController {
 				d.setMaterialName(j.getString("materialName"));
 				d.setSupplierCode(j.getString("supplierCode"));
 				d.setSupplierName(j.getString("supplierName"));
+				d.setSpecCode(j.getString("specCode"));
+				if(StringUtils.isBlank(d.getSpecCode())){
+					return ResultBaseBuilder.fails(d.getMaterialName()+"没有填写规格信息").rb(request);
+				}
 				d.setSpecAmt(j.getDouble("specAmt"));
 				if (d.getSpecAmt() == null) {
 					d.setSpecAmt(0D);

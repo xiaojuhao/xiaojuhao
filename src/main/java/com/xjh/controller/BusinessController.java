@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
@@ -24,6 +26,7 @@ import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialSplitDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
@@ -31,19 +34,22 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
+import com.xjh.dao.dataobject.WmsUnitGroupDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.mapper.WmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.service.CabinService;
 import com.xjh.service.MaterialService;
+import com.xjh.service.MaterialSpecService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
-import io.reactivex.Observable;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
@@ -56,6 +62,8 @@ public class BusinessController {
 	@Resource
 	TkWmsMaterialMapper tkWmsMaterialMapper;
 	@Resource
+	WmsMaterialMapper wmsMaterialMapper;
+	@Resource
 	TkWmsMaterialStockMapper stockMapper;
 	@Resource
 	TkWmsStoreMapper storeMapper;
@@ -67,6 +75,10 @@ public class BusinessController {
 	TkWmsMaterialStockHistoryMapper stockHistoryMapper;
 	@Resource
 	SequenceService sequenceService;
+	@Resource
+	MaterialSpecService materialSpecService;
+	@Resource
+	TkWmsMaterialSpecDetailMapper detailMapper;
 
 	@RequestMapping(value = "/addMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -80,7 +92,11 @@ public class BusinessController {
 		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
 		String specUnit = CommonUtils.get(request, "specUnit");
 		String specQty = CommonUtils.get(request, "specQty");
-
+		String specDetail = CommonUtils.get(request, "specDetail");
+		JSONArray specList = CommonUtils.parseJSONArray(specDetail);
+		if (specList.size() == 0) {
+			return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
+		}
 		WmsMaterialDO material = new WmsMaterialDO();
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
@@ -99,6 +115,32 @@ public class BusinessController {
 		if (StringUtils.isBlank(material.getMaterialName())) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
+		List<WmsMaterialSpecDetailDO> specDetailList = new ArrayList<>();
+		for (int i = 0; i < specList.size(); i++) {
+			WmsMaterialSpecDetailDO sd = new WmsMaterialSpecDetailDO();
+			JSONObject json = specList.getJSONObject(i);
+			sd.setMaterialCode(material.getMaterialCode());
+			sd.setMaterialName(material.getMaterialName());
+			sd.setIsDefault("N");
+			sd.setIsDeleted("N");
+			sd.setStockUnit(material.getStockUnit());
+			sd.setSpecUnit(json.getString("specUnit"));
+			sd.setSpecCode(json.getString("specCode"));
+			sd.setSpecName(json.getString("specName"));
+			sd.setWeight(json.getString("weight"));
+			sd.setHomeplace(json.getString("homeplace"));
+			sd.setBrandName(json.getString("brandName"));
+			if (StringUtils.isBlank(sd.getSpecName())) {
+				return ResultBaseBuilder.fails("规格名称不能为空").rb(request);
+			}
+			BigDecimal transRate = CommonUtils.parseBigDecimal(json.getString("transRate"));
+			if (transRate == null) {
+				return ResultBaseBuilder.fails(sd.getSpecName() + "没有填写正确的入库数量").rb(request);
+			}
+			sd.setTransRate(transRate);
+
+			specDetailList.add(sd);
+		}
 		if (material.getId() == null) {
 			long nextVal = this.sequenceService.next("wms_material");
 			String materialCode = "M" + StringUtils.leftPad(nextVal + "", 5, '0');
@@ -107,6 +149,19 @@ public class BusinessController {
 			this.materialService.insertMaterial(material);
 		} else {
 			this.materialService.updateMaterial(material);
+		}
+		//补充specCode
+		specDetailList.forEach((o) -> {
+			if (StringUtils.isBlank(o.getSpecCode())) {
+				o.setSpecCode(materialSpecService.nextSpecCode());
+			}
+		});
+		assert StringUtils.isNotBlank(material.getMaterialCode());
+		WmsMaterialSpecDetailDO deleteCond = new WmsMaterialSpecDetailDO();
+		deleteCond.setMaterialCode(material.getMaterialCode());
+		detailMapper.delete(deleteCond);
+		for (WmsMaterialSpecDetailDO sd : specDetailList) {
+			detailMapper.insert(sd);
 		}
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
@@ -121,14 +176,20 @@ public class BusinessController {
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		String materialCode = CommonUtils.get(request, "materialCode");
+		String searchKey = CommonUtils.get(request, "searchKey");
 		Long id = CommonUtils.getLong(request, "id");
-		WmsMaterialDO example = new WmsMaterialDO();
-		example.setPageNo(pageNo);
-		example.setPageSize(pageSize);
-		example.setMaterialCode(materialCode);
-		example.setId(id);
-		PageResult<WmsMaterialDO> list = this.materialService.queryMaterials(example);
-		return ResultBaseBuilder.succ().data(list).rb(request);
+		PageResult<WmsMaterialDO> page = new PageResult<WmsMaterialDO>();
+		WmsMaterialDO cond = new WmsMaterialDO();
+		cond.setId(id);
+		cond.setMaterialCode(materialCode);
+		cond.setSearchKey(searchKey);
+		int totalRows = this.wmsMaterialMapper.count(cond);
+		List<WmsMaterialDO> list = wmsMaterialMapper.query(cond);
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setTotalRows(totalRows);
+		page.setValues(list);
+		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
 	@RequestMapping(value = "/queryMaterialSplitByMaterialCode", produces = "application/json;charset=UTF-8")
@@ -431,6 +492,20 @@ public class BusinessController {
 		cond.setStoreCode(storeCode);
 		cond.setRecipesCode(recipesCode);
 		List<WmsOrdersMaterialDO> list = TkMappers.inst().getOrdersMaterialMapper().select(cond);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
+	@RequestMapping(value = "/queryUnitByGroup", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryUnitByGroup() {
+		String groupCode = CommonUtils.get(request, "groupCode");
+		if (StringUtils.isBlank(groupCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsUnitGroupDO cond = new WmsUnitGroupDO();
+		cond.setGroupCode(groupCode);
+		PageHelper.orderBy("id");
+		List<WmsUnitGroupDO> list = TkMappers.inst().getUnitGroupMapper().select(cond);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }

@@ -20,6 +20,6 @@ public class WmsRecipesFormulaDO extends PageDTO{
 	String recipesCode;
 	String materialCode;
 	String materialName;
-	Double materialAmt;
+	String materialAmt;
 	String materialUnit;
 }

@@ -51,9 +51,16 @@ public class SupplierController {
 		String status = CommonUtils.get(request, "status");
 		String payMode = CommonUtils.get(request, "payMode");
 		String payWay = CommonUtils.get(request, "payWay");
-		String payAccount = CommonUtils.get(request, "payAccount");
 		String bankName = CommonUtils.get(request, "bankName");
+		String depositBank = CommonUtils.get(request, "depositBank");
+		String bankAccount = CommonUtils.get(request, "bankAccount");
+		String bankAccountName = CommonUtils.get(request, "bankAccountName");
+		String alipayAccount = CommonUtils.get(request, "alipayAccount");
+		String alipayAccountName = CommonUtils.get(request, "alipayAccountName");
+		String weixinAccount = CommonUtils.get(request, "weixinAccount");
+		String weixinAccountName = CommonUtils.get(request, "weixinAccountName");
 		String remark = CommonUtils.get(request, "remark");
+
 		String materialJson = CommonUtils.get(request, "materialJson");
 		if (StringUtils.isBlank(shortName)) {
 			shortName = supplierName;
@@ -71,8 +78,14 @@ public class SupplierController {
 			supplier.setSupplierEmail(supplierEmail);
 			supplier.setPayMode(payMode);
 			supplier.setPayWay(payWay);
-			supplier.setPayAccount(payAccount);
 			supplier.setBankName(bankName);
+			supplier.setDepositBank(depositBank);
+			supplier.setBankAccount(bankAccount);
+			supplier.setBankAccountName(bankAccountName);
+			supplier.setAlipayAccount(alipayAccount);
+			supplier.setAlipayAccountName(alipayAccountName);
+			supplier.setWeixinAccount(weixinAccount);
+			supplier.setWeixinAccountName(weixinAccountName);
 			supplier.setRemark(remark);
 			supplier.setModifer(user.getUserCode());
 			supplier.setStatus("1");
@@ -101,8 +114,14 @@ public class SupplierController {
 			supplier.setSupplierEmail(supplierEmail);
 			supplier.setPayMode(payMode);
 			supplier.setPayWay(payWay);
-			supplier.setPayAccount(payAccount);
 			supplier.setBankName(bankName);
+			supplier.setDepositBank(depositBank);
+			supplier.setBankAccount(bankAccount);
+			supplier.setBankAccountName(bankAccountName);
+			supplier.setAlipayAccount(alipayAccount);
+			supplier.setAlipayAccountName(alipayAccountName);
+			supplier.setWeixinAccount(weixinAccount);
+			supplier.setWeixinAccountName(weixinAccountName);
 			supplier.setRemark(remark);
 			supplier.setModifer(user.getUserCode());
 			supplier.setGmtModified(new Date());

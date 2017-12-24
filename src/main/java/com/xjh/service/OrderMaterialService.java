@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.Fraction;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
@@ -89,7 +90,8 @@ public class OrderMaterialService {
 			ordersMaterial.setStoreCode(order.getStoreCode());
 			ordersMaterial.setStoreName(order.getStoreName());
 			//计算总量
-			double total = (double) (recipesformula.getMaterialAmt() * order.getSaleNum());
+			double total = (Fraction.from(recipesformula.getMaterialAmt()).mul(Fraction.from(order.getSaleNum())))
+					.toBigDecimal().doubleValue();
 			ordersMaterial.setMaterialTotalAmt(total);
 			ordersMaterialList.add(ordersMaterial);
 

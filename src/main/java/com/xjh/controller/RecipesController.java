@@ -1,10 +1,7 @@
 package com.xjh.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,18 +15,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
-import com.xjh.commons.HttpUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsRecipesDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
-import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
+import com.xjh.dao.mapper.WmsRecipesMapper;
 import com.xjh.service.RecipesService;
 import com.xjh.service.TkMappers;
-
-import io.reactivex.Observable;
 
 @Controller
 @RequestMapping("/recipes")
@@ -38,6 +32,8 @@ public class RecipesController {
 	HttpServletRequest request;
 	@Resource
 	RecipesService recipesService;
+	@Resource
+	WmsRecipesMapper wmsRecipesMapper;
 
 	@RequestMapping(value = "/addRecipes", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -65,7 +61,15 @@ public class RecipesController {
 			formulas.add(f);
 			f.setMaterialCode(j.getString("materialCode"));
 			f.setMaterialName(j.getString("materialName"));
-			f.setMaterialAmt(CommonUtils.parseDouble(j.getString("materialAmt"), 0D));
+			f.setMaterialAmt(j.getString("materialAmt"));
+			if (!CommonUtils.isDecimalOrFraction(f.getMaterialAmt())//
+					|| f.getMaterialAmt().indexOf("-") >= 0) {
+				return ResultBaseBuilder.fails("配料" + f.getMaterialName() + "数量不合法,请检查").rb(request);
+			}
+			if (CommonUtils.isDecimal(f.getMaterialAmt()) //
+					&& CommonUtils.parseDouble(f.getMaterialAmt(), 0D) <= 0) {
+				return ResultBaseBuilder.fails("配料" + f.getMaterialName() + "数量不合法,请检查").rb(request);
+			}
 			f.setMaterialUnit(j.getString("materialUnit"));
 			f.setRecipesName(recipesName);
 		}
@@ -125,12 +129,20 @@ public class RecipesController {
 		}
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String hadFormula = CommonUtils.get(request, "hadFormula");
-		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
-		wmsRecipesDO.setRecipesCode(recipesCode);
-		wmsRecipesDO.setHadFormula(hadFormula);
-		wmsRecipesDO.setPageNo(CommonUtils.getPageNo(request));
-		wmsRecipesDO.setPageSize(CommonUtils.getPageSize(request));
-		PageResult<WmsRecipesDO> page = recipesService.queryRecipes(wmsRecipesDO);
+		String searchKey = CommonUtils.get(request, "searchKey");
+		WmsRecipesDO cond = new WmsRecipesDO();
+		cond.setRecipesCode(recipesCode);
+		cond.setHadFormula(hadFormula);
+		cond.setSearchKey(searchKey);
+		cond.setPageNo(CommonUtils.getPageNo(request));
+		cond.setPageSize(CommonUtils.getPageSize(request));
+		PageResult<WmsRecipesDO> page = new PageResult<>();
+		List<WmsRecipesDO> list = wmsRecipesMapper.query(cond);
+		int totalRows = wmsRecipesMapper.count(cond);
+		page.setPageNo(CommonUtils.getPageNo(request));
+		page.setPageSize(CommonUtils.getPageSize(request));
+		page.setValues(list);
+		page.setTotalRows(totalRows);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 

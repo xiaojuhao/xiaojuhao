@@ -59,6 +59,7 @@ public class CommonUtils {
 	private static char UNDERLINE = '_';
 	private static String digitalPattern = "^[+-]?\\d+$";
 	private static String decimalPattern = "^[+-]?\\d+(\\.?\\d*)$";
+	private static String fractionPattern = "^[+-]?\\d+/[123456789]+$";
 	private static String[] NUMBERS_SRC = new String[] { //
 			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", //
 			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -786,6 +787,28 @@ public class CommonUtils {
 			log.error("", ex);
 			return null;
 		}
+	}
+
+	public static boolean isDecimal(String input) {
+		if (StringUtils.isBlank(input)) {
+			return false;
+		}
+		return Pattern.matches(decimalPattern, input);
+	}
+
+	public static boolean isDecimalOrFraction(String input) {
+		if (StringUtils.isBlank(input)) {
+			return false;
+		}
+		return Pattern.matches(decimalPattern, input) //
+				|| Pattern.matches(fractionPattern, input);
+	}
+
+	public static boolean isFraction(String input) {
+		if (StringUtils.isBlank(input)) {
+			return false;
+		}
+		return Pattern.matches(fractionPattern, input);
 	}
 
 	@SuppressWarnings("unchecked")
