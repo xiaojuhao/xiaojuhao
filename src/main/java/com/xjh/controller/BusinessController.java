@@ -190,6 +190,8 @@ public class BusinessController {
 		specDetailList.forEach((o) -> {
 			if (StringUtils.isBlank(o.getSpecCode())) {
 				o.setSpecCode(materialSpecService.nextSpecCode());
+				o.setMaterialCode(material.getMaterialCode());
+				o.setMaterialName(material.getMaterialName());
 			}
 		});
 		assert StringUtils.isNotBlank(material.getMaterialCode());
