@@ -18,6 +18,7 @@ public class WmsMaterialSpecDO extends PageDTO implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
+	String specGroup;
 	String specCode;
 	String specName;
 	String brandName;

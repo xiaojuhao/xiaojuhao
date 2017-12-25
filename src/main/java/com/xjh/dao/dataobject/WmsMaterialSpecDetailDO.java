@@ -2,6 +2,7 @@ package com.xjh.dao.dataobject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +20,7 @@ public class WmsMaterialSpecDetailDO extends PageDTO implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "Mysql")
 	Long id;
+	String specGroup;
 	String specName;
 	String specCode;
 	String materialName;
@@ -32,4 +34,5 @@ public class WmsMaterialSpecDetailDO extends PageDTO implements Serializable {
 	String isDeleted;
 	String isDefault;
 	Integer utilizationRatio;
+	Date gmtCreated;
 }

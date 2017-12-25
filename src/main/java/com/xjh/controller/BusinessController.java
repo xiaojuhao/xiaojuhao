@@ -149,10 +149,15 @@ public class BusinessController {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		//保存采购规格信息
+		//每次都重新生成一个分组,保证数据库只增不删
+		//这个区分规格是新增的还是删除，都重新生成
+		String specGroup = CommonUtils.uuid();
+		material.setSpecGroup(specGroup);
 		List<WmsMaterialSpecDetailDO> specDetailList = new ArrayList<>();
 		for (int i = 0; i < specList.size(); i++) {
 			WmsMaterialSpecDetailDO sd = new WmsMaterialSpecDetailDO();
 			JSONObject json = specList.getJSONObject(i);
+			sd.setSpecGroup(specGroup);
 			sd.setMaterialCode(material.getMaterialCode());
 			sd.setMaterialName(material.getMaterialName());
 			sd.setIsDefault("N");
