@@ -244,6 +244,7 @@ public class DiandanSystemService {
 									recipes.setStoreCode("000000");
 									recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
 									recipes.setStatus("1");
+									recipes.setHadFormula("N");
 									recipes.setSrc("auto_sync");
 									recipes.setSearchKey(CommonUtils.genSearchKey(//
 											recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
