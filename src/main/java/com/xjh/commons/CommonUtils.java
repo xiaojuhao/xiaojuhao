@@ -747,6 +747,9 @@ public class CommonUtils {
 	}
 
 	public static Date parseDate(String dateValue, String dateFormats) {
+		if (StringUtils.isBlank(dateValue)) {
+			return null;
+		}
 		try {
 			return DateUtils.parseDate(dateValue, new String[] { dateFormats });
 		} catch (Exception ex) {

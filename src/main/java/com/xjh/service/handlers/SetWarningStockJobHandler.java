@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
+import com.xjh.commons.Holder;
+import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
@@ -19,6 +21,7 @@ import com.xjh.dao.dataobject.WmsTimerJobDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockDailyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsTimerJobMapper;
+import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.TimerJobHandler;
 import com.xjh.service.TkMappers;
@@ -41,6 +44,8 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	TkWmsMaterialStockDailyMapper stockDailyMapper;
 	@Resource
 	MaterialService materialService;
+	@Resource
+	MaterialRequireService requireService;
 
 	@Override
 	public void onSystemStart() {
@@ -91,9 +96,9 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	 * 计算库存的告警值
 	 * @param stock
 	 */
-	private void doBusiness(WmsMaterialStockDO stock, Date date) {
+	private void doBusiness(final WmsMaterialStockDO stock, Date date) {
 		WmsMaterialDO material = materialService.getMaterialByCode(stock.getMaterialCode());
-		boolean isBusy = this.isBusiDay(date);
+		final boolean isBusy = this.isBusiDay(date);
 		//以3天销售额作为预警值
 		Example example = new Example(WmsMaterialStockDailyDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
@@ -118,7 +123,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 		if (ratio == null) {
 			ratio = 100;
 		}
-		if (stock.getCurrStock() * ratio / 100 < warningStock) {//当前库存*利用率
+		if (stock.getCurrStock() * ratio / 100 <= warningStock) {//当前库存*利用率
 			WmsNoticeDO notice = new WmsNoticeDO();
 			notice.setStatus("1");
 			notice.setTitle("库存预警");
@@ -127,6 +132,22 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 			notice.setGmtExpired(CommonUtils.futureDays(new Date(), 7));
 			notice.setMsgType("warning");
 			TkMappers.inst().getNoticeMapper().insert(notice);
+			final Holder<Double> requireAmt = new Holder<>();
+			if (isBusy) {
+				requireAmt.set(stock.getWarningValue2() != null && stock.getWarningValue2() > 0 ? //
+						stock.getWarningValue2() : stock.getWarningStock());
+			} else {
+				requireAmt.set(stock.getWarningValue1() != null && stock.getWarningValue1() > 0 ? //
+						stock.getWarningValue1() : stock.getWarningStock());
+			}
+
+			TaskUtils.schedule(() -> {
+				requireService.addRequire(//
+						stock.getCabinCode(), //
+						stock.getMaterialCode(), //
+						requireAmt.get(), //
+						null);
+			});
 		}
 	}
 

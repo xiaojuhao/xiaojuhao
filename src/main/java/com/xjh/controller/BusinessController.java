@@ -121,6 +121,7 @@ public class BusinessController {
 		String specUnit = CommonUtils.get(request, "specUnit");
 		String specQty = CommonUtils.get(request, "specQty");
 		String specDetail = CommonUtils.get(request, "specDetail");
+		String category = CommonUtils.get(request, "category");
 		JSONArray specList = CommonUtils.parseJSONArray(specDetail);
 		if (specList.size() == 0) {
 			return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
@@ -131,6 +132,7 @@ public class BusinessController {
 		material.setMaterialName(CommonUtils.get(request, "materialName"));
 		String searchKey = CommonUtils.get(request, "searchKey");
 		material.setSpecUnit(specUnit);
+		material.setCategory(category);
 		material.setSpecQty(CommonUtils.parseDouble(specQty, 1D));
 		material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
 		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
@@ -146,6 +148,7 @@ public class BusinessController {
 		if (StringUtils.isBlank(material.getMaterialName())) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
+		//保存采购规格信息
 		List<WmsMaterialSpecDetailDO> specDetailList = new ArrayList<>();
 		for (int i = 0; i < specList.size(); i++) {
 			WmsMaterialSpecDetailDO sd = new WmsMaterialSpecDetailDO();
