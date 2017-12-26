@@ -157,17 +157,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		});
 	}
 
-	public void syncOrders() {
-		Calendar c = Calendar.getInstance();
-		int m = c.get(Calendar.MINUTE);
-		int h = c.get(Calendar.HOUR_OF_DAY);
-		if (h >= 23 && m > 50) {
-			log.info("开始同步订单。。。。。");
-			diandanService.syncOrders(CommonUtils.todayDate(), false);
-			orderMaterialService.handleOrders();//处理订单原料数据
-		}
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		self.set(this);
@@ -176,7 +165,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			public void run() {
 				try {
 					start();
-					syncOrders();
 					initDailyStock();
 				} catch (Exception ex) {
 					log.error("定时任务", ex);
