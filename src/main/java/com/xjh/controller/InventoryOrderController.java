@@ -618,6 +618,10 @@ public class InventoryOrderController {
 		inorder.setModifier(user.getUserCode());
 		inorder.setStatus("5");
 		inorder.setRemark(remark);
+		inorder.setPaidStatus("1");
+		inorder.setPaidAmt(0D);
+		inorder.setPayables(0D);
+		inorder.setTotalPrice(0D);
 
 		WmsInventoryApplyDetailDO indetail = new WmsInventoryApplyDetailDO();
 		indetail.setCabinCode(inorder.getCabinCode());
