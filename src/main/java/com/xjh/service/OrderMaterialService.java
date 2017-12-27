@@ -124,9 +124,11 @@ public class OrderMaterialService {
 		}
 
 		for (WmsOrdersMaterialDO ordersMaterial : ordersMaterialList) {
+			ordersMaterial.setId(null);
 			TkMappers.inst().getOrdersMaterialMapper().insert(ordersMaterial);
 		}
 		for (WmsMaterialStockHistoryDO insert : materialStockHistoryList) {
+			insert.setId(null);
 			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
 		}
 		return ResultBaseBuilder.succ().rb();
@@ -180,9 +182,11 @@ public class OrderMaterialService {
 		}
 
 		for (WmsOrdersMaterialDO ordersMaterial : ordersMaterialList) {
+			ordersMaterial.setId(null);
 			TkMappers.inst().getOrdersMaterialMapper().insert(ordersMaterial);
 		}
 		for (WmsMaterialStockHistoryDO insert : materialStockHistoryList) {
+			insert.setId(null);
 			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
 		}
 		return ResultBaseBuilder.succ().rb();
