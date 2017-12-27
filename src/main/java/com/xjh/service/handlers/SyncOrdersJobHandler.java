@@ -60,8 +60,8 @@ public class SyncOrdersJobHandler implements TimerJobHandler {
 			Date scheduledTime = DateBuilder//
 					.base(prevDate)//默认当天
 					.zeroAM() // 凌晨
-					.futureDays(1)//推迟一天
-					.minute(0)//
+					.hour(23)//
+					.minute(30)//
 					.date();
 			WmsTimerJobDO record = new WmsTimerJobDO();
 			record.setJobType(JOB_TYPE);
