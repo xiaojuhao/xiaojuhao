@@ -90,7 +90,7 @@ public class BusinessController {
 	WmsMaterialStockMapper wmsMaterialStockMapper;
 	@Resource
 	WmsOrdersMapper wmsOrdersMapper;
-	
+
 	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object deleteMaterials() {
@@ -469,6 +469,11 @@ public class BusinessController {
 		cond.setIsDeleted("N");
 		cond.setSaleDateStart(CommonUtils.parseDate(saleDateStart));
 		cond.setSaleDateEnd(CommonUtils.parseDate(saleDateEnd));
+		if (!"1".equals(user.getIsSu())) {
+			List<String> mystores = new ArrayList<>();
+			mystores.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+			cond.setMystores(mystores);
+		}
 		List<WmsOrdersDO> list = wmsOrdersMapper.query(cond);
 		int totalRows = wmsOrdersMapper.count(cond);
 		PageResult<WmsOrdersDO> page = new PageResult<>();

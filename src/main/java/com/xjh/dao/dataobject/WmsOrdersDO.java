@@ -1,6 +1,7 @@
 package com.xjh.dao.dataobject;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,5 +42,7 @@ public class WmsOrdersDO extends PageDTO {
 	Date saleDateEnd;
 	@Transient
 	String searchKey;
+	@Transient
+	List<String> mystores;
 	
 }

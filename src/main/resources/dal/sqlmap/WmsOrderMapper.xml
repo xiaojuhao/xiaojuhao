@@ -27,6 +27,10 @@
 			<if test="saleDateEnd != null">
 				and sale_date &lt;= #{saleDateEnd}
 			</if>
+			<if test="mystores != null">
+				and store_code in 
+				<foreach collection="mystores" item="item" open="(" close=")">#{item}</foreach>
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsOrdersDO">
