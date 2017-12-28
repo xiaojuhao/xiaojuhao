@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xjh.dao.mapper.WmsOrdersMapper">
+	<sql id="where_sql">
+		<where>
+			<if test="searchKey!=null and searchKey!=''">
+				and recipes_name like "%"#{searchKey}"%"
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+			<if test="storeCode != null and storeCode != ''">
+				and store_code = #{storeCode}
+			</if>
+			<if test="recipesCode!=null and recipesCode!=''">
+				and recipes_code = #{recipesCode}
+			</if>
+			<if test="isDeleted != null and isDeleted != ''">
+				and is_deleted = #{isDeleted}
+			</if>
+			<if test="saleDateStart != null">
+				and sale_date &gt;= #{saleDateStart}
+			</if>
+			<if test="saleDateEnd != null">
+				and sale_date &lt;= #{saleDateEnd}
+			</if>
+		</where>
+	</sql>
+	<select id="query" resultType="com.xjh.dao.dataobject.WmsOrdersDO">
+		select * from wms_orders
+		<include refid="where_sql"></include>
+		order by sale_date desc, id desc limit #{start},#{pageSize}
+	</select>
+	<select id="count" resultType="int">
+		select count(*) from wms_orders
+		<include refid="where_sql"></include>
+	</select>
+</mapper>

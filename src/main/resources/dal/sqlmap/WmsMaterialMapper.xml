@@ -15,6 +15,9 @@
 			<if test="id!=null">
 				and id = #{id}
 			</if>
+			<if test="category != null and category != ''">
+				and category = #{category}
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsMaterialDO">

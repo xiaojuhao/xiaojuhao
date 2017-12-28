@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -137,6 +138,7 @@ public class MaterialRequireController {
 		String endDate = CommonUtils.get(request, "endDate");
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String status = CommonUtils.get(request, "status");
+		String searchKey = CommonUtils.get(request, "searchKey");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 
@@ -147,6 +149,9 @@ public class MaterialRequireController {
 		cri.andEqualTo("status", status);
 		cri.andGreaterThanOrEqualTo("requireDate", CommonUtils.parseDate(startDate));
 		cri.andLessThanOrEqualTo("requireDate", CommonUtils.parseDate(endDate));
+		if (StringUtils.isNotBlank(searchKey)) {
+			cri.andLike("materialName", "%" + searchKey.replaceAll("'", "").replaceAll("=", "") + "%");
+		}
 		if (!"1".equals(user.getIsSu())) {
 			List<String> mycabins = new ArrayList<>();
 			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));

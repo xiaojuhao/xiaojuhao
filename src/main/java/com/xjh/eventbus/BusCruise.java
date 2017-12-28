@@ -19,7 +19,7 @@ public class BusCruise {
 	 * 同步提交
 	 * @param event
 	 */
-	public static void post(IEvent event) {
+	public static void post(Object event) {
 		post(event, false);// 同步处理
 	}
 	/**
@@ -27,7 +27,7 @@ public class BusCruise {
 	 * @param event
 	 * @param async
 	 */
-	public static void post(IEvent event, boolean async) {
+	public static void post(Object event, boolean async) {
 		if (async) {
 			bus1.post(event);
 		} else {

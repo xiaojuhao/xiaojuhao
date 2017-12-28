@@ -38,12 +38,15 @@ import com.xjh.dao.dataobject.WmsUnitGroupDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.WmsMaterialMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
+import com.xjh.dao.mapper.WmsOrdersMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
+import com.xjh.eventbus.BusCruise;
+import com.xjh.eventbus.evthandles.MaterialChange;
 import com.xjh.service.CabinService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
@@ -85,7 +88,9 @@ public class BusinessController {
 	MaterialStockService materialStockService;
 	@Resource
 	WmsMaterialStockMapper wmsMaterialStockMapper;
-
+	@Resource
+	WmsOrdersMapper wmsOrdersMapper;
+	
 	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object deleteMaterials() {
@@ -210,6 +215,7 @@ public class BusinessController {
 			detailMapper.insert(sd);
 		}
 		materialStockService.initStock(material.getMaterialCode());
+		BusCruise.post(new MaterialChange(material), true);
 		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
@@ -224,6 +230,7 @@ public class BusinessController {
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String searchKey = CommonUtils.get(request, "searchKey");
+		String category = CommonUtils.get(request, "category");
 		Long id = CommonUtils.getLong(request, "id");
 		Integer status = CommonUtils.getInt(request, "status");
 		PageResult<WmsMaterialDO> page = new PageResult<WmsMaterialDO>();
@@ -234,6 +241,7 @@ public class BusinessController {
 		cond.setStatus(status);
 		cond.setPageNo(pageNo);
 		cond.setPageSize(pageSize);
+		cond.setCategory(category);
 		int totalRows = this.wmsMaterialMapper.count(cond);
 		List<WmsMaterialDO> list = wmsMaterialMapper.query(cond);
 		page.setPageNo(pageNo);
@@ -448,21 +456,21 @@ public class BusinessController {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
 		String storeCode = CommonUtils.get(request, "storeCode");
-		String saleDate = CommonUtils.get(request, "saleDate");
+		String saleDateStart = CommonUtils.get(request, "saleDateStart");
+		String saleDateEnd = CommonUtils.get(request, "saleDateEnd");
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 		WmsOrdersDO cond = new WmsOrdersDO();
 		cond.setStoreCode(storeCode);
 		cond.setRecipesCode(recipesCode);
-		cond.setSaleDate(CommonUtils.parseDate(saleDate));
 		cond.setPageNo(pageNo);
 		cond.setPageSize(pageSize);
 		cond.setIsDeleted("N");
-		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
-		PageHelper.orderBy("sale_date desc, id desc");
-		List<WmsOrdersDO> list = TkMappers.inst().getOrdersMapper().select(cond);
-		int totalRows = TkMappers.inst().getOrdersMapper().selectCount(cond);
+		cond.setSaleDateStart(CommonUtils.parseDate(saleDateStart));
+		cond.setSaleDateEnd(CommonUtils.parseDate(saleDateEnd));
+		List<WmsOrdersDO> list = wmsOrdersMapper.query(cond);
+		int totalRows = wmsOrdersMapper.count(cond);
 		PageResult<WmsOrdersDO> page = new PageResult<>();
 		page.setValues(list);
 		page.setTotalRows(totalRows);

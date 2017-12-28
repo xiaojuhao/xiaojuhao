@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,4 +34,12 @@ public class WmsOrdersDO extends PageDTO {
 	Date gmtCreated;
 	Date gmtModified;
 	String isDeleted;
+	
+	@Transient
+	Date saleDateStart;
+	@Transient
+	Date saleDateEnd;
+	@Transient
+	String searchKey;
+	
 }
