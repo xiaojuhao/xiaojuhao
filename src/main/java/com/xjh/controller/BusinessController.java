@@ -311,6 +311,12 @@ public class BusinessController {
 		example.setPageSize(pageSize);
 		example.setPageNo(pageNo);
 		example.setSearchKey(searchKey);
+		if (!"1".equals(user.getIsSu())) {
+			List<String> mycabins = new ArrayList<>();
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
+			example.setMycabins(mycabins);
+		}
 		PageResult<WmsMaterialStockDO> page = new PageResult<>();
 		List<WmsMaterialStockDO> tempList = this.wmsMaterialStockMapper.query(example);
 		int totalRows = this.wmsMaterialStockMapper.count(example);

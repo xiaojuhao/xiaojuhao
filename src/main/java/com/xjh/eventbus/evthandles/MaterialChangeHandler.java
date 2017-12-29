@@ -52,6 +52,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		cri.andEqualTo("materialCode", m.getMaterialCode());
 		WmsMaterialSpecDetailDO data = new WmsMaterialSpecDetailDO();
 		data.setMaterialName(m.getMaterialName());
+		data.setStockUnit(m.getStockUnit());
 		tkWmsMaterialSpecDetailMapper.updateByExampleSelective(data, example);
 	}
 
@@ -61,6 +62,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		cri.andEqualTo("materialCode", m.getMaterialCode());
 		WmsMaterialStockDO data = new WmsMaterialStockDO();
 		data.setMaterialName(m.getMaterialName());
+		data.setStockUnit(m.getStockUnit());
 		tkWmsMaterialStockMapper.updateByExampleSelective(data, example);
 	}
 

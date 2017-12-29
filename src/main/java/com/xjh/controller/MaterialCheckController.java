@@ -126,6 +126,7 @@ public class MaterialCheckController {
 		WmsMaterialStockCheckDetailDO value = new WmsMaterialStockCheckDetailDO();
 		value.setStockAmt(stockAmt);
 		value.setDetail(detail);
+		value.setStatus("1");
 		int i = checkDetailMapper.updateByExampleSelective(value, example);
 		if (i == 0) {
 			return ResultBaseBuilder.fails("未修改到任何记录").rb(request);

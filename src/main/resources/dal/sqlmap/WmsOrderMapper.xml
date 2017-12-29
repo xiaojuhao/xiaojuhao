@@ -29,7 +29,7 @@
 			</if>
 			<if test="mystores != null">
 				and store_code in 
-				<foreach collection="mystores" item="item" open="(" close=")">#{item}</foreach>
+				<foreach collection="mystores" item="item" open="(" close=")" separator=",">#{item}</foreach>
 			</if>
 		</where>
 	</sql>

@@ -150,6 +150,7 @@ public class MaterialCheckService {
 			}
 		});
 		main.setStatus("2");
+		main.setEndTime(new Date());
 		this.checkMainMapper.updateByPrimaryKeySelective(main);
 		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().data(main).rb();

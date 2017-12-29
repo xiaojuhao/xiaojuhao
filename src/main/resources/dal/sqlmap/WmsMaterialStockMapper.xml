@@ -65,6 +65,10 @@
 			<if test="id!=null">
 				and id = #{id}
 			</if>
+			<if test="mycabins != null">
+				and cabin_code in 
+				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
+			</if>
 		</where>
 	</sql>
 </mapper>

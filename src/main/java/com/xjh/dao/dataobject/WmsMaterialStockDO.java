@@ -1,6 +1,7 @@
 package com.xjh.dao.dataobject;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,4 +38,6 @@ public class WmsMaterialStockDO extends PageDTO {
 	String status;
 	@Transient
 	String searchKey;
+	@Transient
+	List<String> mycabins;
 }
