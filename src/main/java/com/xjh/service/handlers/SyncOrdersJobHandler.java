@@ -56,11 +56,10 @@ public class SyncOrdersJobHandler implements TimerJobHandler {
 		cond.setStatus("0");
 		List<WmsTimerJobDO> list = timerJobMapper.select(cond);
 		if (list == null || list.size() == 0) {
-			//增加一条任务(00:10执行）
+			//增加一条任务(执行）
 			Date scheduledTime = DateBuilder//
-					.base(prevDate)//默认当天
-					.zeroAM() // 凌晨
-					.futureDays(1)
+					.now().zeroAM() // 凌晨
+					.futureDays(1) //
 					.hour(23)//
 					.minute(30)//
 					.date();
