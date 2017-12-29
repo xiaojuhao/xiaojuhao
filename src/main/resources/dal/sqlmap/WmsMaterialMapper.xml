@@ -23,7 +23,7 @@
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsMaterialDO">
 		select * from wms_material
 		<include refid="where_sql"></include>
-		order by material_name,id limit #{start},#{pageSize}
+		order by order_by,material_name,id limit #{start},#{pageSize}
 	</select>
 	<select id="count" resultType="int">
 		select count(*) from wms_material
