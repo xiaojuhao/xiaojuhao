@@ -189,6 +189,6 @@ public class OrderMaterialService {
 			insert.setId(null);
 			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
 		}
-		return ResultBaseBuilder.succ().rb();
+		return ResultBaseBuilder.succ().msg("扣库成功").rb();
 	}
 }

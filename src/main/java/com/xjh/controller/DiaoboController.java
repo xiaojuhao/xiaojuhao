@@ -112,6 +112,7 @@ public class DiaoboController {
 				detail.setCreator(user.getUserCode());
 				detail.setModifier(user.getUserCode());
 				detail.setStatus("0");
+				detail.setRemark(j.getString("remark"));
 				// 库存
 				his.setMaterialCode(detail.getMaterialCode());
 				his.setMaterialName(detail.getMaterialName());

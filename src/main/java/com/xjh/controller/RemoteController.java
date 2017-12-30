@@ -40,9 +40,9 @@ public class RemoteController {
 	@ResponseBody
 	public Object initWmsOrderSearchKey() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
-//		if (user == null) {
-//			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-//		}
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String date = CommonUtils.get(request, "date");
 		Date saleDate = CommonUtils.parseDate(date, "yyyyMMdd");
 		this.diandanSystemService.initSearchKey(saleDate);
