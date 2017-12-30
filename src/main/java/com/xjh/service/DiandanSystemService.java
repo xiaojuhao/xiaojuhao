@@ -250,10 +250,10 @@ public class DiandanSystemService {
 											recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
 									TkMappers.inst().getRecipesMapper().insert(recipes);
 								} else {
-									//								WmsRecipesDO update = new WmsRecipesDO();
-									//								update.setId(recipes.getId());
-									//								update.setRecipesName(jsonObj.getString("dishes_name"));
-									//								TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
+									WmsRecipesDO update = new WmsRecipesDO();
+									update.setId(recipes.getId());
+									update.setRecipesName(jsonObj.getString("dishes_name"));
+									TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
 								}
 							});
 

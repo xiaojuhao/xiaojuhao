@@ -29,4 +29,5 @@ public class WmsMaterialDO extends PageDTO implements Serializable {
 	String searchKey;
 	Integer utilizationRatio;
 	String storageLife;
+	Integer orderBy;
 }

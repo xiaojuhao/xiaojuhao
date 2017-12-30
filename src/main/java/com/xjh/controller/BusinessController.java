@@ -53,6 +53,7 @@ import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
+import com.xjh.service.UnitGroupService;
 import com.xjh.valueobject.CabinVo;
 
 import tk.mybatis.mapper.entity.Example;
@@ -131,6 +132,7 @@ public class BusinessController {
 		if (specList.size() == 0) {
 			return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
 		}
+		WmsUnitGroupDO categoryDO = UnitGroupService.getUnitGroup("material_category", category);
 		WmsMaterialDO material = new WmsMaterialDO();
 		material.setId(CommonUtils.getLong(request, "id"));
 		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
@@ -138,6 +140,9 @@ public class BusinessController {
 		String searchKey = CommonUtils.get(request, "searchKey");
 		material.setSpecUnit(specUnit);
 		material.setCategory(category);
+		if (categoryDO != null) {
+			material.setOrderBy(categoryDO.getOrderBy() == null ? 0 : categoryDO.getOrderBy());
+		}
 		material.setSpecQty(CommonUtils.parseDouble(specQty, 1D));
 		material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
 		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {

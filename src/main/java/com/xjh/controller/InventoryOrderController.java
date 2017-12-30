@@ -317,7 +317,7 @@ public class InventoryOrderController {
 				d.setGmtModified(new Date());
 				d.setCreator(user.getUserCode());
 				d.setModifier(user.getUserCode());
-				d.setStatus("0");
+				d.setStatus("1");
 				sumPrice += d.getTotalPrice();
 				details.add(d);
 			}
@@ -342,12 +342,12 @@ public class InventoryOrderController {
 	@ResponseBody
 	public Object confirmInventory() {
 		String dataJson = CommonUtils.get(request, "dataJson");
-		String ApplyNum = CommonUtils.get(request, "applyNum");
-		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(ApplyNum)) {
+		String applyNum = CommonUtils.get(request, "applyNum");
+		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		WmsInventoryApplyDO order = new WmsInventoryApplyDO();
-		order.setApplyNum(ApplyNum);
+		order.setApplyNum(applyNum);
 		order = TkMappers.inst().getPurchaseOrderMapper().selectOne(order);
 		if (order == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
@@ -365,8 +365,12 @@ public class InventoryOrderController {
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
-			if (detail == null || StringUtils.equals("1", detail.getStatus())) {
+			if (detail == null) {
 				continue;
+			}
+			if (!StringUtils.equals("1", detail.getStatus())) {
+				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理")
+						.rb(request);
 			}
 			double unitPrice = 0D;// 单价
 			if (detail.getTotalPrice() != null && detail.getStockAmt() != null && detail.getStockAmt() > 0.1) {
@@ -416,15 +420,24 @@ public class InventoryOrderController {
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());
-			update.setStatus("1");
+			update.setStatus("2");
 			update.setRealStockAmt(realStock);
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
 
-		order.setStatus("5");
+		//		order.setStatus("5");
 		database.diaoboConfirm(order, detailUpdateList, historyInserts);
 		StockHistoryScheduleTask.startTask();
+
+		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+		cond.setApplyNum(applyNum);
+		cond.setStatus("1");
+		int noHandleRows = TkMappers.inst().getPurchaseOrderDetailMapper().selectCount(cond);
+		if (noHandleRows == 0) {
+			order.setStatus("5");
+			TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKey(order);
+		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
