@@ -9,4 +9,6 @@ public interface CabinService {
 	public CabinVo getCabinByCode(String cabinCode);
 
 	public List<String> getMyCabinCodes(WmsUserDO user);
+
+	public List<CabinVo> getAllCabins();
 }

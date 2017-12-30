@@ -64,4 +64,26 @@ public class CabinServiceImpl implements CabinService {
 		return cabins;
 	}
 
+	@Override
+	public List<CabinVo> getAllCabins() {
+		List<CabinVo> cabins = new ArrayList<>();
+		TkMappers.inst().getWarehouseMapper().selectAll()//
+				.forEach((it) -> {
+					CabinVo vo = new CabinVo();
+					vo.setCode(it.getWarehouseCode());
+					vo.setName(it.getWarehouseName());
+					vo.setType("1");
+					cabins.add(vo);
+				});
+		TkMappers.inst().getStoreMapper().selectAll()//
+				.forEach((it) -> {
+					CabinVo vo = new CabinVo();
+					vo.setCode(it.getStoreCode());
+					vo.setName(it.getStoreName());
+					vo.setType("2");
+					cabins.add(vo);
+				});
+		return cabins;
+	}
+
 }

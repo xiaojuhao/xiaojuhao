@@ -561,11 +561,10 @@ public class BusinessController {
 			daysData.add(day);
 			WmsMaterialStockDailyDO dd = dataMap.get(day);
 			if (dd == null) {
-				stockData.add(new Double(CommonUtils.randomNumber(20, 22)));
-				saleData.add(new Double(CommonUtils.randomNumber(0, 10)));
+				stockData.add(0D);
+				saleData.add(0D);
 			} else {
-				stockData.add(dd.getInitAmt() - dd.getConsumeAmt() - dd.getLossAmt());
-				saleData.add(dd.getConsumeAmt());
+				saleData.add(dd.getConsumeAmt2());
 			}
 			c.add(Calendar.DATE, 1);//next day
 		}

@@ -24,9 +24,12 @@ public class WmsMaterialStockDailyDO extends PageDTO {
 	String cabinName;
 	Date statDate;
 	Double initAmt;
+	Double currentStockAmt;
 	Double consumeAmt;
+	Double consumeAmt2;
 	Double lossAmt;
 	String busyDay;
 	String remark;
 	Date gmtCreated;
+	String isDeleted;
 }

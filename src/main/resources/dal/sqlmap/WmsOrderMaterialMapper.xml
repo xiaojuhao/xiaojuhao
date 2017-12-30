@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xjh.dao.mapper.WmsOrdersMaterialMapper">
+	<select id="stat" resultType="com.xjh.service.vo.MaterialSaleStatVo">
+		select 
+			store_code as storeCode,
+			material_code as materialCode,
+			sale_date as saleDate,
+			sum(material_total_amt) as saleAmt
+		 from wms_orders_material
+		where sale_date &gt;= #{startDate}
+		and sale_date &lt;= #{endDate}
+		<if test="storeList != null">
+			and store_code in 
+			<foreach collection="storeList" open="(" close=")" separator="," item="item">
+				#{item}
+			</foreach>
+		</if>
+		<if test="materialList != null">
+			and material_code in 
+			<foreach collection="materialList" open="(" close=")" separator="," item="item">
+				#{item}
+			</foreach>
+		</if>
+		group by store_code,material_code,sale_date
+	</select>
+</mapper>

@@ -80,8 +80,11 @@ public class CommonUtils {
 
 	private static String[] dateFormats = { //
 			"yyyy-MM-dd", //
+			"yyyyMMdd", //
 			"yyyy-MM-dd HH:mm:ss", //
-			"yyyy-MM-dd HH:mm:ss.S" };
+			"yyyyMMdd HH:mm:ss", //
+			"yyyy-MM-dd HH:mm:ss.S", //
+			"yyyyDDdd HH:mm:ss.S" };
 
 	private static Cache<String, Object> cache = CacheBuilder.newBuilder() //
 			.maximumSize(5000) // 最多缓存的条数

@@ -3,8 +3,13 @@
 <mapper namespace="com.xjh.dao.mapper.WmsMaterialStockDailyMapper">
 	<update id="addConsumeAmt">
 		update wms_material_stock_daily
-		set consume_amt = consume_amt + #{consumeAmt},
-		gmt_modified = now()
+		set gmt_modified = now()
+		<if test="consumeAmt != null">
+		 	,consume_amt = consume_amt + #{consumeAmt}
+		</if>
+		<if test="lossAmt != null">
+			,loss_amt = loss_amt + #{lossAmt}
+		</if>
 		where material_code = #{materialCode}
 		and cabin_code in (#{cabinCode})
 		and stat_date = #{statDate}

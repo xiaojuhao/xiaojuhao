@@ -19,6 +19,7 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsTaskDO;
 import com.xjh.dao.mapper.WmsMaterialStockHistoryMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
+import com.xjh.support.enums.StockOpType;
 import com.xjh.valueobject.MaterialStockChangeVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,18 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		changeVo.setStockChgAmt(record.getAmt());
 		changeVo.setOperator(record.getOperator());
 		wmsMaterialStockMapper.changeByDelta(changeVo);
+		//更新每日库存表里面的消费信息
+		if (StockOpType.fromCode(record.getOpType()) == StockOpType.SALE) {
+			stockDailyService.addConsume(record.getMaterialCode(), //
+					record.getCabinCode(), //
+					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+					Math.abs(record.getAmt()), null);
+		} else if (record.getAmt() < 0) {
+			stockDailyService.addConsume(record.getMaterialCode(), //
+					record.getCabinCode(), //
+					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+					null, Math.abs(record.getAmt()));
+		}
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");
@@ -124,39 +137,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		}
 	}
 
-	public void initDailyStock() {
-		Calendar c = Calendar.getInstance();
-		int m = c.get(Calendar.MINUTE);
-		if (m % 10 != 0) { //每10分钟启动一次
-			return;
-		}
-		String today = CommonUtils.stringOfToday("yyyyMMdd");
-		ResultBase<WmsTaskDO> task = TaskService.initTask("init-stock-daily", today, "初始化每日库存");
-		if (!task.getIsSuccess()) {
-			return;
-		}
-		task = TaskService.reStartTask(task.getValue());
-		if (!task.getIsSuccess()) {
-			return;
-		}
-		final WmsTaskDO taskDO = task.getValue();
-		service.submit(() -> {
-			try {
-				TkMappers.inst().materialStockMapper.selectAll()//
-						.forEach((d) -> {
-							stockDailyService.getOrInitStockDaily( //
-									d.getMaterialCode(), //
-									d.getCabinCode(), //
-									today);
-						});
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			} finally {
-				TaskService.finishTask(taskDO);
-			}
-		});
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		self.set(this);
@@ -165,7 +145,6 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			public void run() {
 				try {
 					start();
-					initDailyStock();
 				} catch (Exception ex) {
 					log.error("定时任务", ex);
 				}

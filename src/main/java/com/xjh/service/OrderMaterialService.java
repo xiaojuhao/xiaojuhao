@@ -9,8 +9,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.DateBuilder;
 import com.xjh.commons.Fraction;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
@@ -19,6 +21,7 @@ import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
 import com.xjh.dao.dataobject.WmsTaskDO;
+import com.xjh.dao.dataobject.WmsTimerJobDO;
 import com.xjh.dao.tkmapper.TkWmsOrderMapper;
 
 @Service
@@ -37,6 +40,8 @@ public class OrderMaterialService {
 		if (task.getIsSuccess() == false) {
 			return;
 		}
+		Date startDate = DateBuilder.today().date();
+		Date endDate = startDate;
 		try {
 			//删除的记录: status=2 & isDeleted = Y
 			for (;;) {
@@ -50,6 +55,12 @@ public class OrderMaterialService {
 				}
 				//遍历每一个order
 				for (WmsOrdersDO order : orders) {
+					if (CommonUtils.partiallyOrder(order.getSaleDate(), startDate)) {
+						startDate = order.getSaleDate();
+					}
+					if (CommonUtils.partiallyOrder(endDate, order.getSaleDate())) {
+						endDate = order.getSaleDate();
+					}
 					WmsOrdersDO update = new WmsOrdersDO();
 					update.setId(order.getId());
 					ResultBase<Boolean> rb = this.handleRevertOrders(order);
@@ -75,6 +86,12 @@ public class OrderMaterialService {
 				}
 				//遍历每一个order
 				for (WmsOrdersDO order : orders) {
+					if (CommonUtils.partiallyOrder(order.getSaleDate(), startDate)) {
+						startDate = order.getSaleDate();
+					}
+					if (CommonUtils.partiallyOrder(endDate, order.getSaleDate())) {
+						endDate = order.getSaleDate();
+					}
 					WmsOrdersDO update = new WmsOrdersDO();
 					update.setId(order.getId());
 					ResultBase<Boolean> rb = this.handleOrders(order);
@@ -92,6 +109,19 @@ public class OrderMaterialService {
 		} finally {
 			TaskService.finishTask(task.getValue());
 		}
+
+		//处理完订单消耗的原料之后，触发一个统计任务
+		WmsTimerJobDO job = new WmsTimerJobDO();
+		job.setScheduledTime(new Date());
+		JSONObject param = new JSONObject();
+		param.put("startDate", CommonUtils.formatDate(startDate, "yyyyMMdd"));
+		param.put("endDate", CommonUtils.formatDate(endDate, "yyyyMMdd"));
+		job.setJobParam(param.toJSONString());
+		job.setJobType("material_sale_stat");
+		job.setJobName("统计销售原料");
+		job.setStatus("0");
+		job.setVersion(0);
+		TkMappers.inst().getTimerJobMapper().insert(job);
 	}
 
 	public ResultBase<Boolean> handleRevertOrders(WmsOrdersDO order) {
