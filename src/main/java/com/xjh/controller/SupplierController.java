@@ -126,7 +126,7 @@ public class SupplierController {
 			supplier.setModifer(user.getUserCode());
 			supplier.setGmtModified(new Date());
 			supplier.setStatus(status);
-			TkMappers.inst().getSupplierMapper().updateByPrimaryKeySelective(supplier);
+			TkMappers.inst().getSupplierMapper().updateByPrimaryKey(supplier);
 		}
 		// 保存供应商供应的菜品信息
 		JSONArray materials = CommonUtils.parseJSONArray(materialJson);
@@ -149,6 +149,7 @@ public class SupplierController {
 				ss.setSupplierName(supplier.getSupplierName());
 				ss.setMaterialCode(material.getMaterialCode());
 				ss.setMaterialName(material.getMaterialName());
+				ss.setIsDeleted("N");
 				materialSupplierList.add(ss);
 			}
 		}

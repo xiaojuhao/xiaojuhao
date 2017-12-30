@@ -53,6 +53,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		WmsMaterialSpecDetailDO data = new WmsMaterialSpecDetailDO();
 		data.setMaterialName(m.getMaterialName());
 		data.setStockUnit(m.getStockUnit());
+		data.setIsDeleted(m.getIsDeleted());
 		tkWmsMaterialSpecDetailMapper.updateByExampleSelective(data, example);
 	}
 
@@ -63,6 +64,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		WmsMaterialStockDO data = new WmsMaterialStockDO();
 		data.setMaterialName(m.getMaterialName());
 		data.setStockUnit(m.getStockUnit());
+		data.setIsDeleted(m.getIsDeleted());
 		tkWmsMaterialStockMapper.updateByExampleSelective(data, example);
 	}
 
@@ -72,6 +74,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		cri.andEqualTo("materialCode", m.getMaterialCode());
 		WmsMaterialSupplierDO data = new WmsMaterialSupplierDO();
 		data.setMaterialName(m.getMaterialName());
+		data.setIsDeleted(m.getIsDeleted());
 		tkWmsMaterialSupplierMapper.updateByExampleSelective(data, example);
 	}
 
@@ -81,6 +84,7 @@ public class MaterialChangeHandler implements InitializingBean {
 		cri.andEqualTo("materialCode", m.getMaterialCode());
 		WmsRecipesFormulaDO data = new WmsRecipesFormulaDO();
 		data.setMaterialName(m.getMaterialName());
+		data.setIsDeleted(m.getIsDeleted());
 		tkWmsRecipesFormulaMapper.updateByExampleSelective(data, example);
 	}
 

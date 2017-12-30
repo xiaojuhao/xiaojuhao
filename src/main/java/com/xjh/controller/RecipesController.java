@@ -93,6 +93,7 @@ public class RecipesController {
 		formulaExample.setRecipesCode(recipesCode);
 		TkMappers.inst().getRecipesFormulaMapper().delete(formulaExample);
 		for (WmsRecipesFormulaDO fm : formulas) {
+			fm.setIsDeleted("N");
 			TkMappers.inst().getRecipesFormulaMapper().insert(fm);
 		}
 		//

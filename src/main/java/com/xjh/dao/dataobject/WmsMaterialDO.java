@@ -30,4 +30,5 @@ public class WmsMaterialDO extends PageDTO implements Serializable {
 	Integer utilizationRatio;
 	String storageLife;
 	Integer orderBy;
+	String isDeleted;
 }

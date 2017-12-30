@@ -35,13 +35,12 @@ public class WmsOrdersDO extends PageDTO {
 	Date gmtCreated;
 	Date gmtModified;
 	String isDeleted;
+	String searchKey;
 	
 	@Transient
 	Date saleDateStart;
 	@Transient
 	Date saleDateEnd;
-	@Transient
-	String searchKey;
 	@Transient
 	List<String> mystores;
 	

@@ -65,6 +65,9 @@
 			<if test="id!=null">
 				and id = #{id}
 			</if>
+			<if test="isDeleted != null and isDeleted != ''">
+				and is_deleted = #{isDeleted}
+			</if>
 			<if test="mycabins != null">
 				and cabin_code in 
 				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>

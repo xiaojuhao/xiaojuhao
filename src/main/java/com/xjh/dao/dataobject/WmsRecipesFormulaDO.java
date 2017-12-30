@@ -22,4 +22,5 @@ public class WmsRecipesFormulaDO extends PageDTO{
 	String materialName;
 	String materialAmt;
 	String materialUnit;
+	String isDeleted;
 }

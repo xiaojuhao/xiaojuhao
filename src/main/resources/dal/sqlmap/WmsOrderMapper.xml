@@ -4,7 +4,7 @@
 	<sql id="where_sql">
 		<where>
 			<if test="searchKey!=null and searchKey!=''">
-				and recipes_name like "%"#{searchKey}"%"
+				and search_key like "%"#{searchKey}"%"
 			</if>
 			<if test="status != null">
 				and status = #{status}

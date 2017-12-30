@@ -18,6 +18,9 @@
 			<if test="category != null and category != ''">
 				and category = #{category}
 			</if>
+			<if test="isDeleted != null and isDeleted != ''">
+				and is_deleted = #{isDeleted}
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsMaterialDO">

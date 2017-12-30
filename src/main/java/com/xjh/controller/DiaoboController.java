@@ -80,6 +80,10 @@ public class DiaoboController {
 			apply.setModifier(user.getUserCode());
 			apply.setStatus(status);
 			apply.setRemark(remark);
+			apply.setPaidStatus("1");
+			apply.setPaidAmt(0D);
+			apply.setPayables(0D);
+			apply.setTotalPrice(0D);
 			//
 			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
 			List<WmsMaterialStockHistoryDO> historyList = new ArrayList<>();
@@ -130,6 +134,7 @@ public class DiaoboController {
 			StockHistoryScheduleTask.startTask();
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
 	}

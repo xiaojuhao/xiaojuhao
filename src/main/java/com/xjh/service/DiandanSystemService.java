@@ -38,6 +38,24 @@ public class DiandanSystemService {
 	@Resource
 	SequenceService sequenceService;
 
+	public void initSearchKey(Date saleDate) {
+		if (saleDate == null) {
+			return;
+		}
+		WmsOrdersDO record = new WmsOrdersDO();
+		record.setSaleDate(saleDate);
+		List<WmsOrdersDO> orders = TkMappers.inst().getOrdersMapper().select(record);
+		for (WmsOrdersDO order : orders) {
+			String searchKey = order.getRecipesName() + "," + order.getRecipesCode() + "," //
+					+ CommonUtils.genSearchKey(order.getRecipesName(), null)//
+			;
+			WmsOrdersDO update = new WmsOrdersDO();
+			update.setId(order.getId());
+			update.setSearchKey(searchKey);
+			TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
+		}
+	}
+
 	public ResultBase<String> syncOrders(Date syncDate) {
 		return syncOrders(syncDate, true);
 	}
@@ -46,8 +64,6 @@ public class DiandanSystemService {
 		if (syncDate == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
-		//先同步菜单信息
-		this.syncRecipes();
 		//查询菜单信息，保存到map中，供后面使用
 		List<WmsRecipesDO> recipes = TkMappers.inst().getRecipesMapper().select(new WmsRecipesDO());
 		Map<String, WmsRecipesDO> recipesMap = new HashMap<>();
@@ -144,6 +160,11 @@ public class DiandanSystemService {
 								update.setTotalPrice(allPrice.doubleValue());
 								update.setGmtModified(new Date());
 								update.setRemark("重新拉取");
+								String searchKey = order.getRecipesName() + "," + order.getRecipesCode() + "," //
+										+ CommonUtils.genSearchKey(order.getRecipesName(), null)//
+								;
+
+								update.setSearchKey(StringUtils.abbreviate(searchKey, 1000));
 								TkMappers.inst().getOrdersMapper().updateByPrimaryKeySelective(update);
 								jsonObj.put("_hasDealed", true);
 							}
@@ -170,6 +191,11 @@ public class DiandanSystemService {
 							newDO.setSaleDate(saleDate);
 							newDO.setHandleState("1");
 							newDO.setIsDeleted("N");
+							String searchKey = newDO.getRecipesName() + "," + newDO.getRecipesCode() + "," //
+									+ CommonUtils.genSearchKey(newDO.getRecipesName(), null)//
+							;
+
+							newDO.setSearchKey(StringUtils.abbreviate(searchKey, 1000));
 							TkMappers.inst().getOrdersMapper().insert(newDO);
 							return jsonObj;
 						}).doOnComplete(() -> {

@@ -36,6 +36,19 @@ public class RemoteController {
 	final String api_key = "djo3ej38K23hkjsnd!Dkd";
 	final String api_url = "http://www.xiaojuhao.org/baoBiaoWeb/api_handle.do";
 
+	@RequestMapping(value = "/initWmsOrderSearchKey", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object initWmsOrderSearchKey() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+//		if (user == null) {
+//			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+//		}
+		String date = CommonUtils.get(request, "date");
+		Date saleDate = CommonUtils.parseDate(date, "yyyyMMdd");
+		this.diandanSystemService.initSearchKey(saleDate);
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
 	@RequestMapping(value = "/syncStores", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object syncStores() {
@@ -67,7 +80,8 @@ public class RemoteController {
 		}
 		String date = CommonUtils.get(request, "date");
 		Date saleDate = CommonUtils.parseDate(date, "yyyy-MM-dd");
-		ResultBase<String> rb = diandanSystemService.syncOrders(saleDate);
+		diandanSystemService.syncRecipes();//同步菜单
+		ResultBase<String> rb = diandanSystemService.syncOrders(saleDate);//同步销售订单
 		executor.submit(() -> orderMaterialService.handleOrders());
 		return ResultBaseBuilder.wrap(rb).rb(request);
 	}

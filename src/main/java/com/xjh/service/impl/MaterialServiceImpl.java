@@ -69,6 +69,7 @@ public class MaterialServiceImpl implements MaterialService {
 			stockDO.setWarningStock(0D);
 			stockDO.setWarningValue1(0D);
 			stockDO.setWarningValue2(0D);
+			stockDO.setIsDeleted(material.getIsDeleted());
 			this.tkWmsMaterialStockMapper.insert(stockDO);
 		}
 		return ResultBaseBuilder.succ().data(stockDO).rb();

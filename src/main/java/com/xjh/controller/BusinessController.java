@@ -34,6 +34,7 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
+import com.xjh.dao.dataobject.WmsSupplierDO;
 import com.xjh.dao.dataobject.WmsUnitGroupDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.WmsMaterialMapper;
@@ -52,6 +53,7 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
 import com.xjh.service.SequenceService;
+import com.xjh.service.SupplierService;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UnitGroupService;
 import com.xjh.valueobject.CabinVo;
@@ -91,6 +93,8 @@ public class BusinessController {
 	WmsMaterialStockMapper wmsMaterialStockMapper;
 	@Resource
 	WmsOrdersMapper wmsOrdersMapper;
+	@Resource
+	SupplierService supplierService;
 
 	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -110,7 +114,9 @@ public class BusinessController {
 		cond.setMaterialCode(materialCode);
 		cond = TkMappers.inst().getMaterialMapper().selectOne(cond);
 		cond.setStatus(2);//无效状态
+		cond.setIsDeleted("Y");
 		TkMappers.inst().getMaterialMapper().updateByPrimaryKeySelective(cond);
+		BusCruise.post(new MaterialChange(cond), true);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -154,7 +160,7 @@ public class BusinessController {
 			material.setUtilizationRatio(100);
 		}
 		material.setStatus(1);
-
+		material.setIsDeleted("N");
 		if (StringUtils.isBlank(material.getMaterialName())) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
@@ -247,6 +253,7 @@ public class BusinessController {
 		cond.setPageNo(pageNo);
 		cond.setPageSize(pageSize);
 		cond.setCategory(category);
+		cond.setIsDeleted("N");
 		int totalRows = this.wmsMaterialMapper.count(cond);
 		List<WmsMaterialDO> list = wmsMaterialMapper.query(cond);
 		page.setPageNo(pageNo);
@@ -314,6 +321,7 @@ public class BusinessController {
 		example.setCabinCode(cabCode);
 		example.setCabinType(cabType);
 		example.setPageSize(pageSize);
+		example.setIsDeleted("N");
 		example.setPageNo(pageNo);
 		example.setSearchKey(searchKey);
 		if (!"1".equals(user.getIsSu())) {
@@ -400,7 +408,7 @@ public class BusinessController {
 
 	@RequestMapping(value = "/queryMaterialSupplerByCode", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object queryMaterialSuppler() {
+	public Object queryMaterialSupplerByCode() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
@@ -414,6 +422,7 @@ public class BusinessController {
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setSupplierCode(supplierCode);
 		ms.setMaterialCode(materialCode);
+		ms.setIsDeleted("N");
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
@@ -447,13 +456,19 @@ public class BusinessController {
 
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setPageSize(3000);
+		ms.setIsDeleted("N");
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		List<JSONObject> retList = new ArrayList<>();
 		for (WmsMaterialSupplierDO s : list) {
+			WmsSupplierDO sp = supplierService.getSupplierByCode(s.getSupplierCode());
+			if (sp != null) {
+				s.setShortName(sp.getShortName());
+			}
 			JSONObject json = CommonUtils.toJSONObject(s);
 			String searchKey = CommonUtils.genSearchKey(s.getMaterialName(), "");
 			searchKey += "," + CommonUtils.genSearchKey(s.getSupplierName(), "");
 			json.put("searchKey", searchKey);
+			
 			retList.add(json);
 		}
 		return ResultBaseBuilder.succ().data(retList).rb(request);
@@ -470,6 +485,7 @@ public class BusinessController {
 		String saleDateStart = CommonUtils.get(request, "saleDateStart");
 		String saleDateEnd = CommonUtils.get(request, "saleDateEnd");
 		String recipesCode = CommonUtils.get(request, "recipesCode");
+		String searchKey = CommonUtils.get(request, "searchKey");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 		WmsOrdersDO cond = new WmsOrdersDO();
@@ -478,6 +494,7 @@ public class BusinessController {
 		cond.setPageNo(pageNo);
 		cond.setPageSize(pageSize);
 		cond.setIsDeleted("N");
+		cond.setSearchKey(searchKey);
 		cond.setSaleDateStart(CommonUtils.parseDate(saleDateStart));
 		cond.setSaleDateEnd(CommonUtils.parseDate(saleDateEnd));
 		if (!"1".equals(user.getIsSu())) {
