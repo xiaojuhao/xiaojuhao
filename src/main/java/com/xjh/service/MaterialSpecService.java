@@ -9,7 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
+import com.xjh.commons.CommonUtils;
 import com.xjh.dao.dataobject.WmsMaterialSpecDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
+import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecMapper;
 
 import tk.mybatis.mapper.entity.Example;
@@ -18,6 +21,8 @@ import tk.mybatis.mapper.entity.Example;
 public class MaterialSpecService {
 	@Resource
 	TkWmsMaterialSpecMapper specMapper;
+	@Resource
+	TkWmsMaterialSpecDetailMapper specDetailMapper;
 	@Resource
 	SequenceService sequence;
 
@@ -28,6 +33,17 @@ public class MaterialSpecService {
 		WmsMaterialSpecDO cond = new WmsMaterialSpecDO();
 		cond.setSpecCode(specCode);
 		WmsMaterialSpecDO spec = specMapper.selectOne(cond);
+		return spec;
+	}
+
+	public WmsMaterialSpecDetailDO querySpecDetailByCode(String materialCode, String specCode) {
+		if (CommonUtils.isAnyBlank(materialCode, specCode)) {
+			return null;
+		}
+		WmsMaterialSpecDetailDO cond = new WmsMaterialSpecDetailDO();
+		cond.setSpecCode(specCode);
+		cond.setMaterialCode(materialCode);
+		WmsMaterialSpecDetailDO spec = specDetailMapper.selectOne(cond);
 		return spec;
 	}
 

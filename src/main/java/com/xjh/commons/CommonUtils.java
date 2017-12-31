@@ -772,7 +772,12 @@ public class CommonUtils {
 
 	public static Double parseDouble(String numberStr, Double defaultVal) {
 		BigDecimal r = parseBigDecimal(numberStr);
-		return r == null ? defaultVal : r.doubleValue();
+		//注意这里有自动拆箱，如果defaultVal==null,会自动拆箱，报Null异常
+		//return r == null ? defaultVal : r.doubleValue(); 
+		if (r != null) {
+			return r.doubleValue();
+		}
+		return defaultVal;
 	}
 
 	public static BigDecimal parseBigDecimal(String numberStr, BigDecimal defaultVal) {

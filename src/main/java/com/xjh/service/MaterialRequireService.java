@@ -1,11 +1,13 @@
 package com.xjh.service;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
 import com.xjh.dao.dataobject.WmsMaterialDO;
@@ -41,12 +43,12 @@ public class MaterialRequireService {
 		WmsMaterialRequireDO cond = new WmsMaterialRequireDO();
 		cond.setMaterialCode(materialCode);
 		cond.setCabinCode(cabinCode);
-		cond.setRequireDate(requireDate);
 		cond.setStatus("0");
 		cond.setRequireGroup("DEFAULT");
-		WmsMaterialRequireDO r = requireMapper.selectOne(cond);
-		if (r == null) {
-			r = new WmsMaterialRequireDO();
+		PageHelper.orderBy("require_date desc");
+		List<WmsMaterialRequireDO> list = requireMapper.select(cond);
+		if (list.size() == 0) {
+			WmsMaterialRequireDO r = new WmsMaterialRequireDO();
 			r.setCabinCode(cabinCode);
 			r.setCabinName(cabin.getName());
 			r.setMaterialCode(materialCode);
@@ -62,11 +64,13 @@ public class MaterialRequireService {
 			r.setModifier("system");
 			requireMapper.insert(r);
 		} else {
+			WmsMaterialRequireDO r = list.get(0);
 			if (r.getRequireAmt() == null) {
 				r.setRequireAmt(0D);
 			}
 			r.setGmtModified(new Date());
 			r.setModifier("system");
+			r.setRequireDate(requireDate);
 			r.setRequireAmt(r.getRequireAmt() + requireAmt);
 			requireMapper.updateByPrimaryKeySelective(r);
 		}

@@ -22,9 +22,15 @@ import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
+import com.xjh.service.CabinService;
+import com.xjh.service.MaterialService;
+import com.xjh.service.MaterialSpecService;
+import com.xjh.service.TkMappers;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -35,6 +41,42 @@ public class MaterialRequireController {
 	HttpServletRequest request;
 	@Resource
 	TkWmsMaterialRequireMapper requireMapper;
+	@Resource
+	CabinService cabinService;
+	@Resource
+	MaterialService materialService;
+	@Resource
+	MaterialSpecService materialSpecService;
+
+	@RequestMapping(value = "/cancelRequire", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object cancelRequire() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String items = CommonUtils.get(request, "items");
+		if (StringUtils.isBlank(items)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		List<Long> idList = new ArrayList<>();
+		JSONArray itemArr = CommonUtils.parseJSONArray(items);
+		for (int i = 0; i < itemArr.size(); i++) {
+			JSONObject item = itemArr.getJSONObject(i);
+			Long id = CommonUtils.parseLong(item.getString("id"), null);
+			idList.add(id);
+		}
+		Example example = new Example(WmsMaterialRequireDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("id", idList);
+		WmsMaterialRequireDO val = new WmsMaterialRequireDO();
+		val.setStatus("2");
+		val.setRemark("取消需求");
+		val.setModifier(user.getUserCode());
+		val.setGmtModified(new Date());
+		requireMapper.updateByExampleSelective(val, example);
+		return ResultBaseBuilder.succ().rb(request);
+	}
 
 	@RequestMapping(value = "/handleRequire", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -49,11 +91,13 @@ public class MaterialRequireController {
 		if (jsonArr.size() == 0) {
 			return ResultBaseBuilder.fails("请选择记录").rb(request);
 		}
+		List<Long> requireIds = new ArrayList<>();
 		List<WmsMaterialRequireDO> list = new ArrayList<>();
 		for (int i = 0; i < jsonArr.size(); i++) {
 			JSONObject json = jsonArr.getJSONObject(i);
 			WmsMaterialRequireDO dd = new WmsMaterialRequireDO();
 			dd.setId(CommonUtils.parseLong(json.getString("id"), null));
+			requireIds.add(dd.getId());
 			dd.setSpecCode(json.getString("specCode"));
 			dd.setSpecName(json.getString("specName"));
 			dd.setSupplierCode(json.getString("supplierCode"));
@@ -62,6 +106,9 @@ public class MaterialRequireController {
 			dd.setSpecUnit(json.getString("specUnit"));
 			dd.setGmtModified(new Date());
 			dd.setModifier(user.getUserCode());
+			if ("2".equals(handleType)) {
+				dd.setStatus("1");
+			}
 			if (dd.getId() == null) {
 				return ResultBaseBuilder.fails("入参错误:缺少ID字段").rb(request);
 			}
@@ -70,6 +117,10 @@ public class MaterialRequireController {
 		}
 		//生成采购单
 		if ("2".equals(handleType)) {
+			Example example = new Example(WmsMaterialRequireDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andIn("id", requireIds);
+			List<WmsMaterialRequireDO> applyRequireList = requireMapper.selectByExample(example);
 			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> applyDetails = new ArrayList<>();
 			String applyNum = CommonUtils.uuid();
@@ -77,7 +128,16 @@ public class MaterialRequireController {
 			String cabinName = null;
 			String supplierCode = null;
 			String supplierName = null;
-			for (WmsMaterialRequireDO r : list) {
+			for (WmsMaterialRequireDO r : applyRequireList) {
+				WmsMaterialDO material = materialService.getMaterialByCode(r.getMaterialCode());
+				if (material == null) {
+					return ResultBaseBuilder.fails(r.getMaterialCode() + "不存在").rb(request);
+				}
+				WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode( //
+						r.getMaterialCode(), r.getSpecCode());
+				if (spec == null) {
+					return ResultBaseBuilder.fails(material.getMaterialName() + "请选择规格").rb(request);
+				}
 				cabinCode = r.getCabinCode();
 				cabinName = r.getCabinName();
 				r.setStatus("1");
@@ -85,22 +145,23 @@ public class MaterialRequireController {
 				de.setApplyNum(applyNum);
 				de.setCabinCode(r.getCabinCode());
 				de.setCabinName(r.getCabinName());
-				de.setMaterialCode(r.getMaterialCode());
-				de.setMaterialName(r.getMaterialName());
+				de.setMaterialCode(material.getMaterialCode());
+				de.setMaterialName(material.getMaterialName());
 				de.setSupplierCode(r.getSupplierCode());
 				de.setSupplierName(r.getSupplierName());
+				de.setStockUnit(material.getStockUnit());
+				de.setSpecCode(spec.getSpecCode());
+				de.setSpecUnit(spec.getSpecUnit());
 				de.setApplyType("purchase");
-				de.setSpecCode(r.getSpecCode());
-				de.setSpecUnit(r.getSpecUnit());
-				de.setSpecAmt(r.getSpecAmt());
-				de.setSpecPrice(r.getSpecPrice());
-				de.setStockUnit(r.getStockUnit());
-				de.setStockAmt(r.getStockAmt());
-				de.setStatus("0");
+				de.setSpecAmt(r.getSpecAmt() == null ? 0D : r.getSpecAmt());
+				de.setSpecPrice(r.getSpecPrice() == null ? 0D : r.getSpecPrice());
+				de.setStockAmt(r.getStockAmt() == null ? 0D : r.getStockAmt());
+				de.setStatus("1");
 				de.setGmtCreated(new Date());
 				de.setCreator(user.getUserCode());
 				de.setGmtModified(new Date());
 				de.setModifier(user.getUserCode());
+				de.setRemark("原料需求生成");
 				applyDetails.add(de);
 			}
 			assert applyNum != null;
@@ -112,7 +173,7 @@ public class MaterialRequireController {
 			apply.setSupplierCode(supplierCode);
 			apply.setSupplierName(supplierName);
 			apply.setProposer(user.getUserCode());
-			apply.setStatus("2");
+			apply.setStatus("4");
 			apply.setTotalPrice(0D);
 			apply.setPayables(0D);
 			apply.setPaidStatus("0");
@@ -121,6 +182,10 @@ public class MaterialRequireController {
 			apply.setGmtModified(new Date());
 			apply.setCreator(user.getUserCode());
 			apply.setModifier(user.getUserCode());
+			TkMappers.inst().getPurchaseOrderMapper().insert(apply);
+			for (WmsInventoryApplyDetailDO de : applyDetails) {
+				TkMappers.inst().getPurchaseOrderDetailMapper().insert(de);
+			}
 		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
