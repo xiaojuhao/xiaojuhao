@@ -73,6 +73,9 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 					break;
 				}
 				i++;
+				if (i % 100 == 0) {
+					log.info("任务{}正在执行,已处理{}条", job.getId(), i);
+				}
 				doBusiness(stock, today);
 				preId = stock.getId(); //下一个
 			}
