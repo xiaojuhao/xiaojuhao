@@ -63,7 +63,6 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	@Override
 	public void handle(WmsTimerJobDO job) {
 		try {
-			log.info("任务{}开始执行:{}", job.getId(), job.getJobName());
 			Date today = CommonUtils.todayDate();
 			Long preId = null;
 			int i = 0;
@@ -82,8 +81,6 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 			log.info("任务{}执行成功,共处理{}条数据", job.getId(), i);
 		} catch (Exception e) {
 			log.error("", e);
-		} finally {
-			log.info("任务{}执行结束:{}", job.getId(), job.getJobName());
 		}
 	}
 

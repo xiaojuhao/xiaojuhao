@@ -103,13 +103,22 @@ public class TimerJobService implements InitializingBean, ApplicationContextAwar
 				for (TimerJobHandler h : this.handlers) {
 					try {
 						if (h.accept(job)) {
+							long start = System.currentTimeMillis();
+							log.info("任务{}开始执行:{}", job.getId(), job.getJobName());
+							log.info("任务{}正在执行:执行handle", job.getId());
 							h.handle(job);
 							job.setExecuteResult("S1执行成功");
+							log.info("任务{}正在执行:执行handle完成", job.getId());
+							//
+							log.info("任务{}正在执行:执行postHandle", job.getId());
 							h.postHandle(job);
 							job.setExecuteResult("S1&S2执行成功");
+							log.info("任务{}正在执行:执行postHandle完成", job.getId());
+							log.info("任务{}执行成功,耗时:{}ms", job.getId(), System.currentTimeMillis() - start);
 							break;
 						}
 					} catch (Exception ex) {
+						log.info("任务{}执行失败", job.getId());
 						h.postHandle(job);
 						job.setExecuteResult(job.getExecuteResult() + ":S2执行失败");
 						throw ex;
