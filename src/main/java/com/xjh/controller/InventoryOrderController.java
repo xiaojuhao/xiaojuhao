@@ -362,6 +362,7 @@ public class InventoryOrderController {
 			JSONObject j = array.getJSONObject(i);
 			Long id = j.getLong("id");
 			Double realStock = j.getDouble("realStockAmt");
+
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
@@ -371,6 +372,9 @@ public class InventoryOrderController {
 			if (!StringUtils.equals("1", detail.getStatus())) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理")
 						.rb(request);
+			}
+			if (realStock == null) {
+				return ResultBaseBuilder.fails(detail.getMaterialName() + "未输入实际入库数量").rb(request);
 			}
 			double unitPrice = 0D;// 单价
 			if (detail.getTotalPrice() != null && detail.getStockAmt() != null && detail.getStockAmt() > 0.1) {

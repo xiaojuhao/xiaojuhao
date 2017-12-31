@@ -60,7 +60,7 @@ public class DiaoboController {
 				status = "4";// 配送中
 			}
 			if (inCabin == null || outCabin == null) {
-				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("货站信息不存在").rb(request);
+				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("请输入拨出/拨入仓库信息").rb(request);
 			}
 			String remark = CommonUtils.get(request, "remark");
 			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
@@ -103,8 +103,20 @@ public class DiaoboController {
 				detail.setMaterialName(j.getString("materialName"));
 				detail.setSupplierCode(j.getString("supplierCode"));
 				detail.setSupplierName(j.getString("supplierName"));
-
-				detail.setStockAmt(j.getDouble("outAmt"));
+				detail.setTotalPrice(CommonUtils.parseDouble(j.getString("totalPrice"), null));
+				if (detail.getTotalPrice() == null) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】没有输入总价").rb(request);
+				}
+				if (detail.getTotalPrice() < 0) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】金额小于0").rb(request);
+				}
+				detail.setStockAmt(CommonUtils.parseDouble(j.getString("outAmt"), null));
+				if (detail.getStockAmt() == null) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】拨出数量为空").rb(request);
+				}
+				if (detail.getStockAmt() <= 0) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】拨出数量不能小于等于0").rb(request);
+				}
 				detail.setStockUnit(j.getString("stockUnit"));
 				detail.setRealStockAmt(detail.getStockAmt());
 				detail.setGmtCreated(new Date());

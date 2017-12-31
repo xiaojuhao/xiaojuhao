@@ -468,7 +468,7 @@ public class BusinessController {
 			String searchKey = CommonUtils.genSearchKey(s.getMaterialName(), "");
 			searchKey += "," + CommonUtils.genSearchKey(s.getSupplierName(), "");
 			json.put("searchKey", searchKey);
-			
+
 			retList.add(json);
 		}
 		return ResultBaseBuilder.succ().data(retList).rb(request);
@@ -564,8 +564,8 @@ public class BusinessController {
 				stockData.add(0D);
 				saleData.add(0D);
 			} else {
-				stockData.add(dd.getCurrentStockAmt());
-				saleData.add(dd.getConsumeAmt2());
+				stockData.add(dd.getCurrentStockAmt() == null ? 0D : dd.getCurrentStockAmt());
+				saleData.add(dd.getConsumeAmt2() == null ? 0D : dd.getConsumeAmt2());
 			}
 			c.add(Calendar.DATE, 1);//next day
 		}
