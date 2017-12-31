@@ -564,6 +564,7 @@ public class BusinessController {
 				stockData.add(0D);
 				saleData.add(0D);
 			} else {
+				stockData.add(dd.getCurrentStockAmt());
 				saleData.add(dd.getConsumeAmt2());
 			}
 			c.add(Calendar.DATE, 1);//next day
