@@ -40,10 +40,15 @@ public class SyncOrdersJobHandler implements TimerJobHandler {
 
 	@Override
 	public void handle(WmsTimerJobDO job) {
-		log.info("开始同步订单。。。。。");
+		log.info("开始同步菜单。。。。。");
 		diandanService.syncRecipes();//先同步菜单
+		log.info("菜单不同成功。。。。。");
+		log.info("开始同步订单。。。。。");
 		diandanService.syncOrders(CommonUtils.todayDate(), true);
+		log.info("订单同步成功。。。。。");
+		log.info("开始处理原料。。。。。");
 		orderMaterialService.handleOrders();//处理订单原料数据
+		log.info("原料处理完成。。。。。");
 	}
 
 	@Override

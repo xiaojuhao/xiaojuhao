@@ -26,6 +26,7 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.TimerJobHandler;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 /**
@@ -34,6 +35,7 @@ import tk.mybatis.mapper.entity.Example;
  *
  */
 @Component
+@Slf4j
 public class SetWarningStockJobHandler implements TimerJobHandler {
 	static String JOB_TYPE = "set_warning_stock";
 	@Resource
@@ -60,15 +62,25 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 
 	@Override
 	public void handle(WmsTimerJobDO job) {
-		Date today = CommonUtils.todayDate();
-		Long preId = null;
-		while (true) {
-			WmsMaterialStockDO stock = this.nextToHandle(preId);
-			if (stock == null) {
-				break;
+		try {
+			log.info("任务{}开始执行:{}", job.getId(), job.getJobName());
+			Date today = CommonUtils.todayDate();
+			Long preId = null;
+			int i = 0;
+			while (true) {
+				WmsMaterialStockDO stock = this.nextToHandle(preId);
+				if (stock == null) {
+					break;
+				}
+				i++;
+				doBusiness(stock, today);
+				preId = stock.getId(); //下一个
 			}
-			doBusiness(stock, today);
-			preId = stock.getId(); //下一个
+			log.info("任务{}执行成功,共处理{}条数据", job.getId(), i);
+		} catch (Exception e) {
+			log.error("", e);
+		} finally {
+			log.info("任务{}执行结束:{}", job.getId(), job.getJobName());
 		}
 	}
 
@@ -97,57 +109,61 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	 * @param stock
 	 */
 	private void doBusiness(final WmsMaterialStockDO stock, Date date) {
-		WmsMaterialDO material = materialService.getMaterialByCode(stock.getMaterialCode());
-		final boolean isBusy = this.isBusiDay(date);
-		//以3天销售额作为预警值
-		Example example = new Example(WmsMaterialStockDailyDO.class, false, false);
-		Example.Criteria cri = example.createCriteria();
-		cri.andLessThanOrEqualTo("saleDate", date);
-		cri.andEqualTo("cabinCode", stock.getCabinCode());
-		cri.andEqualTo("materialCode", stock.getMaterialCode());
-		//按销售时间倒叙排，取3条记录
-		PageHelper.orderBy("stat_date desc");
-		PageHelper.startPage(1, 3);
-		List<WmsMaterialStockDailyDO> list = stockDailyMapper.selectByExample(example);
-		double warningStock = 0D;
-		for (WmsMaterialStockDailyDO dd : list) {
-			warningStock += dd.getConsumeAmt();
-		}
-		WmsMaterialStockDO update = new WmsMaterialStockDO();
-		update.setId(stock.getId());
-		update.setWarningStock(warningStock);
-		update.setGmtSetWarningStock(new Date());
-		materialStockMapper.updateByPrimaryKeySelective(update);
-		//设置告警信息
-		Integer ratio = material.getUtilizationRatio(); //利用率
-		if (ratio == null) {
-			ratio = 100;
-		}
-		if (stock.getCurrStock() * ratio / 100 <= warningStock) {//当前库存*利用率
-			WmsNoticeDO notice = new WmsNoticeDO();
-			notice.setStatus("1");
-			notice.setTitle("库存预警");
-			notice.setContent(stock.getCabinName() + "【" + stock.getMaterialName() + "】库存不足,请及时补货");
-			notice.setGmtCreated(new Date());
-			notice.setGmtExpired(CommonUtils.futureDays(new Date(), 7));
-			notice.setMsgType("warning");
-			TkMappers.inst().getNoticeMapper().insert(notice);
-			final Holder<Double> requireAmt = new Holder<>();
-			if (isBusy) {
-				requireAmt.set(stock.getWarningValue2() != null && stock.getWarningValue2() > 0 ? //
-						stock.getWarningValue2() : stock.getWarningStock());
-			} else {
-				requireAmt.set(stock.getWarningValue1() != null && stock.getWarningValue1() > 0 ? //
-						stock.getWarningValue1() : stock.getWarningStock());
+		try {
+			WmsMaterialDO material = materialService.getMaterialByCode(stock.getMaterialCode());
+			final boolean isBusy = this.isBusiDay(date);
+			//以3天销售额作为预警值
+			Example example = new Example(WmsMaterialStockDailyDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andLessThanOrEqualTo("saleDate", date);
+			cri.andEqualTo("cabinCode", stock.getCabinCode());
+			cri.andEqualTo("materialCode", stock.getMaterialCode());
+			//按销售时间倒叙排，取3条记录
+			PageHelper.orderBy("stat_date desc");
+			PageHelper.startPage(1, 3);
+			List<WmsMaterialStockDailyDO> list = stockDailyMapper.selectByExample(example);
+			double warningStock = 0D;
+			for (WmsMaterialStockDailyDO dd : list) {
+				warningStock += dd.getConsumeAmt();
 			}
+			WmsMaterialStockDO update = new WmsMaterialStockDO();
+			update.setId(stock.getId());
+			update.setWarningStock(warningStock);
+			update.setGmtSetWarningStock(new Date());
+			materialStockMapper.updateByPrimaryKeySelective(update);
+			//设置告警信息
+			Integer ratio = material.getUtilizationRatio(); //利用率
+			if (ratio == null) {
+				ratio = 100;
+			}
+			if (stock.getCurrStock() * ratio / 100 <= warningStock) {//当前库存*利用率
+				WmsNoticeDO notice = new WmsNoticeDO();
+				notice.setStatus("1");
+				notice.setTitle("库存预警");
+				notice.setContent(stock.getCabinName() + "【" + stock.getMaterialName() + "】库存不足,请及时补货");
+				notice.setGmtCreated(new Date());
+				notice.setGmtExpired(CommonUtils.futureDays(new Date(), 7));
+				notice.setMsgType("warning");
+				TkMappers.inst().getNoticeMapper().insert(notice);
+				final Holder<Double> requireAmt = new Holder<>();
+				if (isBusy) {
+					requireAmt.set(stock.getWarningValue2() != null && stock.getWarningValue2() > 0 ? //
+							stock.getWarningValue2() : stock.getWarningStock());
+				} else {
+					requireAmt.set(stock.getWarningValue1() != null && stock.getWarningValue1() > 0 ? //
+							stock.getWarningValue1() : stock.getWarningStock());
+				}
 
-			TaskUtils.schedule(() -> {
-				requireService.addRequire(//
-						stock.getCabinCode(), //
-						stock.getMaterialCode(), //
-						requireAmt.get(), //
-						null);
-			});
+				TaskUtils.schedule(() -> {
+					requireService.addRequire(//
+							stock.getCabinCode(), //
+							stock.getMaterialCode(), //
+							requireAmt.get(), //
+							null);
+				});
+			}
+		} catch (Exception e) {
+			log.error("", e);
 		}
 	}
 
