@@ -236,7 +236,15 @@ public class DiandanSystemService {
 			return;
 		}
 		try {
+			//先把所有的菜单记录都置为已删除状态，等后面同步的时候在恢复
+			WmsRecipesDO value = new WmsRecipesDO();
+			value.setIsDeleted("Y");
+			Example example = new Example(WmsRecipesDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andEqualTo("isDeleted", "N");
+			TkMappers.inst().getRecipesMapper().updateByExampleSelective(value, example);
 			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
+			//按部门同步菜单（api要求的，实际上可以一起拉过来的）
 			stores.forEach((store) -> {
 
 				String nonce = CommonUtils.uuid().toLowerCase();
@@ -272,6 +280,7 @@ public class DiandanSystemService {
 									recipes.setStatus("1");
 									recipes.setHadFormula("N");
 									recipes.setSrc("auto_sync");
+									recipes.setIsDeleted("N");
 									recipes.setSearchKey(CommonUtils.genSearchKey(//
 											recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
 									TkMappers.inst().getRecipesMapper().insert(recipes);
@@ -279,12 +288,13 @@ public class DiandanSystemService {
 									WmsRecipesDO update = new WmsRecipesDO();
 									update.setId(recipes.getId());
 									update.setRecipesName(jsonObj.getString("dishes_name"));
+									update.setIsDeleted("N");
 									TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
 								}
 							});
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 			});
 		} finally {

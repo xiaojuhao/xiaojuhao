@@ -1,0 +1,1 @@
+webpackJsonp([56],{1076:function(n,e){n.exports={render:function(){var n=this,e=n.$createElement;return(n._self._c||e)("div",[n._v("\n    Payment Pay\n")])},staticRenderFns:[]}},643:function(n,e,t){var r=t(262)(null,t(1076),null,null);n.exports=r.exports}});

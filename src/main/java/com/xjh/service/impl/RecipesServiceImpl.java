@@ -42,6 +42,7 @@ public class RecipesServiceImpl implements RecipesService {
 			long val = sequenceService.next("wms_recipes");
 			recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
 			wmsRecipesDO.setRecipesCode(recipesCode);
+			wmsRecipesDO.setIsDeleted("N");
 			return recipesMapper.insert(wmsRecipesDO);
 		}
 	}
@@ -50,6 +51,7 @@ public class RecipesServiceImpl implements RecipesService {
 	public PageResult<WmsRecipesDO> queryRecipes(WmsRecipesDO wmsRecipesDO) {
 		if (wmsRecipesDO == null) {
 			wmsRecipesDO = new WmsRecipesDO();
+			wmsRecipesDO.setIsDeleted("N");
 		}
 		PageResult<WmsRecipesDO> page = new PageResult<WmsRecipesDO>();
 		int totalRows = this.recipesMapper.selectCount(wmsRecipesDO);

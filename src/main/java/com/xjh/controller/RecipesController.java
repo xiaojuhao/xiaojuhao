@@ -117,7 +117,8 @@ public class RecipesController {
 		if (recipes == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
-		TkMappers.inst().getRecipesMapper().deleteByPrimaryKey(recipes.getId());
+		recipes.setIsDeleted("Y");
+		TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(recipes);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -135,6 +136,7 @@ public class RecipesController {
 		cond.setRecipesCode(recipesCode);
 		cond.setHadFormula(hadFormula);
 		cond.setSearchKey(searchKey);
+		cond.setIsDeleted("N");
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		PageResult<WmsRecipesDO> page = new PageResult<>();
@@ -156,6 +158,7 @@ public class RecipesController {
 		}
 		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
 		wmsRecipesDO.setPageSize(1000);
+		wmsRecipesDO.setIsDeleted("N");
 		PageResult<WmsRecipesDO> page = recipesService.queryRecipes(wmsRecipesDO);
 		return ResultBaseBuilder.succ().data(page.getValues()).rb(request);
 	}
@@ -185,6 +188,7 @@ public class RecipesController {
 		}
 		WmsRecipesFormulaDO example = new WmsRecipesFormulaDO();
 		example.setRecipesCode(recipesCode);
+		example.setIsDeleted("N");
 		List<WmsRecipesFormulaDO> list = TkMappers.inst().getRecipesFormulaMapper().select(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}

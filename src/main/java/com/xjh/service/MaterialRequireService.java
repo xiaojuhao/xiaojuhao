@@ -19,6 +19,7 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
 import com.xjh.valueobject.CabinVo;
@@ -33,6 +34,8 @@ public class MaterialRequireService {
 	MaterialService materialService;
 	@Resource
 	TkWmsMaterialRequireMapper requireMapper;
+	@Resource
+	MaterialSpecService materialSpecService;
 
 	public void addRequire(String cabinCode, String materialCode, Double requireAmt, String date) {
 		if (requireAmt == null) {
@@ -149,6 +152,14 @@ public class MaterialRequireService {
 				de.setGmtModified(new Date());
 				de.setModifier(user.getUserCode());
 				de.setRemark("原料需求生成");
+				WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode(//
+						de.getMaterialCode(), de.getSpecCode());
+				if (spec != null) {
+					de.setUtilizationRatio(spec.getUtilizationRatio());
+				} else {
+					de.setUtilizationRatio(100);
+				}
+				de.setInStockAmt(0D);
 				totalPrice += de.getSpecPrice() * de.getSpecAmt();
 				details.add(de);
 			}

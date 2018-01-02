@@ -1,5 +1,8 @@
 package com.xjh.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +22,10 @@ import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsRolesDO;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsUserRolesDO;
+import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.valueobject.UserVo;
@@ -58,7 +63,7 @@ public class UserController {
 		ret.setIsSu(loginRs.getValue().getIsSu());
 		return ResultBaseBuilder.succ().data(ret).rb(request);
 	}
-	
+
 	@RequestMapping(value = "/loginInfo", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object loginInfo(HttpServletResponse response) {
@@ -209,5 +214,45 @@ public class UserController {
 			TkMappers.inst().getUserMapper().updateByPrimaryKeySelective(update);
 		}
 		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/mycabins", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object mycabins() {
+		WmsUserDO loginUser = AccountUtils.getLoginUser(request);
+		if (loginUser == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		List<JSONObject> mycabins = new ArrayList<>();
+		List<WmsStoreDO> allStores = TkMappers.inst().getStoreMapper().selectAll();
+		List<WmsWarehouseDO> allWarehouses = TkMappers.inst().getWarehouseMapper().selectAll();
+		if ("1".equals(loginUser.getIsSu())) {
+			allStores.forEach((it) -> {
+				mycabins.add(CommonUtils.asJSONObject("cabinCode", it.getStoreCode(), //
+						"cabinName", it.getStoreName()));
+			});
+			allWarehouses.forEach((it) -> {
+				mycabins.add(CommonUtils.asJSONObject("cabinCode", it.getWarehouseCode(), //
+						"cabinName", it.getWarehouseName()));
+			});
+		} else {
+			List<String> auths = new ArrayList<>();
+			auths.addAll(CommonUtils.splitAsList(loginUser.getAuthStores(), ","));
+			auths.addAll(CommonUtils.splitAsList(loginUser.getAuthWarehouse(), ","));
+
+			allStores.forEach((it) -> {
+				if (auths.contains(it.getStoreCode())) {
+					mycabins.add(CommonUtils.asJSONObject("cabinCode", it.getStoreCode(), //
+							"cabinName", it.getStoreName()));
+				}
+			});
+			allWarehouses.forEach((it) -> {
+				if (auths.contains(it.getWarehouseCode())) {
+					mycabins.add(CommonUtils.asJSONObject("cabinCode", it.getWarehouseCode(), //
+							"cabinName", it.getWarehouseName()));
+				}
+			});
+		}
+		return ResultBaseBuilder.succ().data(mycabins).rb(request);
 	}
 }

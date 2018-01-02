@@ -22,6 +22,9 @@
 			<if test="status != null and status != ''">
 				and status = #{status}
 			</if>
+			<if test="isDeleted != null and isDeleted != ''">
+				and is_deleted = #{isDeleted}
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsRecipesDO">

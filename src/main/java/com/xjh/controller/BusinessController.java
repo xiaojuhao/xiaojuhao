@@ -347,6 +347,26 @@ public class BusinessController {
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
+	@RequestMapping(value = "/queryStockByMaterialCodes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryStockByMaterialCodes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String materialCodes = CommonUtils.get(request, "materialCodes");
+		List<String> materialList = CommonUtils.splitAsList(materialCodes, ",");
+		if (materialList.size() == 0) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		Example example = new Example(WmsMaterialStockDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("materialCode", materialList);
+		cri.andEqualTo("isDeleted", "N");
+		List<WmsMaterialStockDO> list = TkMappers.inst().getMaterialStockMapper().selectByExample(example);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
 	@RequestMapping(value = "/queryMaterialsStockById", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryMaterialsStockById() {
@@ -424,6 +444,26 @@ public class BusinessController {
 		ms.setMaterialCode(materialCode);
 		ms.setIsDeleted("N");
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
+	@RequestMapping(value = "/querySuppliersByMaterialCodes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object querySuppliersByMaterialCodes() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String materialCodes = CommonUtils.get(request, "materialCodes");
+		List<String> materialCodeList = CommonUtils.splitAsList(materialCodes, ",");
+		if(materialCodeList.size()==0){
+			return ResultBaseBuilder.succ().data(new ArrayList<>()).rb(request);
+		}
+		Example example = new Example(WmsMaterialSupplierDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("materialCode", materialCodeList);
+		cri.andEqualTo("isDeleted", "N");
+		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().selectByExample(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 

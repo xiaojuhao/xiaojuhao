@@ -25,4 +25,5 @@ public class WmsRecipesDO extends PageDTO {
 	String status;
 	String searchKey;
 	String hadFormula;
+	String isDeleted;
 }

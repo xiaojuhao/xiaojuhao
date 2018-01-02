@@ -35,6 +35,8 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Double specPrice;
 	Double stockAmt;
 	Double realStockAmt;
+	Integer utilizationRatio;
+	Double inStockAmt;
 	String stockUnit;
 	Double totalPrice;
 	String remark;

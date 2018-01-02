@@ -23,6 +23,8 @@ import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.SequenceService;
 
+import tk.mybatis.mapper.entity.Example;
+
 @Controller
 @RequestMapping("/spec")
 public class MaterialSpecController {
@@ -137,6 +139,22 @@ public class MaterialSpecController {
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
 		PageHelper.orderBy("id");
 		List<WmsMaterialSpecDetailDO> list = this.detailMapper.select(cond);
+		return ResultBaseBuilder.succ().data(list).rb(request);
+	}
+
+	@RequestMapping(value = "/querySpecsByMaterialCodes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object querySpecsByMaterialCodes() {
+		String materialCodes = CommonUtils.get(request, "materialCodes");
+		List<String> materialCodeList = CommonUtils.splitAsList(materialCodes, ",");
+		if(materialCodeList.size() ==0){
+			return ResultBaseBuilder.succ().data(new ArrayList<>()).rb(request);
+		}
+		Example example = new Example(WmsMaterialSpecDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("materialCode", materialCodeList);
+		cri.andEqualTo("isDeleted", "N");
+		List<WmsMaterialSpecDetailDO> list = this.detailMapper.selectByExample(example);
 		return ResultBaseBuilder.succ().data(list).rb(request);
 	}
 }

@@ -24,6 +24,7 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
+import com.xjh.service.MaterialSpecService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
@@ -37,6 +38,8 @@ public class DiaoboController {
 	CabinService cabinService;
 	@Resource
 	DatabaseService database;
+	@Resource
+	MaterialSpecService materialSpecService;
 
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -125,6 +128,8 @@ public class DiaoboController {
 				detail.setModifier(user.getUserCode());
 				detail.setStatus("0");
 				detail.setRemark(j.getString("remark"));
+				detail.setUtilizationRatio(100);//调拨的利用率默认都是100
+				detail.setInStockAmt(detail.getRealStockAmt());
 				// 库存
 				his.setMaterialCode(detail.getMaterialCode());
 				his.setMaterialName(detail.getMaterialName());

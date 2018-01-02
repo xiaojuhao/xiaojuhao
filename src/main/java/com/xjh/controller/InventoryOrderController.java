@@ -25,6 +25,7 @@ import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
@@ -34,6 +35,7 @@ import com.xjh.dao.dataobject.WmsWarehouseDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.Mappers;
+import com.xjh.service.MaterialSpecService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
@@ -50,6 +52,8 @@ public class InventoryOrderController {
 	CabinService cabinService;
 	@Resource
 	DatabaseService database;
+	@Resource
+	MaterialSpecService materialSpecService;
 
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -278,6 +282,11 @@ public class InventoryOrderController {
 				if (StringUtils.isBlank(d.getSpecCode())) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "没有填写规格信息").rb(request);
 				}
+				WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode(//
+						d.getMaterialCode(), d.getSpecCode());
+				if (spec == null) {
+					return ResultBaseBuilder.fails("规格" + d.getSpecCode() + "不存在").rb(request);
+				}
 				d.setSpecAmt(j.getDouble("specAmt"));
 				if (d.getSpecAmt() == null) {
 					d.setSpecAmt(0D);
@@ -317,6 +326,8 @@ public class InventoryOrderController {
 				d.setGmtModified(new Date());
 				d.setCreator(user.getUserCode());
 				d.setModifier(user.getUserCode());
+				d.setUtilizationRatio(spec.getUtilizationRatio());
+				d.setInStockAmt(0D);
 				d.setStatus("1");
 				sumPrice += d.getTotalPrice();
 				details.add(d);
@@ -376,6 +387,7 @@ public class InventoryOrderController {
 			if (realStock == null) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "未输入实际入库数量").rb(request);
 			}
+			detail.setInStockAmt(detail.getUtilizationRatio() * realStock / 100);
 			double unitPrice = 0D;// 单价
 			if (detail.getTotalPrice() != null && detail.getStockAmt() != null && detail.getStockAmt() > 0.1) {
 				unitPrice = detail.getTotalPrice() / detail.getStockAmt();
@@ -393,7 +405,7 @@ public class InventoryOrderController {
 			h.setUnitPrice(unitPrice);
 			h.setProductDate(detail.getProdDate());
 			h.setStockUnit(detail.getStockUnit());
-			h.setAmt(realStock);
+			h.setAmt(detail.getInStockAmt());
 			h.setOperator(detail.getModifier());
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
