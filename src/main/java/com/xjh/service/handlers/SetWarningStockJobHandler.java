@@ -12,7 +12,7 @@ import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
 import com.xjh.commons.TaskUtils;
-import com.xjh.dao.dataobject.WmsMaterialDO;
+import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
 import com.xjh.dao.dataobject.WmsNoticeDO;
@@ -147,6 +147,9 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	}
 
 	private void checkWaringAndGenRequire(final boolean isBusy) {
+		//把系统中现有的没有处理的需求信息都删除掉，因为本次计算出来的需求信息才是最新的
+		this.requireService.clearUnDealedRecord();
+		//重新计算需求信息
 		cabinService.getAllCabins().forEach((cabin) -> {
 			WmsMaterialStockDO cond = new WmsMaterialStockDO();
 			cond.setCabinCode(cabin.getCode());
@@ -168,7 +171,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 						continue;
 					}
 					//库存大于预警值，不告警
-					if (stock.getCurrStock() > wariningAmt) {
+					if (stock.getCurrStock() >= wariningAmt) {
 						continue;
 					}
 					//生成告警信息

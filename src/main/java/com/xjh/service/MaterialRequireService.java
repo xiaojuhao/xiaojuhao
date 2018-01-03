@@ -37,6 +37,12 @@ public class MaterialRequireService {
 	@Resource
 	MaterialSpecService materialSpecService;
 
+	public void clearUnDealedRecord() {
+		WmsMaterialRequireDO cond = new WmsMaterialRequireDO();
+		cond.setStatus("0");
+		this.requireMapper.delete(cond);
+	}
+
 	public void addRequire(String cabinCode, String materialCode, Double requireAmt, String date) {
 		if (requireAmt == null) {
 			requireAmt = 0D;
