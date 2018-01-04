@@ -31,6 +31,7 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	String supplierName;
 	String specCode;
 	Double specAmt;
+	Double transRate;
 	String specUnit;
 	Double specPrice;
 	Double stockAmt;

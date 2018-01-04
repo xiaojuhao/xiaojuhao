@@ -162,6 +162,8 @@ public class MaterialRequireService {
 						de.getMaterialCode(), de.getSpecCode());
 				if (spec != null) {
 					de.setUtilizationRatio(spec.getUtilizationRatio());
+					de.setTransRate(spec.getTransRate().doubleValue());
+					de.setSpecUnit(spec.getSpecUnit());
 				} else {
 					de.setUtilizationRatio(100);
 				}

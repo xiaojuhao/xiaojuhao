@@ -291,10 +291,6 @@ public class InventoryOrderController {
 				if (d.getSpecAmt() == null) {
 					d.setSpecAmt(0D);
 				}
-				d.setSpecUnit(j.getString("specUnit"));
-				if (d.getSpecUnit() == null) {
-					d.setSpecUnit("无");
-				}
 				d.setSpecPrice(j.getDouble("specPrice"));
 				if (d.getSpecPrice() == null) {
 					d.setSpecPrice(0D);
@@ -303,9 +299,11 @@ public class InventoryOrderController {
 				if ("无".equals(d.getSpecUnit())) {
 					qty = 1;
 				}
+				d.setSpecUnit(spec.getSpecUnit());
 				d.setStockAmt(d.getSpecAmt() * qty);
 				d.setStockUnit(j.getString("stockUnit"));
 				d.setRealStockAmt(d.getStockAmt());
+				d.setTransRate(spec.getTransRate().doubleValue());
 				d.setTotalPrice(d.getSpecAmt() * d.getSpecPrice());
 				d.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
 				d.setExpDate(CommonUtils.parseDate(j.getString("expDate")));
