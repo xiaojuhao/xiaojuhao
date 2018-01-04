@@ -76,6 +76,7 @@ public class MaterialRequireService {
 			r.setMaterialCate(material.getCategory());
 			r.setRequireDate(requireDate);
 			r.setRequireAmt(requireAmt);
+			r.setPurchaseType("1");
 			r.setStatus("0");
 			r.setGmtCreated(new Date());
 			r.setCreator("system");
@@ -109,16 +110,29 @@ public class MaterialRequireService {
 			if (CommonUtils.isAnyBlank(rd.getSpecCode(), rd.getSpecName())) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入规格信息").rb();
 			}
-			if (CommonUtils.isAnyBlank(rd.getSupplierCode(), rd.getSupplierName())) {
-				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入供应商信息").rb();
-			}
 			if (rd.getSpecAmt() == null) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入采购数量").rb();
 			}
 			if (rd.getSpecPrice() == null) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入采购金额").rb();
 			}
-			String key = rd.getCabinCode() + "_" + rd.getSupplierCode();
+			if ("1".equals(rd.getPurchaseType())) {
+				if (CommonUtils.isAnyBlank(rd.getSupplierCode(), rd.getSupplierName())) {
+					return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入供应商信息").rb();
+				}
+			} else if ("2".equals(rd.getPurchaseType())) {
+				if (CommonUtils.isAnyBlank(rd.getFromCabinCode(), rd.getFromCabinName())) {
+					return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入调拨仓库信息").rb();
+				}
+			} else {
+				return ResultBaseBuilder.fails("请选择采购类型").rb();
+			}
+			String key = null;
+			if ("1".equals(rd.getPurchaseType())) {
+				key = rd.getCabinCode() + "_" + rd.getSupplierCode() + "_" + rd.getPurchaseType();
+			} else if ("2".equals(rd.getPurchaseType())) {
+				key = rd.getCabinCode() + "_" + rd.getFromCabinCode() + "_" + rd.getPurchaseType();
+			}
 			if (!groups.containsKey(key)) {
 				groups.put(key, new ArrayList<WmsMaterialRequireDO>());
 			}
@@ -128,6 +142,7 @@ public class MaterialRequireService {
 		List<WmsInventoryApplyDO> applys = new ArrayList<>();
 		//每组生成一个申请单
 		for (String key : groups.keySet()) {
+			List<String> keyFiled = CommonUtils.splitAsList(key, "_");
 			List<WmsMaterialRequireDO> glist = groups.get(key);
 			if (glist == null || glist.size() == 0) {
 				continue;
@@ -143,12 +158,18 @@ public class MaterialRequireService {
 				de.setCabinName(r.getCabinName());
 				de.setMaterialCode(r.getMaterialCode());
 				de.setMaterialName(r.getMaterialName());
-				de.setSupplierCode(r.getSupplierCode());
-				de.setSupplierName(r.getSupplierName());
 				de.setStockUnit(r.getStockUnit());
 				de.setSpecCode(r.getSpecCode());
 				de.setSpecUnit(r.getSpecUnit());
-				de.setApplyType("purchase");
+				if ("1".equals(keyFiled.get(2))) {
+					de.setApplyType("purchase");
+					de.setSupplierCode(r.getSupplierCode());
+					de.setSupplierName(r.getSupplierName());
+				} else if ("2".equals(keyFiled.get(2))) {
+					de.setApplyType("allocation");
+					de.setFromCabinCode(r.getFromCabinCode());
+					de.setFromCabinName(r.getFromCabinName());
+				}
 				de.setSpecAmt(r.getSpecAmt() == null ? 0D : r.getSpecAmt());
 				de.setSpecPrice(r.getSpecPrice() == null ? 0D : r.getSpecPrice());
 				de.setStockAmt(r.getStockAmt() == null ? 0D : r.getStockAmt());
@@ -172,12 +193,18 @@ public class MaterialRequireService {
 				details.add(de);
 			}
 			apply.setApplyNum(applyNum);
-			apply.setApplyType("purchase");
+			if ("1".equals(keyFiled.get(2))) {
+				apply.setApplyType("purchase");
+				apply.setSupplierCode(glist.get(0).getSupplierCode());
+				apply.setSupplierName(glist.get(0).getSupplierName());
+			} else if ("2".equals(keyFiled.get(2))) {
+				apply.setApplyType("allocation");
+				apply.setFromCabinCode(glist.get(0).getFromCabinCode());
+				apply.setFromCabinName(glist.get(0).getFromCabinName());
+			}
 			apply.setSerialNo(CommonUtils.stringOfToday("yyyyMMddHHmmss"));
 			apply.setCabinCode(glist.get(0).getCabinCode());
 			apply.setCabinName(glist.get(0).getCabinName());
-			apply.setSupplierCode(glist.get(0).getSupplierCode());
-			apply.setSupplierName(glist.get(0).getSupplierName());
 			apply.setProposer(user.getUserCode());
 			apply.setStatus("4");
 			apply.setTotalPrice(totalPrice);

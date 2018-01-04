@@ -28,8 +28,11 @@ public class WmsMaterialRequireDO extends PageDTO implements Serializable {
 	String requireGroup;
 	String applyNum;
 	Double requireAmt;
+	String purchaseType;
 	String supplierCode;
 	String supplierName;
+	String fromCabinCode;
+	String fromCabinName;
 	String specCode;
 	String specName;
 	Double specAmt;

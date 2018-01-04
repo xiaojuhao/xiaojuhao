@@ -113,6 +113,9 @@ public class MaterialRequireController {
 			dd.setSpecAmt(CommonUtils.parseDouble(json.getString("specAmt"), null));
 			dd.setSpecUnit(json.getString("specUnit"));
 			dd.setSpecPrice(CommonUtils.parseDouble(json.getString("specPrice"), null));
+			dd.setPurchaseType(json.getString("purchaseType"));
+			dd.setFromCabinCode(json.getString("fromCabinCode"));
+			dd.setFromCabinName(json.getString("fromCabinName"));
 			dd.setGmtModified(new Date());
 			dd.setModifier(user.getUserCode());
 			if (dd.getSpecAmt() != null && StringUtils.isNotBlank(dd.getSpecCode())) {
