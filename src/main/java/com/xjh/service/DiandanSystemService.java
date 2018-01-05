@@ -227,6 +227,7 @@ public class DiandanSystemService {
 	}
 
 	public void syncRecipes() {
+		log.info("开始同步菜单.....开始......");
 		ResultBase<WmsTaskDO> task = TaskService.initTask("sync_recipes", "sync_recipes", "同步菜单");
 		if (task.getIsSuccess() == false) {
 			return;
@@ -246,7 +247,7 @@ public class DiandanSystemService {
 			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
 			//按部门同步菜单（api要求的，实际上可以一起拉过来的）
 			stores.forEach((store) -> {
-
+				log.info("同步{}菜单.....开始......", store.getStoreName());
 				String nonce = CommonUtils.uuid().toLowerCase();
 				String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
 				Map<String, String> params = new HashMap<>();
@@ -296,9 +297,11 @@ public class DiandanSystemService {
 				} catch (Exception e) {
 					log.error("", e);
 				}
+				log.info("同步{}菜单.....结束......", store.getStoreName());
 			});
 		} finally {
 			TaskService.finishTask(task.getValue());
+			log.info("开始同步菜单.....结束......");
 		}
 	}
 

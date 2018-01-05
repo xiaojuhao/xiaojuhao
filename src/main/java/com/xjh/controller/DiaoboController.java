@@ -20,6 +20,7 @@ import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
@@ -107,19 +108,27 @@ public class DiaoboController {
 				detail.setSupplierCode(j.getString("supplierCode"));
 				detail.setSupplierName(j.getString("supplierName"));
 				detail.setTotalPrice(CommonUtils.parseDouble(j.getString("totalPrice"), null));
-				if (detail.getTotalPrice() == null) {
-					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】没有输入总价").rb(request);
-				}
-				if (detail.getTotalPrice() < 0) {
-					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】金额小于0").rb(request);
-				}
-				detail.setStockAmt(CommonUtils.parseDouble(j.getString("outAmt"), null));
-				if (detail.getStockAmt() == null) {
+				detail.setSpecAmt(CommonUtils.parseDouble(j.getString("specAmt"), null));
+				if (detail.getSpecAmt() == null) {
 					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】拨出数量为空").rb(request);
 				}
-				if (detail.getStockAmt() <= 0) {
+				if (detail.getSpecAmt() <= 0) {
 					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】拨出数量不能小于等于0").rb(request);
 				}
+				detail.setSpecPrice(CommonUtils.parseDouble(j.getString("specPrice"), null));
+				if (detail.getSpecPrice() == null) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】采购金额为空").rb(request);
+				}
+				if (detail.getSpecPrice() <= 0) {
+					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】采购金额不能小于等于0").rb(request);
+				}
+				detail.setSpecCode(j.getString("specCode"));
+				WmsMaterialSpecDetailDO spec = this.materialSpecService.querySpecDetailByCode(//
+						detail.getMaterialCode(), detail.getSpecCode());
+				detail.setTransRate(CommonUtils.parseDouble(j.getString("transRate"), 1D));
+				detail.setUtilizationRatio(spec.getUtilizationRatio());
+				detail.setStockAmt(detail.getSpecAmt() * detail.getTransRate() * detail.getUtilizationRatio() / 100);
+				detail.setSpecUnit(j.getString("specUnit"));
 				detail.setStockUnit(j.getString("stockUnit"));
 				detail.setRealStockAmt(detail.getStockAmt());
 				detail.setGmtCreated(new Date());
@@ -128,7 +137,6 @@ public class DiaoboController {
 				detail.setModifier(user.getUserCode());
 				detail.setStatus("0");
 				detail.setRemark(j.getString("remark"));
-				detail.setUtilizationRatio(100);//调拨的利用率默认都是100
 				detail.setInStockAmt(detail.getRealStockAmt());
 				// 库存
 				his.setMaterialCode(detail.getMaterialCode());
