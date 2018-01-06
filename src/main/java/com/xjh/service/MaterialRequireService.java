@@ -161,6 +161,14 @@ public class MaterialRequireService {
 				de.setStockUnit(r.getStockUnit());
 				de.setSpecCode(r.getSpecCode());
 				de.setSpecUnit(r.getSpecUnit());
+				WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode(//
+						de.getMaterialCode(), de.getSpecCode());
+				if (spec == null) {
+					return ResultBaseBuilder.fails(r.getMaterialName() + "规格错误").rb();
+				}
+				de.setUtilizationRatio(spec.getUtilizationRatio());
+				de.setTransRate(spec.getTransRate().doubleValue());
+				de.setSpecUnit(spec.getSpecUnit());
 				if ("1".equals(keyFiled.get(2))) {
 					de.setApplyType("purchase");
 					de.setSupplierCode(r.getSupplierCode());
@@ -173,22 +181,15 @@ public class MaterialRequireService {
 				de.setSpecAmt(r.getSpecAmt() == null ? 0D : r.getSpecAmt());
 				de.setSpecPrice(r.getSpecPrice() == null ? 0D : r.getSpecPrice());
 				de.setStockAmt(r.getStockAmt() == null ? 0D : r.getStockAmt());
+				de.setRealSpecAmt(de.getSpecAmt());
+				de.setInStockAmt(de.getStockAmt() * spec.getUtilizationRatio() / 100);
+				de.setRealStockAmt(de.getInStockAmt());
 				de.setStatus("1");
 				de.setGmtCreated(new Date());
 				de.setCreator(user.getUserCode());
 				de.setGmtModified(new Date());
 				de.setModifier(user.getUserCode());
 				de.setRemark("原料需求生成");
-				WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode(//
-						de.getMaterialCode(), de.getSpecCode());
-				if (spec != null) {
-					de.setUtilizationRatio(spec.getUtilizationRatio());
-					de.setTransRate(spec.getTransRate().doubleValue());
-					de.setSpecUnit(spec.getSpecUnit());
-				} else {
-					de.setUtilizationRatio(100);
-				}
-				de.setInStockAmt(0D);
 				totalPrice += de.getSpecPrice() * de.getSpecAmt();
 				details.add(de);
 			}

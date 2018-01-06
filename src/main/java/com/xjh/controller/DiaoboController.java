@@ -125,7 +125,8 @@ public class DiaoboController {
 				}
 				detail.setTotalPrice(CommonUtils.parseDouble(j.getString("totalPrice"), null));
 				detail.setSpecAmt(CommonUtils.parseDouble(j.getString("specAmt"), null));
-				if (detail.getSpecAmt() == null || detail.getSpecAmt() <= 0) {
+				detail.setRealSpecAmt(detail.getSpecAmt());
+				if (detail.getSpecAmt() == null || detail.getSpecAmt() <= 0.001) {
 					return ResultBaseBuilder.fails("【" + detail.getMaterialName() + "】拨出数量不能为空").rb(request);
 				}
 				detail.setSpecPrice(CommonUtils.parseDouble(j.getString("specPrice"), null));
@@ -195,6 +196,10 @@ public class DiaoboController {
 			JSONObject j = array.getJSONObject(i);
 			Long id = j.getLong("id");
 			String materialName = j.getString("materialName");
+			Double realSpecAmt = CommonUtils.parseDouble(j.getString("realSpecAmt"), null);
+			if (realSpecAmt == null) {
+				return ResultBaseBuilder.fails(materialName + "请输入采购规格").rb(request);
+			}
 			Double realStock = j.getDouble("realStockAmt");
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
@@ -275,6 +280,7 @@ public class DiaoboController {
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());
 			update.setStatus("2");
+			update.setRealSpecAmt(realSpecAmt);
 			update.setRealStockAmt(realStock);
 			updateList.add(update);
 		}

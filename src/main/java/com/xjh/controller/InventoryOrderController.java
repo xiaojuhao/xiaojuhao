@@ -293,7 +293,8 @@ public class InventoryOrderController {
 				if (spec == null) {
 					return ResultBaseBuilder.fails("规格" + d.getSpecCode() + "不存在").rb(request);
 				}
-				d.setSpecAmt(j.getDouble("specAmt"));
+				d.setSpecAmt(CommonUtils.parseDouble(j.getString("specAmt"), null));
+				d.setRealSpecAmt(d.getSpecAmt());
 				if (d.getSpecAmt() == null || d.getSpecAmt() <= 0.0001) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "采购数量必输").rb(request);
 				}
@@ -385,7 +386,7 @@ public class InventoryOrderController {
 			JSONObject j = array.getJSONObject(i);
 			Long id = j.getLong("id");
 			Double realStock = j.getDouble("realStockAmt");
-
+			Double realSpecAmt = CommonUtils.getDbl(request, "realSpecAmt", null);
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
@@ -452,6 +453,11 @@ public class InventoryOrderController {
 			update.setId(detail.getId());
 			update.setStatus("2");
 			update.setRealStockAmt(realStock);
+			if (realSpecAmt != null) {
+				update.setRealSpecAmt(realSpecAmt);
+			} else {
+				update.setRealSpecAmt(update.getSpecAmt());
+			}
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
