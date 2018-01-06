@@ -386,7 +386,7 @@ public class InventoryOrderController {
 			JSONObject j = array.getJSONObject(i);
 			Long id = j.getLong("id");
 			Double realStock = j.getDouble("realStockAmt");
-			Double realSpecAmt = CommonUtils.getDbl(request, "realSpecAmt", null);
+			Double realSpecAmt = CommonUtils.parseDouble(j.getString("realSpecAmt"), null);
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);

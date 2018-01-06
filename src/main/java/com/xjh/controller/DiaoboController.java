@@ -254,7 +254,7 @@ public class DiaoboController {
 			historyList.add(h1);
 			historyList.add(h2);
 			//损失
-			if (Math.abs(detail.getRealStockAmt() - detail.getInStockAmt()) > 0.001) {
+			if (Math.abs(realStock - detail.getInStockAmt()) > 0.001) {
 				WmsMaterialStockHistoryDO h3 = new WmsMaterialStockHistoryDO();
 				h3.setOpType("allocation_loss");
 				h3.setCabinCode(detail.getFromCabinCode());
@@ -267,7 +267,7 @@ public class DiaoboController {
 				h3.setUnitPrice(detail.getSpecPrice());
 				h3.setProductDate(detail.getProdDate());
 				h3.setStockUnit(detail.getStockUnit());
-				h3.setAmt(detail.getRealStockAmt() - detail.getInStockAmt());
+				h3.setAmt(realStock - detail.getInStockAmt());
 				h3.setOperator(detail.getModifier());
 				h3.setGmtCreated(new Date());
 				h3.setStatus("1"); //损耗已经发生，不改变库存
