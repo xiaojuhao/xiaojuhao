@@ -190,8 +190,8 @@ public class BusinessController {
 				sd.setHomeplace(json.getString("homeplace"));
 				sd.setBrandName(json.getString("brandName"));
 				Integer utilizationRatio = CommonUtils.parseInt(json.getString("utilizationRatio"), -1);
-				if (utilizationRatio <= 0 || utilizationRatio > 100) {
-					return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须在[0,100]内").rb(request);
+				if (utilizationRatio <= 0 ) {
+					return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须大于0").rb(request);
 				}
 				sd.setUtilizationRatio(utilizationRatio);
 				if (StringUtils.isBlank(sd.getSpecName())) {
