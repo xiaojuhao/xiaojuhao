@@ -51,7 +51,7 @@ public class MaterialRequireService {
 			return;
 		}
 		CabinVo cabin = cabinService.getCabinByCode(cabinCode);
-		WmsMaterialDO material = materialService.getMaterialByCode(materialCode);
+		WmsMaterialDO material = materialService.queryMaterialByCode(materialCode);
 		if (cabin == null || material == null) {
 			return;
 		}

@@ -18,5 +18,5 @@ public interface MaterialService {
 
 	public int updateMaterial(WmsMaterialDO example);
 
-	public WmsMaterialDO getMaterialByCode(String code);
+	public WmsMaterialDO queryMaterialByCode(String code);
 }

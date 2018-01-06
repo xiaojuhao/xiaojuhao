@@ -1,5 +1,6 @@
 package com.xjh.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
@@ -25,6 +27,8 @@ public class MaterialSpecService {
 	TkWmsMaterialSpecDetailMapper specDetailMapper;
 	@Resource
 	SequenceService sequence;
+	@Resource
+	MaterialService materialService;
 
 	public WmsMaterialSpecDO queryByCode(String specCode) {
 		if (StringUtils.isBlank(specCode)) {
@@ -39,6 +43,20 @@ public class MaterialSpecService {
 	public WmsMaterialSpecDetailDO querySpecDetailByCode(String materialCode, String specCode) {
 		if (CommonUtils.isAnyBlank(materialCode, specCode)) {
 			return null;
+		}
+		if ("MS000000".equals(specCode)) {
+			WmsMaterialDO material = materialService.queryMaterialByCode(materialCode);
+			if (material == null) {
+				return null;
+			}
+			WmsMaterialSpecDetailDO spec = new WmsMaterialSpecDetailDO();
+			spec.setSpecCode(specCode);
+			spec.setSpecName(material.getStockUnit());
+			spec.setSpecUnit(material.getStockUnit());
+			spec.setStockUnit(material.getStockUnit());
+			spec.setTransRate(BigDecimal.ONE);
+			spec.setUtilizationRatio(100);
+			return spec;
 		}
 		WmsMaterialSpecDetailDO cond = new WmsMaterialSpecDetailDO();
 		cond.setSpecCode(specCode);

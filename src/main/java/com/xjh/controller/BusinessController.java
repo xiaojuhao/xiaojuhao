@@ -581,7 +581,7 @@ public class BusinessController {
 		}
 
 		CabinVo cabin = this.cabinService.getCabinByCode(cabinCode);
-		WmsMaterialDO material = this.materialService.getMaterialByCode(materialCode);
+		WmsMaterialDO material = this.materialService.queryMaterialByCode(materialCode);
 		if (cabin == null || material == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}

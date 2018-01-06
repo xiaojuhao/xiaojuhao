@@ -83,7 +83,7 @@ public class MaterialCheckService {
 			stockCond.setStatus("1");
 			List<WmsMaterialStockDO> stockList = stockMapper.select(stockCond);
 			stockList.forEach((it) -> {
-				WmsMaterialDO material = materialService.getMaterialByCode(it.getMaterialCode());
+				WmsMaterialDO material = materialService.queryMaterialByCode(it.getMaterialCode());
 				if (material == null || material.getStatus() != 1) {
 					return;
 				}

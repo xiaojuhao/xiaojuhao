@@ -153,7 +153,7 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public WmsMaterialDO getMaterialByCode(String code) {
+	public WmsMaterialDO queryMaterialByCode(String code) {
 		WmsMaterialDO m = new WmsMaterialDO();
 		m.setMaterialCode(code);
 		m = tkWmsMaterialMapper.selectOne(m);
