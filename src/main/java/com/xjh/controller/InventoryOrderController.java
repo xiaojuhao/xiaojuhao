@@ -288,11 +288,11 @@ public class InventoryOrderController {
 					return ResultBaseBuilder.fails("规格" + d.getSpecCode() + "不存在").rb(request);
 				}
 				d.setSpecAmt(j.getDouble("specAmt"));
-				if (d.getSpecAmt() == null) {
+				if (d.getSpecAmt() == null || d.getSpecAmt() <= 0.0001) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "采购数量必输").rb(request);
 				}
 				d.setSpecPrice(j.getDouble("specPrice"));
-				if (d.getSpecPrice() == null) {
+				if (d.getSpecPrice() == null || d.getSpecPrice() <= 0.0001) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "采购单价必输").rb(request);
 				}
 				double qty = j.getDouble("specQty");
