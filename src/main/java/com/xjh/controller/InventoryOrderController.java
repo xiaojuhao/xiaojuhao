@@ -360,6 +360,10 @@ public class InventoryOrderController {
 	@RequestMapping(value = "/confirmInventory", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object confirmInventory() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String dataJson = CommonUtils.get(request, "dataJson");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {
@@ -462,6 +466,28 @@ public class InventoryOrderController {
 			order.setStatus("5");
 			TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKey(order);
 		}
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/deleteInventory", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object deleteInventory() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String applyNum = CommonUtils.get(request, "applyNum");
+		if (StringUtils.isBlank(applyNum)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
+		cond.setApplyNum(applyNum);
+		WmsInventoryApplyDO record = TkMappers.inst().getPurchaseOrderMapper().selectOne(cond);
+		if (record == null) {
+			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+		}
+		record.setStatus("6");
+		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(record);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

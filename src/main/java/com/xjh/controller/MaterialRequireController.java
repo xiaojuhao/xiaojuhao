@@ -175,7 +175,7 @@ public class MaterialRequireController {
 			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
 			cri.andIn("cabinCode", mycabins);
 		}
-		PageHelper.orderBy("id desc");
+		PageHelper.orderBy("require_date desc, require_amt desc,id desc");
 		PageHelper.startPage(pageNo, pageSize);
 		List<WmsMaterialRequireDO> list = requireMapper.selectByExample(example);
 		int totalRows = requireMapper.selectCountByExample(example);

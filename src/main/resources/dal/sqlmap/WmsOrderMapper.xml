@@ -36,7 +36,7 @@
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsOrdersDO">
 		select * from wms_orders
 		<include refid="where_sql"></include>
-		order by sale_date desc, id desc limit #{start},#{pageSize}
+		order by sale_date desc,sale_num desc, id desc limit #{start},#{pageSize}
 	</select>
 	<select id="count" resultType="int">
 		select count(*) from wms_orders
