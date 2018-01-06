@@ -37,4 +37,5 @@ public class WmsMaterialStockHistoryDO extends PageDTO {
 	String relateCode;
 	String status;
 	Date gmtCreated;
+	String affectStock;
 }

@@ -41,10 +41,12 @@ import com.xjh.service.TkMappers;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
 import com.xjh.valueobject.CabinVo;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/inventoryApply")
+@Slf4j
 public class InventoryOrderController {
 	@Resource
 	HttpServletRequest request;
@@ -295,15 +297,17 @@ public class InventoryOrderController {
 				if (d.getSpecPrice() == null || d.getSpecPrice() <= 0.0001) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "采购单价必输").rb(request);
 				}
-				double qty = j.getDouble("specQty");
-				if ("无".equals(d.getSpecUnit())) {
-					qty = 1;
-				}
+				d.setUtilizationRatio(spec.getUtilizationRatio());
+				double transRate = j.getDouble("transRate");
+				d.setTransRate(transRate);
 				d.setSpecUnit(spec.getSpecUnit());
-				d.setStockAmt(d.getSpecAmt() * qty);
+				//入库数量，根据规格折算过来
+				d.setStockAmt(d.getSpecAmt() * transRate);
+				//理论入库数量,根据stock_amt和利用率折算
+				d.setInStockAmt(d.getStockAmt() * d.getUtilizationRatio() / 100);
+				//在in_stock_amt的基础上，由用户修正. real_stock_amt和in_stock_amt之间的差额，就是操作损失额
+				d.setRealStockAmt(d.getInStockAmt());
 				d.setStockUnit(j.getString("stockUnit"));
-				d.setRealStockAmt(d.getStockAmt());
-				d.setTransRate(spec.getTransRate().doubleValue());
 				d.setTotalPrice(d.getSpecAmt() * d.getSpecPrice());
 				d.setProdDate(CommonUtils.parseDate(j.getString("prodDate")));
 				d.setExpDate(CommonUtils.parseDate(j.getString("expDate")));
@@ -324,8 +328,6 @@ public class InventoryOrderController {
 				d.setGmtModified(new Date());
 				d.setCreator(user.getUserCode());
 				d.setModifier(user.getUserCode());
-				d.setUtilizationRatio(spec.getUtilizationRatio());
-				d.setInStockAmt(0D);
 				d.setStatus("1");
 				sumPrice += d.getTotalPrice();
 				details.add(d);
@@ -343,6 +345,7 @@ public class InventoryOrderController {
 			StockHistoryScheduleTask.startTask();
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {
+			log.error("", ex);
 			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
 	}
@@ -385,7 +388,7 @@ public class InventoryOrderController {
 			if (realStock == null) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "未输入实际入库数量").rb(request);
 			}
-			detail.setInStockAmt(detail.getUtilizationRatio() * realStock / 100);
+			detail.setRealStockAmt(realStock);
 			double unitPrice = 0D;// 单价
 			if (detail.getTotalPrice() != null && detail.getStockAmt() != null && detail.getStockAmt() > 0.1) {
 				unitPrice = detail.getTotalPrice() / detail.getStockAmt();
@@ -403,15 +406,16 @@ public class InventoryOrderController {
 			h.setUnitPrice(unitPrice);
 			h.setProductDate(detail.getProdDate());
 			h.setStockUnit(detail.getStockUnit());
-			h.setAmt(detail.getInStockAmt());
+			h.setAmt(detail.getRealStockAmt());
 			h.setOperator(detail.getModifier());
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
 			h.setRelateCode(detail.getApplyNum());
 			h.setRemark("采购入库,供应商:" + detail.getSupplierName());
+			h.setAffectStock("Y");
 			historyInserts.add(h);
 
-			if (Math.abs(detail.getStockAmt() - realStock) > 0.001) {
+			if (Math.abs(detail.getInStockAmt() - realStock) > 0.001) {
 				WmsMaterialStockHistoryDO loss = new WmsMaterialStockHistoryDO();
 				loss.setOpType("in_stock_loss");
 				loss.setCabinCode(detail.getCabinCode());
@@ -423,9 +427,10 @@ public class InventoryOrderController {
 				loss.setUnitPrice(unitPrice);
 				loss.setProductDate(detail.getProdDate());
 				loss.setStockUnit(detail.getStockUnit());
-				loss.setAmt(realStock - detail.getStockAmt());
+				loss.setAmt(realStock - detail.getInStockAmt());//损失是负数
 				loss.setOperator(detail.getModifier());
 				loss.setGmtCreated(new Date());
+				loss.setAffectStock("N");//不参与库存计算
 				loss.setStatus("1"); // 入库损耗数据不需要更新库存，仅做记录
 				loss.setRelateCode(detail.getApplyNum());
 				loss.setRemark("采购入库损耗,供应商:" + detail.getSupplierName());
@@ -439,16 +444,14 @@ public class InventoryOrderController {
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
-
-		//		order.setStatus("5");
 		database.diaoboConfirm(order, detailUpdateList, historyInserts);
 		StockHistoryScheduleTask.startTask();
 
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyNum(applyNum);
 		cond.setStatus("1");
-		int noHandleRows = TkMappers.inst().getPurchaseOrderDetailMapper().selectCount(cond);
-		if (noHandleRows == 0) {
+		int notHandleRows = TkMappers.inst().getPurchaseOrderDetailMapper().selectCount(cond);
+		if (notHandleRows == 0) {
 			order.setStatus("5");
 			TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKey(order);
 		}

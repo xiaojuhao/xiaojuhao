@@ -118,21 +118,25 @@ public class MaterialCheckService {
 		}
 		detail.getValue().forEach((it) -> {
 			if ("1".equals(it.getStatus())) {
-				WmsMaterialStockHistoryDO prehis = new WmsMaterialStockHistoryDO();
-				prehis.setCabinCode(it.getCabinCode());
-				prehis.setCabinName(it.getCabinName());
-				prehis.setCabinType(it.getCabinCode().startsWith("WH") ? "1" : "2");
-				prehis.setAmt(it.getStockAmt() - it.getOriStockAmt());// 库存不一致的量
-				prehis.setPreStock(it.getOriStockAmt());
-				prehis.setPostStock(it.getStockAmt());
-				prehis.setMaterialCode(it.getMaterialCode());
-				prehis.setMaterialName(it.getMaterialName());
-				prehis.setStockUnit(it.getStockUnit());
-				prehis.setOpType("correct_delta");//
-				prehis.setStatus("1"); // 记录盘点库存和实际库存的差额，只起记录作用，所以状态直接置为1
-				prehis.setRemark("库存盘点差额");
-				prehis.setGmtCreated(new Date());
-				prehis.setOperator(user.getUserCode());
+				WmsMaterialStockHistoryDO prehis = null;
+				if (Math.abs(it.getStockAmt() - it.getOriStockAmt()) > 0.01) {
+					prehis = new WmsMaterialStockHistoryDO();
+					prehis.setCabinCode(it.getCabinCode());
+					prehis.setCabinName(it.getCabinName());
+					prehis.setCabinType(it.getCabinCode().startsWith("WH") ? "1" : "2");
+					prehis.setAmt(it.getStockAmt() - it.getOriStockAmt());// 库存不一致的量
+					prehis.setPreStock(it.getOriStockAmt());
+					prehis.setPostStock(it.getStockAmt());
+					prehis.setMaterialCode(it.getMaterialCode());
+					prehis.setMaterialName(it.getMaterialName());
+					prehis.setStockUnit(it.getStockUnit());
+					prehis.setOpType("correct_delta");//
+					prehis.setAffectStock("N");
+					prehis.setStatus("1"); // 记录盘点库存和实际库存的差额，只起记录作用，所以状态直接置为1
+					prehis.setRemark("库存盘点差额");
+					prehis.setGmtCreated(new Date());
+					prehis.setOperator(user.getUserCode());
+				}
 				// 记录history
 				WmsMaterialStockHistoryDO posthis = new WmsMaterialStockHistoryDO();
 				posthis.setCabinCode(it.getCabinCode());
@@ -142,8 +146,10 @@ public class MaterialCheckService {
 				posthis.setMaterialCode(it.getMaterialCode());
 				posthis.setMaterialName(it.getMaterialName());
 				posthis.setStockUnit(it.getStockUnit());
+				posthis.setAffectStock("Y");
 				posthis.setOpType("correct");
 				posthis.setStatus("0");
+				posthis.setRemark("盘点");
 				posthis.setGmtCreated(new Date());
 				posthis.setOperator(user.getUserCode());
 				database.correctStock(prehis, posthis);

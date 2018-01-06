@@ -73,14 +73,17 @@ public class DatabaseServiceImpl implements DatabaseService {
 	@Transactional
 	public void correctStock(WmsMaterialStockHistoryDO preHis, WmsMaterialStockHistoryDO postHis) {
 		// prehis和posthis具有先后顺序
-		TkMappers.inst().getMaterialStockHistoryMapper().insert(preHis);
-		TkMappers.inst().getMaterialStockHistoryMapper().insert(postHis);
+		if (preHis != null)
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(preHis);
+		if (postHis != null)
+			TkMappers.inst().getMaterialStockHistoryMapper().insert(postHis);
 	}
-	
+
 	@Override
 	@Transactional
 	//销售数据同步，集中更新数据库
-	public void salesCommit(List<WmsOrdersDO> ordersList,List<WmsOrdersMaterialDO> ordersMaterialList, List<WmsMaterialStockHistoryDO> historyList){
+	public void salesCommit(List<WmsOrdersDO> ordersList, List<WmsOrdersMaterialDO> ordersMaterialList,
+			List<WmsMaterialStockHistoryDO> historyList) {
 		// 1.
 		for (WmsOrdersDO orders : ordersList) {
 			TkMappers.inst().getOrdersMapper().updateByPrimaryKey(orders);
