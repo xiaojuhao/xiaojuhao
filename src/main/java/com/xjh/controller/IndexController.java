@@ -202,10 +202,8 @@ public class IndexController {
 		String applyType = apply.getApplyType();
 		if ("purchase".equals(applyType)) {
 			applyType = "采购单";
-		} else if ("allocate_in".equals(applyType)) {
-			applyType = "调拨入库";
-		} else if ("allocate_out".equals(applyType)) {
-			applyType = "调拨出库";
+		} else if ("allocation".equals(applyType)) {
+			applyType = "调拨";
 		} else if ("claim_loss".equals(applyType)) {
 			applyType = "报损";
 		}
@@ -215,18 +213,11 @@ public class IndexController {
 			j.put("sno", index++);
 			j.put("cabinName", dd.getCabinName());
 			j.put("materialName", dd.getMaterialName());
-			String stockInfo = dd.getStockAmt() + dd.getStockUnit();
-			if (dd.getSpecAmt() != null && !"无".equals(dd.getSpecUnit())) {
-				stockInfo += "(" + dd.getSpecAmt() + dd.getSpecUnit() + ")";
-			}
-			j.put("stockInfo", stockInfo);
-			j.put("realStockInfo", dd.getRealStockAmt() + dd.getStockUnit());
-			if ("无".equals(dd.getSpecUnit())) {
-				j.put("specInfo", j.getString("stockInfo"));
-			}
-			if (dd.getTotalPrice() != null) {
-				j.put("totalPrice", (dd.getTotalPrice()) + "元");
-			}
+			String purchaseInfo = dd.getInStockAmt() + dd.getStockUnit() //
+					+ "(" + dd.getSpecAmt() + dd.getSpecUnit() + ")";
+			j.put("purchaseInfo", purchaseInfo);
+			j.put("realStockInfo", dd.getRealStockAmt() + dd.getStockUnit() + "(" + dd.getUtilizationRatio() + "%)");
+			j.put("totalPrice", (dd.getTotalPrice()) + "元");
 
 			list2.add(j);
 		}

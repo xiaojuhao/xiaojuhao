@@ -66,7 +66,7 @@
 							<td align="center">${item.sno}</td>
 							<td>${item.cabinName }</td>
 							<td>${item.materialName }</td>
-							<td>${item.stockInfo }</td>
+							<td>${item.purchaseInfo }</td>
 							<td>${item.realStockInfo }</td>
 							<td>${item.totalPrice }</td>
 						</tr>
