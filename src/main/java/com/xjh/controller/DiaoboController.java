@@ -22,11 +22,13 @@ import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.MaterialStockService;
 import com.xjh.service.PriceService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
@@ -48,7 +50,9 @@ public class DiaoboController {
 	MaterialSpecService materialSpecService;
 	@Resource
 	PriceService priceService;
-	
+	@Resource
+	MaterialStockService materialStockService;
+
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object commit() {
@@ -111,6 +115,11 @@ public class DiaoboController {
 				detail.setMaterialName(j.getString("materialName"));
 				detail.setSupplierCode(j.getString("supplierCode"));
 				detail.setSupplierName(j.getString("supplierName"));
+				WmsMaterialStockDO stock = materialStockService.queryMaterialStock(//
+						detail.getFromCabinCode(), detail.getMaterialCode());
+				if (stock == null) {
+					return ResultBaseBuilder.fails(detail.getMaterialName() + "没有库存").rb(request);
+				}
 				detail.setTotalPrice(CommonUtils.parseDouble(j.getString("totalPrice"), null));
 				detail.setSpecAmt(CommonUtils.parseDouble(j.getString("specAmt"), null));
 				if (detail.getSpecAmt() == null || detail.getSpecAmt() <= 0) {
@@ -128,6 +137,9 @@ public class DiaoboController {
 				detail.setStockAmt(detail.getSpecAmt() * detail.getTransRate());
 				detail.setInStockAmt(detail.getStockAmt() * spec.getUtilizationRatio() / 100);
 				detail.setRealStockAmt(detail.getInStockAmt());
+				if (detail.getRealStockAmt() > stock.getCurrStock()) {
+					return ResultBaseBuilder.fails(detail.getMaterialName() + "库存不足").rb(request);
+				}
 				detail.setSpecUnit(j.getString("specUnit"));
 				detail.setStockUnit(j.getString("stockUnit"));
 				detail.setGmtCreated(new Date());
