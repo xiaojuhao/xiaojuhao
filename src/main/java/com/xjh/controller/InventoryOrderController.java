@@ -468,7 +468,7 @@ public class InventoryOrderController {
 		String paytoBank = CommonUtils.get(request, "paytoBank");
 		String paytoAccount = CommonUtils.get(request, "paytoAccount");
 		String paytoAccountName = CommonUtils.get(request, "paytoAccountName");
-		if (CommonUtils.isAnyBlank(applyNum, paidWay, paytoAccount, paytoAccountName)) {
+		if (CommonUtils.isAnyBlank(applyNum, paidWay)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 		}
 		if (paidAmt == null) {
