@@ -18,6 +18,7 @@ import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
@@ -26,6 +27,7 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.PriceService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
@@ -44,7 +46,9 @@ public class DiaoboController {
 	DatabaseService database;
 	@Resource
 	MaterialSpecService materialSpecService;
-
+	@Resource
+	PriceService priceService;
+	
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object commit() {
@@ -133,6 +137,9 @@ public class DiaoboController {
 				detail.setTotalPrice(detail.getSpecAmt() * detail.getSpecPrice());
 				detail.setStatus("1");//待入库
 				detail.setRemark(j.getString("remark"));
+				TaskUtils.schedule(() -> {
+					priceService.updateSpecPrice(detail.getSpecCode(), detail.getCabinCode(), detail.getSpecPrice());
+				});
 				indetails.add(detail);
 			}
 			// 插入数据库

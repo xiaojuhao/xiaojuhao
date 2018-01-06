@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -58,10 +59,12 @@ import com.xjh.service.TkMappers;
 import com.xjh.service.UnitGroupService;
 import com.xjh.valueobject.CabinVo;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/busi")
+@Slf4j
 public class BusinessController {
 	@Resource
 	HttpServletRequest request;
@@ -123,111 +126,116 @@ public class BusinessController {
 	@RequestMapping(value = "/addMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object addMaterials() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
 
-		String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
-		String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
-		String specUnit = CommonUtils.get(request, "specUnit");
-		String specQty = CommonUtils.get(request, "specQty");
-		String specDetail = CommonUtils.get(request, "specDetail");
-		String category = CommonUtils.get(request, "category");
-		JSONArray specList = CommonUtils.parseJSONArray(specDetail);
-		if (specList.size() == 0) {
-			return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
-		}
-		WmsUnitGroupDO categoryDO = UnitGroupService.getUnitGroup("material_category", category);
-		WmsMaterialDO material = new WmsMaterialDO();
-		material.setId(CommonUtils.getLong(request, "id"));
-		material.setMaterialCode(CommonUtils.get(request, "materialCode"));
-		material.setMaterialName(CommonUtils.get(request, "materialName"));
-		String searchKey = CommonUtils.get(request, "searchKey");
-		material.setSpecUnit(specUnit);
-		material.setCategory(category);
-		if (categoryDO != null) {
-			material.setOrderBy(categoryDO.getOrderBy() == null ? 0 : categoryDO.getOrderBy());
-		}
-		material.setSpecQty(CommonUtils.parseDouble(specQty, 1D));
-		material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
-		if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
-			material.setStorageLife(storageLifeNum + storageLifeUnit);
-		}
-		material.setStockUnit(CommonUtils.get(request, "stockUnit"));
-		material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
-		if (material.getUtilizationRatio() == null) {
-			material.setUtilizationRatio(100);
-		}
-		material.setStatus(1);
-		material.setIsDeleted("N");
-		if (StringUtils.isBlank(material.getMaterialName())) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
-		}
-		//保存采购规格信息
-		//每次都重新生成一个分组,保证数据库只增不删
-		//这个区分规格是新增的还是删除，都重新生成
-		String specGroup = CommonUtils.uuid();
-		material.setSpecGroup(specGroup);
-		List<WmsMaterialSpecDetailDO> specDetailList = new ArrayList<>();
-		for (int i = 0; i < specList.size(); i++) {
-			WmsMaterialSpecDetailDO sd = new WmsMaterialSpecDetailDO();
-			JSONObject json = specList.getJSONObject(i);
-			sd.setSpecGroup(specGroup);
-			sd.setMaterialCode(material.getMaterialCode());
-			sd.setMaterialName(material.getMaterialName());
-			sd.setIsDefault("N");
-			sd.setIsDeleted("N");
-			sd.setStockUnit(material.getStockUnit());
-			sd.setSpecUnit(json.getString("specUnit"));
-			sd.setSpecCode(json.getString("specCode"));
-			sd.setSpecName(json.getString("specName"));
-			sd.setWeight(json.getString("weight"));
-			sd.setHomeplace(json.getString("homeplace"));
-			sd.setBrandName(json.getString("brandName"));
-			Integer utilizationRatio = CommonUtils.parseInt(json.getString("utilizationRatio"), -1);
-			if (utilizationRatio <= 0 || utilizationRatio > 100) {
-				return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须在[0,100]内").rb(request);
+			String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
+			String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
+			String specUnit = CommonUtils.get(request, "specUnit");
+			String specQty = CommonUtils.get(request, "specQty");
+			String specDetail = CommonUtils.get(request, "specDetail");
+			String category = CommonUtils.get(request, "category");
+			JSONArray specList = CommonUtils.parseJSONArray(specDetail);
+			if (specList.size() == 0) {
+				return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
 			}
-			sd.setUtilizationRatio(utilizationRatio);
-			if (StringUtils.isBlank(sd.getSpecName())) {
-				return ResultBaseBuilder.fails("规格名称不能为空").rb(request);
+			WmsUnitGroupDO categoryDO = UnitGroupService.getUnitGroup("material_category", category);
+			WmsMaterialDO material = new WmsMaterialDO();
+			material.setId(CommonUtils.getLong(request, "id"));
+			material.setMaterialCode(CommonUtils.get(request, "materialCode"));
+			material.setMaterialName(CommonUtils.get(request, "materialName"));
+			String searchKey = CommonUtils.get(request, "searchKey");
+			material.setSpecUnit(specUnit);
+			material.setCategory(category);
+			if (categoryDO != null) {
+				material.setOrderBy(categoryDO.getOrderBy() == null ? 0 : categoryDO.getOrderBy());
 			}
-			BigDecimal transRate = CommonUtils.parseBigDecimal(json.getString("transRate"));
-			if (transRate == null) {
-				return ResultBaseBuilder.fails(sd.getSpecName() + "没有填写正确的入库数量").rb(request);
+			material.setSpecQty(CommonUtils.parseDouble(specQty, 1D));
+			material.setSearchKey(CommonUtils.genSearchKey(material.getMaterialName(), searchKey));
+			if (!CommonUtils.isAnyBlank(storageLifeNum, storageLifeUnit)) {
+				material.setStorageLife(storageLifeNum + storageLifeUnit);
 			}
-			sd.setTransRate(transRate);
-
-			specDetailList.add(sd);
-		}
-		if (material.getId() == null) {
-			long nextVal = this.sequenceService.next("wms_material");
-			String materialCode = "M" + StringUtils.leftPad(nextVal + "", 5, '0');
-			material.setMaterialCode(materialCode);
+			material.setStockUnit(CommonUtils.get(request, "stockUnit"));
+			material.setUtilizationRatio(CommonUtils.getInt(request, "utilizationRatio"));
+			if (material.getUtilizationRatio() == null) {
+				material.setUtilizationRatio(100);
+			}
 			material.setStatus(1);
-			this.materialService.insertMaterial(material);
-		} else {
-			this.materialService.updateMaterial(material);
-		}
-		//补充specCode
-		specDetailList.forEach((o) -> {
-			if (StringUtils.isBlank(o.getSpecCode())) {
-				o.setSpecCode(materialSpecService.nextSpecCode());
-				o.setMaterialCode(material.getMaterialCode());
-				o.setMaterialName(material.getMaterialName());
+			material.setIsDeleted("N");
+			if (StringUtils.isBlank(material.getMaterialName())) {
+				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
 			}
-		});
-		assert StringUtils.isNotBlank(material.getMaterialCode());
-		WmsMaterialSpecDetailDO deleteCond = new WmsMaterialSpecDetailDO();
-		deleteCond.setMaterialCode(material.getMaterialCode());
-		detailMapper.delete(deleteCond);
-		for (WmsMaterialSpecDetailDO sd : specDetailList) {
-			detailMapper.insert(sd);
+			//保存采购规格信息
+			//每次都重新生成一个分组,保证数据库只增不删
+			//这个区分规格是新增的还是删除，都重新生成
+			String specGroup = CommonUtils.uuid();
+			material.setSpecGroup(specGroup);
+			List<WmsMaterialSpecDetailDO> specDetailList = new ArrayList<>();
+			for (int i = 0; i < specList.size(); i++) {
+				WmsMaterialSpecDetailDO sd = new WmsMaterialSpecDetailDO();
+				JSONObject json = specList.getJSONObject(i);
+				sd.setSpecGroup(specGroup);
+				sd.setMaterialCode(material.getMaterialCode());
+				sd.setMaterialName(material.getMaterialName());
+				sd.setIsDefault("N");
+				sd.setIsDeleted("N");
+				sd.setStockUnit(material.getStockUnit());
+				sd.setSpecUnit(json.getString("specUnit"));
+				sd.setSpecCode(json.getString("specCode"));
+				sd.setSpecName(json.getString("specName"));
+				sd.setWeight(json.getString("weight"));
+				sd.setHomeplace(json.getString("homeplace"));
+				sd.setBrandName(json.getString("brandName"));
+				Integer utilizationRatio = CommonUtils.parseInt(json.getString("utilizationRatio"), -1);
+				if (utilizationRatio <= 0 || utilizationRatio > 100) {
+					return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须在[0,100]内").rb(request);
+				}
+				sd.setUtilizationRatio(utilizationRatio);
+				if (StringUtils.isBlank(sd.getSpecName())) {
+					return ResultBaseBuilder.fails("规格名称不能为空").rb(request);
+				}
+				BigDecimal transRate = CommonUtils.parseBigDecimal(json.getString("transRate"));
+				if (transRate == null) {
+					return ResultBaseBuilder.fails(sd.getSpecName() + "没有填写正确的入库数量").rb(request);
+				}
+				sd.setTransRate(transRate);
+				sd.setBasePrice(0D);
+				specDetailList.add(sd);
+			}
+			if (material.getId() == null) {
+				long nextVal = this.sequenceService.next("wms_material");
+				String materialCode = "M" + StringUtils.leftPad(nextVal + "", 5, '0');
+				material.setMaterialCode(materialCode);
+				material.setStatus(1);
+				this.materialService.insertMaterial(material);
+			} else {
+				this.materialService.updateMaterial(material);
+			}
+			//补充specCode
+			specDetailList.forEach((o) -> {
+				if (StringUtils.isBlank(o.getSpecCode())) {
+					o.setSpecCode(materialSpecService.nextSpecCode());
+					o.setMaterialCode(material.getMaterialCode());
+					o.setMaterialName(material.getMaterialName());
+				}
+			});
+			Assert.state(StringUtils.isNotBlank(material.getMaterialCode()), "原料CODE为空");
+			WmsMaterialSpecDetailDO deleteCond = new WmsMaterialSpecDetailDO();
+			deleteCond.setMaterialCode(material.getMaterialCode());
+			detailMapper.delete(deleteCond);
+			for (WmsMaterialSpecDetailDO sd : specDetailList) {
+				detailMapper.insert(sd);
+			}
+			materialStockService.initStock(material.getMaterialCode());
+			BusCruise.post(new MaterialChange(material), true);
+			return ResultBaseBuilder.succ().data(material).rb(request);
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
-		materialStockService.initStock(material.getMaterialCode());
-		BusCruise.post(new MaterialChange(material), true);
-		return ResultBaseBuilder.succ().data(material).rb(request);
 	}
 
 	@RequestMapping(value = "/queryMaterials", produces = "application/json;charset=UTF-8")
@@ -456,7 +464,7 @@ public class BusinessController {
 		}
 		String materialCodes = CommonUtils.get(request, "materialCodes");
 		List<String> materialCodeList = CommonUtils.splitAsList(materialCodes, ",");
-		if(materialCodeList.size()==0){
+		if (materialCodeList.size() == 0) {
 			return ResultBaseBuilder.succ().data(new ArrayList<>()).rb(request);
 		}
 		Example example = new Example(WmsMaterialSupplierDO.class, false, false);

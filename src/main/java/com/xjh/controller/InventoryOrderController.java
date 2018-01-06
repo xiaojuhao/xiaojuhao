@@ -23,6 +23,7 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
@@ -36,6 +37,7 @@ import com.xjh.service.CabinService;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.Mappers;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.PriceService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
@@ -56,6 +58,8 @@ public class InventoryOrderController {
 	DatabaseService database;
 	@Resource
 	MaterialSpecService materialSpecService;
+	@Resource
+	PriceService priceService;
 
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -330,6 +334,9 @@ public class InventoryOrderController {
 				d.setModifier(user.getUserCode());
 				d.setStatus("1");
 				sumPrice += d.getTotalPrice();
+				TaskUtils.schedule(() -> {
+					priceService.updateSpecPrice(d.getSpecCode(), cabinCode, d.getSpecPrice());
+				});
 				details.add(d);
 			}
 			//收款信息

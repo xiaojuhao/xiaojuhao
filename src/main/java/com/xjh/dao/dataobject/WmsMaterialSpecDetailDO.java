@@ -35,4 +35,6 @@ public class WmsMaterialSpecDetailDO extends PageDTO implements Serializable {
 	String isDefault;
 	Integer utilizationRatio;
 	Date gmtCreated;
+	Double basePrice;
+	String priceInfo;
 }
