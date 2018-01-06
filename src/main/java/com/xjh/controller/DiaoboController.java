@@ -77,6 +77,9 @@ public class DiaoboController {
 			if (inCabin == null || outCabin == null) {
 				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("请输入拨出/拨入仓库信息").rb(request);
 			}
+			if (inCabin.equals(outCabin)) {
+				return ResultBaseBuilder.fails("不能自己给自己调拨").rb(request);
+			}
 			String remark = CommonUtils.get(request, "remark");
 			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> indetails = new ArrayList<>();
@@ -288,7 +291,7 @@ public class DiaoboController {
 		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().rb(request);
 	}
-	
+
 	@RequestMapping(value = "/deleteInventory", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object deleteInventory() {
