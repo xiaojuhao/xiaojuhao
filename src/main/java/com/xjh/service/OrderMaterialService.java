@@ -49,10 +49,12 @@ public class OrderMaterialService {
 	private void internalHandleOrders() {
 		ResultBase<WmsTaskDO> task = TaskService.initTask("handle_orders", "handle_orders", "处理订单原料");
 		if (task.getIsSuccess() == false) {
+			log.error("初始化任务失败:{}", task.getMessage());
 			return;
 		}
 		task = TaskService.reStartTask(task.getValue());
 		if (task.getIsSuccess() == false) {
+			log.error("启动任务失败:{}", task.getMessage());
 			return;
 		}
 		Date startDate = DateBuilder.today().date();
