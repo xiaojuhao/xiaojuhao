@@ -680,6 +680,10 @@ public class InventoryOrderController {
 		String materialName = CommonUtils.get(request, "materialName");
 		double lossAmt = CommonUtils.getDbl(request, "lossAmt", 0D);
 		String stockUnit = CommonUtils.get(request, "stockUnit");
+		Double specAmt = CommonUtils.getDbl(request, "specAmt", 0D);
+		String specUnit = CommonUtils.get(request, "specUnit");
+		Integer utilizationRatio = CommonUtils.getInt(request, "utilizationRatio");
+		Double transRate = CommonUtils.getDbl(request, "transRate", null);
 		String images = CommonUtils.get(request, "images");
 		String remark = CommonUtils.get(request, "remark");
 		String imgBusiNo = CommonUtils.get(request, "busiNo");
@@ -708,8 +712,13 @@ public class InventoryOrderController {
 		indetail.setApplyType(inorder.getApplyType());
 		indetail.setMaterialCode(materialCode);
 		indetail.setMaterialName(materialName);
+		indetail.setSpecAmt(specAmt);
+		indetail.setRealSpecAmt(specAmt);
+		indetail.setSpecUnit(specUnit);
+		indetail.setUtilizationRatio(utilizationRatio);
 		indetail.setStockAmt(lossAmt);
 		indetail.setStockUnit(stockUnit);
+		indetail.setTransRate(transRate);
 		indetail.setInStockAmt(lossAmt);
 		indetail.setRealStockAmt(lossAmt);
 		indetail.setGmtCreated(new Date());
