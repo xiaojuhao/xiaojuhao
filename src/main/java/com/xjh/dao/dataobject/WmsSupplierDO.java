@@ -39,5 +39,6 @@ public class WmsSupplierDO extends PageDTO {
 	String remark;
 	String modifer;
 	Date gmtModified;
+	String isDeleted;
 
 }

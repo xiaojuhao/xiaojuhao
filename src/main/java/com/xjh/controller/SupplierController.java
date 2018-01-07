@@ -183,6 +183,7 @@ public class SupplierController {
 		cond.setStatus(CommonUtils.get(request, "status"));
 		cond.setPageNo(CommonUtils.getPageNo(request));// 分页信息
 		cond.setPageSize(CommonUtils.getPageSize(request));// 分页信息
+		cond.setIsDeleted("N");
 		int totalRows = TkMappers.inst().getSupplierMapper().selectCount(cond);
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
 		List<WmsSupplierDO> list = TkMappers.inst().getSupplierMapper().select(cond);
@@ -208,6 +209,7 @@ public class SupplierController {
 		}
 		WmsSupplierDO cond = new WmsSupplierDO();
 		cond.setSupplierCode(supplierCode);
+		cond.setIsDeleted("N");
 		WmsSupplierDO supplier = TkMappers.inst().getSupplierMapper().selectOne(cond);
 		if (supplier == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
