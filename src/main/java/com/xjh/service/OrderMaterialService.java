@@ -155,6 +155,7 @@ public class OrderMaterialService {
 			materialStockHistory.setStockUnit(ordersMaterial.getMaterialUnit());
 			materialStockHistory.setTotalPrice(order.getTotalPrice());
 			materialStockHistory.setRelateCode(order.getId() + "");
+			materialStockHistory.setAffectStock("Y");
 			materialStockHistoryList.add(materialStockHistory);
 		}
 
@@ -213,6 +214,7 @@ public class OrderMaterialService {
 			materialStockHistory.setStockUnit(recipesformula.getMaterialUnit());
 			materialStockHistory.setTotalPrice(order.getTotalPrice());
 			materialStockHistory.setRelateCode(order.getId() + "");
+			materialStockHistory.setAffectStock("Y");
 			materialStockHistoryList.add(materialStockHistory);
 		}
 
