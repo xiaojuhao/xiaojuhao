@@ -135,10 +135,13 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 				}
 				totalConsume += consumeAmt2;
 			}
-			int factor = isBusy ? 3 : 2;
+			//int factor = isBusy ? 3 : 2;
 			WmsMaterialStockDO update = new WmsMaterialStockDO();
 			update.setId(stock.getId());
-			update.setWarningStock(totalConsume * factor / 14);
+			//update.setWarningStock(totalConsume * factor / 14);
+			update.setWarningStock(totalConsume / 14);//改成日均值
+			update.setWarningValue1(update.getWarningStock() * 3);//改为最低库存值：日均值*3
+			update.setWarningValue2(update.getWarningStock() * 5);//最高库存值：日均*5
 			update.setGmtSetWarningStock(new Date());
 			materialStockMapper.updateByPrimaryKeySelective(update);
 		} catch (Exception e) {
@@ -157,15 +160,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 			List<WmsMaterialStockDO> stocks = this.materialStockMapper.select(cond);
 			for (WmsMaterialStockDO stock : stocks) {
 				try {
-					Double wariningAmt = 0D;
-					if (isBusy) {
-						wariningAmt = stock.getWarningValue2();
-					} else {
-						wariningAmt = stock.getWarningValue1();
-					}
-					if (wariningAmt == null || wariningAmt <= 0.01) {
-						wariningAmt = stock.getWarningStock();
-					}
+					Double wariningAmt = stock.getWarningValue1();//最低库存预警值
 					//没有预警值得时候，不告警
 					if (wariningAmt == null || wariningAmt <= 0.01) {
 						continue;
@@ -184,7 +179,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 					notice.setMsgType("warning");
 					TkMappers.inst().getNoticeMapper().insert(notice);
 					//生成原料需求单
-					final Double requireAmt = wariningAmt - stock.getCurrStock();
+					final Double requireAmt = stock.getWarningValue2() - stock.getCurrStock();
 					TaskUtils.schedule(() -> {
 						requireService.addRequire(//
 								stock.getCabinCode(), //

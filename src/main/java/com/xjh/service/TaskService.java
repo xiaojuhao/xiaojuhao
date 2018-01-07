@@ -3,6 +3,7 @@ package com.xjh.service;
 import java.util.Date;
 
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.DateBuilder;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -47,7 +48,9 @@ public class TaskService {
 			return ResultBaseBuilder.fails(ResultCode.task_not_exists).data(task).rb();
 		}
 		//重启task：只要task不正在执行都可以启动
-		if ("1".equals(taskdd.getStatus())) {
+
+		if ("1".equals(taskdd.getStatus()) && taskdd.getGmtStart() != null
+				&& CommonUtils.partiallyOrder(taskdd.getGmtStart(), DateBuilder.now().futureMinutes(-10).date())) {
 			return ResultBaseBuilder.fails(ResultCode.task_is_running).msg("无法启动").data(task).rb();
 		}
 		WmsTaskDO update = new WmsTaskDO();
