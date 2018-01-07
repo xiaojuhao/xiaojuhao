@@ -23,9 +23,11 @@ import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.service.MaterialService;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
+@Slf4j
 public class MaterialServiceImpl implements MaterialService {
 	@Resource
 	TkWmsMaterialMapper tkWmsMaterialMapper;
@@ -37,6 +39,10 @@ public class MaterialServiceImpl implements MaterialService {
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setMaterialCode(materialCode);
 		WmsMaterialDO material = tkWmsMaterialMapper.selectOne(example);
+		if (material == null) {
+			log.error("原料不存在:" + materialCode);
+			return ResultBaseBuilder.fails("原料不存在:" + materialCode).rb();
+		}
 		String cabinName = null;
 		String cabinType = cabinCode.startsWith("WH") ? "1" : "2";
 		WmsMaterialStockDO stockDO = new WmsMaterialStockDO();
