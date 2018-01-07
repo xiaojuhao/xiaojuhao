@@ -58,14 +58,31 @@ public class DiandanSystemService {
 
 	public ResultBase<String> syncOrders(Date syncDate) {
 		try {
-			return syncOrders(syncDate, true);
+			log.info("同步{}订单------开始-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
+			ResultBase<String> rb = interalSyncOrders(syncDate, true);
+			log.info("同步{}订单------成功-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
+			return rb;
 		} catch (Exception e) {
+			log.info("同步{}订单-----失败-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
 			log.error("", e);
 			return ResultBaseBuilder.fails("同步订单异常").rb();
 		}
 	}
 
 	public ResultBase<String> syncOrders(Date syncDate, boolean canRedo) {
+		try {
+			log.info("同步{}订单------开始-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
+			ResultBase<String> rb = interalSyncOrders(syncDate, canRedo);
+			log.info("同步{}订单------成功-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
+			return rb;
+		} catch (Exception e) {
+			log.error("", e);
+			log.info("同步{}订单-----失败-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
+			return ResultBaseBuilder.fails("同步订单异常").rb();
+		}
+	}
+
+	private ResultBase<String> interalSyncOrders(Date syncDate, boolean canRedo) {
 		if (syncDate == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
@@ -221,7 +238,7 @@ public class DiandanSystemService {
 				task = TaskService.finishTask(task.getValue());
 			} catch (Exception e) {
 				TaskService.onError(task.getValue());
-				e.printStackTrace();
+				log.error("", e);
 			}
 			log.info("同步" + store.getStoreName() + "@" + shortSyncDate + "。。。结束。。。");
 		}
