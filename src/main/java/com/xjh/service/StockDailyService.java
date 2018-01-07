@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
 import com.xjh.dao.mapper.WmsMaterialStockDailyMapper;
+import com.xjh.valueobject.CabinVo;
 
 @Service
 public class StockDailyService {
@@ -42,21 +44,28 @@ public class StockDailyService {
 			return dailyDO;
 		}
 		//如果不存在，则查询stock表
+		WmsMaterialDO material = this.materialService.queryMaterialByCode(materialCode);
+		CabinVo cabin = this.cabinService.getCabinByCode(cabinCode);
+		if (material == null || cabin == null) {
+			return null;
+		}
 		WmsMaterialStockDO stockDO = new WmsMaterialStockDO();
 		stockDO.setMaterialCode(materialCode);
 		stockDO.setCabinCode(cabinCode);
 		stockDO.setIsDeleted("N");
 		stockDO = TkMappers.inst().getMaterialStockMapper().selectOne(stockDO);
-		if (stockDO == null) {
-			return null;//stock表也没有数据
-		}
+		//
 		dailyDO = new WmsMaterialStockDailyDO();
 		dailyDO.setMaterialCode(materialCode);
-		dailyDO.setMaterialName(stockDO.getMaterialName());
+		dailyDO.setMaterialName(material.getMaterialName());
 		dailyDO.setCabinCode(cabinCode);
-		dailyDO.setCabinName(stockDO.getCabinName());
+		dailyDO.setCabinName(cabin.getName());
 		dailyDO.setStatDate(statDate);
-		dailyDO.setInitAmt(stockDO.getCurrStock());
+		if (stockDO != null) {
+			dailyDO.setInitAmt(stockDO.getCurrStock());
+		} else {
+			dailyDO.setInitAmt(0D);
+		}
 		dailyDO.setConsumeAmt(0D);
 		dailyDO.setLossAmt(0D);
 		dailyDO.setBusyDay("N");
