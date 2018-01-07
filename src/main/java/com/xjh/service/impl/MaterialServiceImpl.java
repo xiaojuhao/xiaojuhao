@@ -13,6 +13,7 @@ import com.github.pagehelper.PageHelper;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.commons.ResultCode;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
@@ -36,6 +37,9 @@ public class MaterialServiceImpl implements MaterialService {
 
 	@Override
 	public ResultBase<WmsMaterialStockDO> initMaterialStock(String materialCode, String cabinCode) {
+		if (StringUtils.isBlank(materialCode) || StringUtils.isBlank(cabinCode)) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
+		}
 		WmsMaterialDO example = new WmsMaterialDO();
 		example.setMaterialCode(materialCode);
 		WmsMaterialDO material = tkWmsMaterialMapper.selectOne(example);

@@ -701,6 +701,7 @@ public class InventoryOrderController {
 		indetail.setMaterialName(materialName);
 		indetail.setStockAmt(lossAmt);
 		indetail.setStockUnit(stockUnit);
+		indetail.setInStockAmt(lossAmt);
 		indetail.setRealStockAmt(lossAmt);
 		indetail.setGmtCreated(new Date());
 		indetail.setGmtModified(new Date());
@@ -708,6 +709,7 @@ public class InventoryOrderController {
 		indetail.setModifier(user.getUserCode());
 		indetail.setStatus("1");// 报损自动处理，状态直接置为1
 		indetail.setImgBusiNo(imgBusiNo);
+		indetail.setUtilizationRatio(100);
 		indetail.setRemark(images);
 
 		WmsMaterialStockHistoryDO h = new WmsMaterialStockHistoryDO();
@@ -727,6 +729,7 @@ public class InventoryOrderController {
 		h.setGmtCreated(new Date());
 		h.setStatus("0");
 		h.setRemark("报损");
+		h.setAffectStock("Y");
 		h.setRelateCode(indetail.getApplyNum());
 
 		database.claimLossInsert(inorder, indetail, h);

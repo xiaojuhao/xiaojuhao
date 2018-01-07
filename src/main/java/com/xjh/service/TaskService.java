@@ -50,7 +50,7 @@ public class TaskService {
 		//重启task：只要task不正在执行都可以启动
 
 		if ("1".equals(taskdd.getStatus()) && taskdd.getGmtStart() != null
-				&& CommonUtils.partiallyOrder(taskdd.getGmtStart(), DateBuilder.now().futureMinutes(-10).date())) {
+				&& !CommonUtils.partiallyOrder(taskdd.getGmtStart(), DateBuilder.now().futureMinutes(-10).date())) {
 			return ResultBaseBuilder.fails(ResultCode.task_is_running).msg("无法启动").data(task).rb();
 		}
 		WmsTaskDO update = new WmsTaskDO();
