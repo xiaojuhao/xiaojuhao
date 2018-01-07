@@ -35,6 +35,18 @@ public class OrderMaterialService {
 	TkWmsOrderMapper orderMapper;
 
 	public void handleOrders() {
+		try {
+			log.info("处理订单原料-----开始------");
+			internalHandleOrders();
+			log.info("处理订单原料-----结束------");
+		} catch (Exception ex) {
+			log.error("", ex);
+			log.info("处理订单原料-----出现异常------");
+		}
+
+	}
+
+	private void internalHandleOrders() {
 		ResultBase<WmsTaskDO> task = TaskService.initTask("handle_orders", "handle_orders", "处理订单原料");
 		if (task.getIsSuccess() == false) {
 			return;
@@ -45,17 +57,20 @@ public class OrderMaterialService {
 		}
 		Date startDate = DateBuilder.today().date();
 		Date endDate = startDate;
+		int index = 0;
 		try {
 			//删除的记录: status=2 & isDeleted = Y
+			log.info("处理订单原料-----处理删除的记录---开始---");
 			for (;;) {
 				WmsOrdersDO example = new WmsOrdersDO();
 				example.setStatus("2");
 				example.setIsDeleted("Y");
-				PageHelper.startPage(1, 20);//每次取20记录
+				PageHelper.startPage(1, 100);//每次取20记录
 				List<WmsOrdersDO> orders = TkMappers.inst().getOrdersMapper().select(example);
 				if (CollectionUtils.isEmpty(orders)) {
 					break;//没有数据就退出
 				}
+				log.info("处理订单原料-----处理删除的记录---第{}批---", index++);
 				//遍历每一个order
 				for (WmsOrdersDO order : orders) {
 					if (CommonUtils.partiallyOrder(order.getSaleDate(), startDate)) {
@@ -78,15 +93,19 @@ public class OrderMaterialService {
 					orderMapper.updateByPrimaryKeySelective(update);
 				}
 			}
+			log.info("处理订单原料-----处理删除的记录---结束---");
 			//待处理的记录: status = 1
+			index = 0;
+			log.info("处理订单原料-----处理正常的记录---开始---");
 			for (;;) {
 				WmsOrdersDO example = new WmsOrdersDO();
 				example.setStatus("1");
-				PageHelper.startPage(1, 20);//每次取20记录
+				PageHelper.startPage(1, 100);//每次取20记录
 				List<WmsOrdersDO> orders = TkMappers.inst().getOrdersMapper().select(example);
 				if (CollectionUtils.isEmpty(orders)) {
 					break;//没有数据就退出
 				}
+				log.info("处理订单原料-----处理正常的记录---第{}批---", index++);
 				//遍历每一个order
 				for (WmsOrdersDO order : orders) {
 					if (CommonUtils.partiallyOrder(order.getSaleDate(), startDate)) {
@@ -109,6 +128,7 @@ public class OrderMaterialService {
 					orderMapper.updateByPrimaryKeySelective(update);
 				}
 			}
+			log.info("处理订单原料-----处理正常的记录---结束---");
 		} catch (Exception ex) {
 			log.error("", ex);
 		} finally {
