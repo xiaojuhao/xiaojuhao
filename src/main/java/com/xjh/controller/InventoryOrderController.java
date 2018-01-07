@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -239,27 +241,10 @@ public class InventoryOrderController {
 				status = "4";// 配送中
 			}
 			if (cabinVo == null) {
-				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("货站信息不存在").rb(request);
+				return ResultBaseBuilder.fails(ResultCode.info_missing).msg("仓库信息不存在").rb(request);
 			}
-			String remark = CommonUtils.get(request, "remark");
-			WmsInventoryApplyDO order = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> details = new ArrayList<>();
-			// 保存采购单
-			String supplierCode = null;
-			String supplierName = null;
-			order.setApplyNum(CommonUtils.uuid());
-			order.setCabinCode(cabinCode);
-			order.setCabinName(cabinVo.getName());
-			order.setSerialNo(CommonUtils.stringOfNow());
-			order.setApplyType("purchase");
-			order.setProposer(user.getUserCode());
-			order.setGmtCreated(new Date());
-			order.setGmtModified(new Date());
-			order.setCreator(user.getUserCode());
-			order.setModifier(user.getUserCode());
-			order.setStatus(status);
-			order.setRemark(remark);
-			Double sumPrice = 0D;
+			List<WmsInventoryApplyDO> mains = new ArrayList<>();
 			//
 			String dataJson = CommonUtils.get(request, "dataJson");
 			JSONArray dataArr = CommonUtils.parseJSONArray(dataJson);
@@ -270,21 +255,14 @@ public class InventoryOrderController {
 				String storageLifeUnit = j.getString("storageLifeUnit");
 				WmsInventoryApplyDetailDO d = new WmsInventoryApplyDetailDO();
 				d.setApplyType("purchase");
-				d.setCabinCode(order.getCabinCode());
-				d.setCabinName(order.getCabinName());
-				d.setApplyNum(order.getApplyNum());
-				d.setApplyType(order.getApplyType());
+				d.setCabinCode(cabinVo.getCode());
+				d.setCabinName(cabinVo.getName());
+				d.setApplyType("purchase");
 				d.setMaterialCode(j.getString("materialCode"));
 				d.setMaterialName(j.getString("materialName"));
 				d.setSupplierCode(j.getString("supplierCode"));
 				d.setSupplierName(j.getString("supplierName"));
 				d.setSpecCode(j.getString("specCode"));
-				if (supplierCode == null) {
-					supplierCode = d.getSupplierCode();
-					supplierName = d.getSupplierName();
-				} else if (!StringUtils.equals(supplierCode, d.getSupplierCode())) {
-					return ResultBaseBuilder.fails("目前采购单仅支持录入【一个】供应商").rb(request);
-				}
 				if (StringUtils.isBlank(d.getSpecCode())) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "没有填写规格信息").rb(request);
 				}
@@ -334,22 +312,53 @@ public class InventoryOrderController {
 				d.setCreator(user.getUserCode());
 				d.setModifier(user.getUserCode());
 				d.setStatus("1");
-				sumPrice += d.getTotalPrice();
 				TaskUtils.schedule(() -> {
 					priceService.updateSpecPrice(d.getSpecCode(), cabinCode, d.getSpecPrice());
 				});
 				details.add(d);
 			}
-			//收款信息
-			order.setTotalPrice(sumPrice);
-			order.setPayables(sumPrice);
-			order.setPaidAmt(0D);
-			order.setPaidStatus("0");
-			//供应商
-			order.setSupplierCode(supplierCode);
-			order.setSupplierName(supplierName);
+
+			//将采购明细按照门店+供应商进行分组
+			Map<String, List<WmsInventoryApplyDetailDO>> groups = new HashMap<>();
+			for (WmsInventoryApplyDetailDO detail : details) {
+				String key = detail.getCabinCode() + "_" + detail.getSupplierCode();
+				if (!groups.containsKey(key)) {
+					groups.put(key, new ArrayList<>());
+				}
+				groups.get(key).add(detail);
+			}
+			//按分组生成采购单
+			for (Map.Entry<String, List<WmsInventoryApplyDetailDO>> group : groups.entrySet()) {
+				WmsInventoryApplyDO order = new WmsInventoryApplyDO();
+				String applyNum = CommonUtils.uuid();
+				order.setApplyNum(applyNum);
+				order.setCabinCode(cabinCode);
+				order.setCabinName(cabinVo.getName());
+				order.setSerialNo(CommonUtils.stringOfNow());
+				order.setApplyType("purchase");
+				order.setProposer(user.getUserCode());
+				order.setGmtCreated(new Date());
+				order.setGmtModified(new Date());
+				order.setCreator(user.getUserCode());
+				order.setModifier(user.getUserCode());
+				order.setStatus(status);
+				Double sumPrice = 0D;
+				for (WmsInventoryApplyDetailDO detail : group.getValue()) {
+					sumPrice += detail.getTotalPrice();
+					detail.setApplyNum(applyNum);
+				}
+				//收款信息
+				order.setTotalPrice(sumPrice);
+				order.setPayables(sumPrice);
+				order.setPaidAmt(0D);
+				order.setPaidStatus("0");
+				//供应商
+				order.setSupplierCode(group.getValue().get(0).getSupplierCode());
+				order.setSupplierName(group.getValue().get(0).getSupplierName());
+				mains.add(order);
+			}
 			// 插入数据库
-			database.commitPurchaseOrder(order, details);
+			database.commitPurchaseOrder(mains, details);
 			StockHistoryScheduleTask.startTask();
 			return ResultBaseBuilder.succ().rb(request);
 		} catch (Exception ex) {

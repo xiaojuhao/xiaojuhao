@@ -20,7 +20,7 @@ public interface DatabaseService {
 			List<WmsMaterialStockHistoryDO> historyInsertList);
 
 	public void commitPurchaseOrder(//
-			WmsInventoryApplyDO applyDO, //
+			List<WmsInventoryApplyDO> applyList, //
 			List<WmsInventoryApplyDetailDO> list);
 
 	public void claimLossInsert(//

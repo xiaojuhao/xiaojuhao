@@ -51,12 +51,14 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 	@Override
 	@Transactional
-	public void commitPurchaseOrder(WmsInventoryApplyDO applyDO, List<WmsInventoryApplyDetailDO> list) {
+	public void commitPurchaseOrder(List<WmsInventoryApplyDO> applyList, List<WmsInventoryApplyDetailDO> list) {
 		// 1.
-		TkMappers.inst().getPurchaseOrderMapper().insert(applyDO);
-		// 2.
 		for (WmsInventoryApplyDetailDO detail : list) {
 			TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
+		}
+		// 2.
+		for (WmsInventoryApplyDO applyDO : applyList) {
+			TkMappers.inst().getPurchaseOrderMapper().insert(applyDO);
 		}
 	}
 
