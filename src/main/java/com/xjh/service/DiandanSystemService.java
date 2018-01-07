@@ -57,7 +57,12 @@ public class DiandanSystemService {
 	}
 
 	public ResultBase<String> syncOrders(Date syncDate) {
-		return syncOrders(syncDate, true);
+		try {
+			return syncOrders(syncDate, true);
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails("同步订单异常").rb();
+		}
 	}
 
 	public ResultBase<String> syncOrders(Date syncDate, boolean canRedo) {
@@ -262,41 +267,43 @@ public class DiandanSystemService {
 					String resp = HttpUtils.post(api_url, params);
 					JSONObject json = CommonUtils.parseJSON(resp);
 					JSONArray dishes = json.getJSONArray("allDishes");
-					Observable.fromArray(dishes.toArray()) //
-							.map((o) -> (JSONObject) o) //
-							.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
-							.subscribe((jsonObj) -> {
-								WmsRecipesDO cond = new WmsRecipesDO();
-								cond.setOutCode(jsonObj.getString("dishes_id"));
-								WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
-								if (recipes == null) {
-									long val = sequenceService.next("wms_recipes");
-									String recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
-									recipes = new WmsRecipesDO();
-									recipes.setRecipesCode(recipesCode);
-									recipes.setOutCode(jsonObj.getString("dishes_id"));
-									recipes.setRecipesName(jsonObj.getString("dishes_name"));
-									recipes.setStoreCode("000000");
-									recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
-									recipes.setStatus("1");
-									recipes.setHadFormula("N");
-									recipes.setSrc("auto_sync");
-									recipes.setIsDeleted("N");
-									recipes.setSearchKey(CommonUtils.genSearchKey(//
-											recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
-									TkMappers.inst().getRecipesMapper().insert(recipes);
-								} else {
-									WmsRecipesDO update = new WmsRecipesDO();
-									update.setId(recipes.getId());
-									update.setRecipesName(jsonObj.getString("dishes_name"));
-									update.setIsDeleted("N");
-									TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
-								}
-							});
-
+					if (dishes != null && dishes.size() > 0) {
+						Observable.fromArray(dishes.toArray()) //
+								.map((o) -> (JSONObject) o) //
+								.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
+								.subscribe((jsonObj) -> {
+									WmsRecipesDO cond = new WmsRecipesDO();
+									cond.setOutCode(jsonObj.getString("dishes_id"));
+									WmsRecipesDO recipes = TkMappers.inst().getRecipesMapper().selectOne(cond);
+									if (recipes == null) {
+										long val = sequenceService.next("wms_recipes");
+										String recipesCode = "CD" + StringUtils.leftPad(val + "", 6, "0");
+										recipes = new WmsRecipesDO();
+										recipes.setRecipesCode(recipesCode);
+										recipes.setOutCode(jsonObj.getString("dishes_id"));
+										recipes.setRecipesName(jsonObj.getString("dishes_name"));
+										recipes.setStoreCode("000000");
+										recipes.setRecipesType(jsonObj.getString("dishes_type_name"));
+										recipes.setStatus("1");
+										recipes.setHadFormula("N");
+										recipes.setSrc("auto_sync");
+										recipes.setIsDeleted("N");
+										recipes.setSearchKey(CommonUtils.genSearchKey(//
+												recipes.getRecipesName() + "," + recipes.getRecipesType(), ""));
+										TkMappers.inst().getRecipesMapper().insert(recipes);
+									} else {
+										WmsRecipesDO update = new WmsRecipesDO();
+										update.setId(recipes.getId());
+										update.setRecipesName(jsonObj.getString("dishes_name"));
+										update.setIsDeleted("N");
+										TkMappers.inst().getRecipesMapper().updateByPrimaryKeySelective(update);
+									}
+								});
+					}
 				} catch (Exception e) {
 					log.error("", e);
 				}
+
 				log.info("同步{}菜单.....结束......", store.getStoreName());
 			});
 		} finally {

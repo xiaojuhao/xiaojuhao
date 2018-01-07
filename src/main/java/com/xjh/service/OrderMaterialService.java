@@ -24,7 +24,10 @@ import com.xjh.dao.dataobject.WmsTaskDO;
 import com.xjh.dao.dataobject.WmsTimerJobDO;
 import com.xjh.dao.tkmapper.TkWmsOrderMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class OrderMaterialService {
 	@Resource
 	RecipesService recipesService;
@@ -106,6 +109,8 @@ public class OrderMaterialService {
 					orderMapper.updateByPrimaryKeySelective(update);
 				}
 			}
+		} catch (Exception ex) {
+			log.error("", ex);
 		} finally {
 			TaskService.finishTask(task.getValue());
 		}
