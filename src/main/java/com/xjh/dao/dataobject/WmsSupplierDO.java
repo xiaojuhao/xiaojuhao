@@ -20,7 +20,7 @@ public class WmsSupplierDO extends PageDTO {
 	Long id;
 	String supplierCode;
 	String supplierName;
-	String shortName;
+	String supplierFullName;
 	String supplierAddr;
 	String payMode;
 	String payWay;

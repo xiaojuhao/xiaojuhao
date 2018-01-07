@@ -190,7 +190,7 @@ public class BusinessController {
 				sd.setHomeplace(json.getString("homeplace"));
 				sd.setBrandName(json.getString("brandName"));
 				Integer utilizationRatio = CommonUtils.parseInt(json.getString("utilizationRatio"), -1);
-				if (utilizationRatio <= 0 ) {
+				if (utilizationRatio <= 0) {
 					return ResultBaseBuilder.fails(sd.getSpecName() + "利用率值不合法,必须大于0").rb(request);
 				}
 				sd.setUtilizationRatio(utilizationRatio);
@@ -508,15 +508,10 @@ public class BusinessController {
 		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
 		List<JSONObject> retList = new ArrayList<>();
 		for (WmsMaterialSupplierDO s : list) {
-			WmsSupplierDO sp = supplierService.getSupplierByCode(s.getSupplierCode());
-			if (sp != null) {
-				s.setShortName(sp.getShortName());
-			}
 			JSONObject json = CommonUtils.toJSONObject(s);
 			String searchKey = CommonUtils.genSearchKey(s.getMaterialName(), "");
 			searchKey += "," + CommonUtils.genSearchKey(s.getSupplierName(), "");
 			json.put("searchKey", searchKey);
-
 			retList.add(json);
 		}
 		return ResultBaseBuilder.succ().data(retList).rb(request);

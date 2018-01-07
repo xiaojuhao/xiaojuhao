@@ -27,8 +27,11 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
 @RequestMapping("/supplier")
+@Slf4j
 public class SupplierController {
 	@Resource
 	HttpServletRequest request;
@@ -38,131 +41,133 @@ public class SupplierController {
 	@RequestMapping(value = "/saveSupplier", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object saveSupplier() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		String supplierCode = CommonUtils.get(request, "supplierCode");
-		String supplierName = CommonUtils.get(request, "supplierName");
-		String supplierTel = CommonUtils.get(request, "supplierTel");
-		String supplierPhone = CommonUtils.get(request, "supplierPhone");
-		String supplierEmail = CommonUtils.get(request, "supplierEmail");
-		String shortName = CommonUtils.get(request, "shortName");
-		String status = CommonUtils.get(request, "status");
-		String payMode = CommonUtils.get(request, "payMode");
-		String payWay = CommonUtils.get(request, "payWay");
-		String bankName = CommonUtils.get(request, "bankName");
-		String depositBank = CommonUtils.get(request, "depositBank");
-		String bankAccount = CommonUtils.get(request, "bankAccount");
-		String bankAccountName = CommonUtils.get(request, "bankAccountName");
-		String alipayAccount = CommonUtils.get(request, "alipayAccount");
-		String alipayAccountName = CommonUtils.get(request, "alipayAccountName");
-		String weixinAccount = CommonUtils.get(request, "weixinAccount");
-		String weixinAccountName = CommonUtils.get(request, "weixinAccountName");
-		String remark = CommonUtils.get(request, "remark");
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String supplierCode = CommonUtils.get(request, "supplierCode");
+			String supplierName = CommonUtils.get(request, "supplierName");
+			String supplierTel = CommonUtils.get(request, "supplierTel");
+			String supplierPhone = CommonUtils.get(request, "supplierPhone");
+			String supplierEmail = CommonUtils.get(request, "supplierEmail");
+			String supplierFullName = CommonUtils.get(request, "supplierFullName");
+			String status = CommonUtils.get(request, "status");
+			String payMode = CommonUtils.get(request, "payMode");
+			String payWay = CommonUtils.get(request, "payWay");
+			String bankName = CommonUtils.get(request, "bankName");
+			String depositBank = CommonUtils.get(request, "depositBank");
+			String bankAccount = CommonUtils.get(request, "bankAccount");
+			String bankAccountName = CommonUtils.get(request, "bankAccountName");
+			String alipayAccount = CommonUtils.get(request, "alipayAccount");
+			String alipayAccountName = CommonUtils.get(request, "alipayAccountName");
+			String weixinAccount = CommonUtils.get(request, "weixinAccount");
+			String weixinAccountName = CommonUtils.get(request, "weixinAccountName");
+			String remark = CommonUtils.get(request, "remark");
 
-		String materialJson = CommonUtils.get(request, "materialJson");
-		if (StringUtils.isBlank(shortName)) {
-			shortName = supplierName;
-		}
-		WmsSupplierDO supplier = new WmsSupplierDO();
-		// 如果供应商不存在，则新增供应商
-		if (StringUtils.isBlank(supplierCode)) {
-			long seq = sequenceService.next("wms_supplier");
-			supplierCode = "S" + StringUtils.leftPad(seq + "", 4, "0");
-			supplier.setSupplierCode(supplierCode);
-			supplier.setSupplierName(supplierName);
-			supplier.setShortName(shortName);
-			supplier.setSupplierTel(supplierTel);
-			supplier.setSupplierPhone(supplierPhone);
-			supplier.setSupplierEmail(supplierEmail);
-			supplier.setPayMode(payMode);
-			supplier.setPayWay(payWay);
-			supplier.setBankName(bankName);
-			supplier.setDepositBank(depositBank);
-			supplier.setBankAccount(bankAccount);
-			supplier.setBankAccountName(bankAccountName);
-			supplier.setAlipayAccount(alipayAccount);
-			supplier.setAlipayAccountName(alipayAccountName);
-			supplier.setWeixinAccount(weixinAccount);
-			supplier.setWeixinAccountName(weixinAccountName);
-			supplier.setRemark(remark);
-			supplier.setModifer(user.getUserCode());
-			supplier.setStatus("1");
-			supplier.setGmtModified(new Date());
-			TkMappers.inst().getSupplierMapper().insert(supplier);
-		}
-		// 否则修改供应商信息
-		else {
-			WmsSupplierDO cond = new WmsSupplierDO();
-			cond.setSupplierCode(supplierCode);
-			cond = TkMappers.inst().getSupplierMapper().selectOne(cond);
-			// code不存在
-			if (cond == null) {
-				return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
+			String materialJson = CommonUtils.get(request, "materialJson");
+			WmsSupplierDO supplier = new WmsSupplierDO();
+			// 如果供应商不存在，则新增供应商
+			if (StringUtils.isBlank(supplierCode)) {
+				long seq = sequenceService.next("wms_supplier");
+				supplierCode = "S" + StringUtils.leftPad(seq + "", 4, "0");
+				supplier.setSupplierCode(supplierCode);
+				supplier.setSupplierName(supplierName);
+				supplier.setSupplierFullName(supplierFullName);
+				supplier.setSupplierTel(supplierTel);
+				supplier.setSupplierPhone(supplierPhone);
+				supplier.setSupplierEmail(supplierEmail);
+				supplier.setPayMode(payMode);
+				supplier.setPayWay(payWay);
+				supplier.setBankName(bankName);
+				supplier.setDepositBank(depositBank);
+				supplier.setBankAccount(bankAccount);
+				supplier.setBankAccountName(bankAccountName);
+				supplier.setAlipayAccount(alipayAccount);
+				supplier.setAlipayAccountName(alipayAccountName);
+				supplier.setWeixinAccount(weixinAccount);
+				supplier.setWeixinAccountName(weixinAccountName);
+				supplier.setRemark(remark);
+				supplier.setModifer(user.getUserCode());
+				supplier.setStatus("1");
+				supplier.setGmtModified(new Date());
+				TkMappers.inst().getSupplierMapper().insert(supplier);
 			}
-			supplier.setSupplierCode(supplierCode);
-			supplier.setId(cond.getId());
-			supplier = TkMappers.inst().getSupplierMapper().selectOne(supplier);
-			if (supplier == null) {
-				return ResultBaseBuilder.fails("供应商修改失败:no data").rb(request);
-			}
-			supplier.setSupplierName(supplierName);
-			supplier.setShortName(shortName);
-			supplier.setSupplierTel(supplierTel);
-			supplier.setSupplierPhone(supplierPhone);
-			supplier.setSupplierEmail(supplierEmail);
-			supplier.setPayMode(payMode);
-			supplier.setPayWay(payWay);
-			supplier.setBankName(bankName);
-			supplier.setDepositBank(depositBank);
-			supplier.setBankAccount(bankAccount);
-			supplier.setBankAccountName(bankAccountName);
-			supplier.setAlipayAccount(alipayAccount);
-			supplier.setAlipayAccountName(alipayAccountName);
-			supplier.setWeixinAccount(weixinAccount);
-			supplier.setWeixinAccountName(weixinAccountName);
-			supplier.setRemark(remark);
-			supplier.setModifer(user.getUserCode());
-			supplier.setGmtModified(new Date());
-			supplier.setStatus(status);
-			TkMappers.inst().getSupplierMapper().updateByPrimaryKey(supplier);
-		}
-		// 保存供应商供应的菜品信息
-		JSONArray materials = CommonUtils.parseJSONArray(materialJson);
-		List<WmsMaterialSupplierDO> materialSupplierList = new ArrayList<>();
-		if (materials.size() > 0) {
-			for (int i = 0; i < materials.size(); i++) {
-				JSONObject json = materials.getJSONObject(i);
-				String materialCode = json.getString("materialCode");
-				if (StringUtils.isBlank(materialCode)) {
-					continue;
+			// 否则修改供应商信息
+			else {
+				WmsSupplierDO cond = new WmsSupplierDO();
+				cond.setSupplierCode(supplierCode);
+				cond = TkMappers.inst().getSupplierMapper().selectOne(cond);
+				// code不存在
+				if (cond == null) {
+					return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 				}
-				WmsMaterialDO material = new WmsMaterialDO();
-				material.setMaterialCode(materialCode);
-				material = TkMappers.inst().getMaterialMapper().selectOne(material);
-				if (material == null) {
-					continue;
+				supplier.setSupplierCode(supplierCode);
+				supplier.setId(cond.getId());
+				supplier = TkMappers.inst().getSupplierMapper().selectOne(supplier);
+				if (supplier == null) {
+					return ResultBaseBuilder.fails("供应商修改失败:no data").rb(request);
 				}
-				WmsMaterialSupplierDO ss = new WmsMaterialSupplierDO();
-				ss.setSupplierCode(supplier.getSupplierCode());
-				ss.setSupplierName(supplier.getSupplierName());
-				ss.setMaterialCode(material.getMaterialCode());
-				ss.setMaterialName(material.getMaterialName());
-				ss.setIsDeleted("N");
-				materialSupplierList.add(ss);
+				supplier.setSupplierName(supplierName);
+				supplier.setSupplierFullName(supplierFullName);
+				supplier.setSupplierTel(supplierTel);
+				supplier.setSupplierPhone(supplierPhone);
+				supplier.setSupplierEmail(supplierEmail);
+				supplier.setPayMode(payMode);
+				supplier.setPayWay(payWay);
+				supplier.setBankName(bankName);
+				supplier.setDepositBank(depositBank);
+				supplier.setBankAccount(bankAccount);
+				supplier.setBankAccountName(bankAccountName);
+				supplier.setAlipayAccount(alipayAccount);
+				supplier.setAlipayAccountName(alipayAccountName);
+				supplier.setWeixinAccount(weixinAccount);
+				supplier.setWeixinAccountName(weixinAccountName);
+				supplier.setRemark(remark);
+				supplier.setModifer(user.getUserCode());
+				supplier.setGmtModified(new Date());
+				supplier.setStatus(status);
+				TkMappers.inst().getSupplierMapper().updateByPrimaryKey(supplier);
 			}
-		}
-		if (materialSupplierList.size() > 0) {
-			// 先删除后插入
-			WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
-			ms.setSupplierCode(supplier.getSupplierCode());
-			TkMappers.inst().getMaterialSupplierMapper().delete(ms); // deleteAll
-			for (WmsMaterialSupplierDO t : materialSupplierList) {
-				TkMappers.inst().getMaterialSupplierMapper().insert(t);
+			// 保存供应商供应的菜品信息
+			JSONArray materials = CommonUtils.parseJSONArray(materialJson);
+			List<WmsMaterialSupplierDO> materialSupplierList = new ArrayList<>();
+			if (materials.size() > 0) {
+				for (int i = 0; i < materials.size(); i++) {
+					JSONObject json = materials.getJSONObject(i);
+					String materialCode = json.getString("materialCode");
+					if (StringUtils.isBlank(materialCode)) {
+						continue;
+					}
+					WmsMaterialDO material = new WmsMaterialDO();
+					material.setMaterialCode(materialCode);
+					material = TkMappers.inst().getMaterialMapper().selectOne(material);
+					if (material == null) {
+						continue;
+					}
+					WmsMaterialSupplierDO ss = new WmsMaterialSupplierDO();
+					ss.setSupplierCode(supplier.getSupplierCode());
+					ss.setSupplierName(supplier.getSupplierName());
+					ss.setMaterialCode(material.getMaterialCode());
+					ss.setMaterialName(material.getMaterialName());
+					ss.setIsDeleted("N");
+					materialSupplierList.add(ss);
+				}
 			}
+			if (materialSupplierList.size() > 0) {
+				// 先删除后插入
+				WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
+				ms.setSupplierCode(supplier.getSupplierCode());
+				TkMappers.inst().getMaterialSupplierMapper().delete(ms); // deleteAll
+				for (WmsMaterialSupplierDO t : materialSupplierList) {
+					TkMappers.inst().getMaterialSupplierMapper().insert(t);
+				}
+			}
+			return ResultBaseBuilder.succ().data(supplier).rb(request);
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
-		return ResultBaseBuilder.succ().data(supplier).rb(request);
 	}
 
 	@RequestMapping(value = "/querySupplierPage", produces = "application/json;charset=UTF-8")
