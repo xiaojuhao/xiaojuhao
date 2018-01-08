@@ -97,6 +97,8 @@ public class MaterialCheckService {
 				dd.setOriStockAmt(it.getCurrStock());
 				dd.setStockAmt(it.getCurrStock());
 				dd.setStatus("0");
+				dd.setCategory(material.getCategory());
+				dd.setDeltaAmt(0D);
 				checkDetailMapper.insert(dd);
 			});
 		} catch (Exception ex) {

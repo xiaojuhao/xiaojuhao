@@ -16,6 +16,7 @@ import com.xjh.commons.DateBuilder;
 import com.xjh.commons.Fraction;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
@@ -33,6 +34,8 @@ public class OrderMaterialService {
 	RecipesService recipesService;
 	@Resource
 	TkWmsOrderMapper orderMapper;
+	@Resource
+	MaterialService materialService;
 
 	public void handleOrders() {
 		try {
@@ -203,6 +206,10 @@ public class OrderMaterialService {
 		}
 		String saleDate = CommonUtils.formatDate(order.getSaleDate(), "yyyMMdd");
 		for (WmsRecipesFormulaDO recipesformula : recipesformulas) {
+			WmsMaterialDO material = materialService.queryMaterialByCode(recipesformula.getMaterialCode());
+			if (material == null || "Y".equals(material.getIsDeleted())) {
+				continue;//原料已经删除
+			}
 			WmsOrdersMaterialDO ordersMaterial = new WmsOrdersMaterialDO();
 			ordersMaterial.setOrderId(order.getId());
 			ordersMaterial.setMaterialCode(recipesformula.getMaterialCode());

@@ -243,7 +243,7 @@ public class DiaoboController {
 			h2.setUnitPrice(detail.getSpecPrice());
 			h2.setProductDate(detail.getProdDate());
 			h2.setStockUnit(detail.getStockUnit());
-			h2.setAmt(detail.getInStockAmt());
+			h2.setAmt(-1 * detail.getInStockAmt());
 			h2.setOperator(detail.getModifier());
 			h2.setTotalPrice(detail.getTotalPrice());
 			h2.setGmtCreated(new Date());

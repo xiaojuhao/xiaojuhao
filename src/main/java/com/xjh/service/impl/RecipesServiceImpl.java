@@ -72,6 +72,7 @@ public class RecipesServiceImpl implements RecipesService {
 		}
 		WmsRecipesDO record = new WmsRecipesDO();
 		record.setRecipesCode(recipesCode);
+		record.setIsDeleted("N");
 		return recipesMapper.selectOne(record);
 	}
 
@@ -82,6 +83,7 @@ public class RecipesServiceImpl implements RecipesService {
 		}
 		WmsRecipesFormulaDO cond = new WmsRecipesFormulaDO();
 		cond.setRecipesCode(recipesCode);
+		cond.setIsDeleted("N");
 		List<WmsRecipesFormulaDO> list = null;
 		list = TkMappers.inst().getRecipesFormulaMapper().select(cond);
 		if (list == null) {

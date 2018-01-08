@@ -691,6 +691,11 @@ public class CommonUtils {
 		return val;
 	}
 
+	public static Date getDate(HttpServletRequest request, String paramName) {
+		String val = request.getParameter(paramName);
+		return parseDate(val);
+	}
+
 	public static Long getLong(HttpServletRequest request, String paramName) {
 		String val = request.getParameter(paramName);
 		return parseLong(val, null);
@@ -1126,5 +1131,24 @@ public class CommonUtils {
 			return false;
 		}
 		return imageTypes.contains(suffix.toLowerCase());
+	}
+
+	static int mask = 0B1;
+
+	public static void switch1325(int i) {
+		int b1 = i & mask;
+		int b2 = i >> 1 & mask;
+		int b3 = i >> 2 & mask;
+		int b4 = i >> 3 & mask;
+		int b5 = i >> 4 & mask;
+		System.out.println(b3 + "" + b5 + "" + b1 + "" + b4 + "" + b2);
+		int r = b3 & b5 << 1 & b1 << 2 & b4 << 3 & b2 << 4;
+		System.out.println(i + "=" + r);
+	}
+
+	public static void main(String[] args) {
+		for (int i = 0; i < 35; i++) {
+			switch1325(i);
+		}
 	}
 }

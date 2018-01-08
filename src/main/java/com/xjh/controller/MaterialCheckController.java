@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -10,8 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.DateBuilder;
+import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -105,32 +109,108 @@ public class MaterialCheckController {
 	@RequestMapping(value = "/checkDetail", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object checkDetail() {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String cabinCode = CommonUtils.get(request, "cabinCode");
+			Long mainId = CommonUtils.getLong(request, "mainId");
+			String detail = CommonUtils.get(request, "detail");
+			String materialCode = CommonUtils.get(request, "materialCode");
+			Double stockAmt = CommonUtils.getDbl(request, "stockAmt", null);
+			if (CommonUtils.isAnyBlank(cabinCode, materialCode) || mainId == null || stockAmt == null) {
+				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+			}
+			Example example = new Example(WmsMaterialStockCheckDetailDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andEqualTo("materialCode", materialCode);
+			cri.andEqualTo("cabinCode", cabinCode);
+			cri.andEqualTo("mainId", mainId);
+			List<WmsMaterialStockCheckDetailDO> list = checkDetailMapper.selectByExample(example);
+			if (list.size() == 0) {
+				return ResultBaseBuilder.fails("未修改到任何记录").rb(request);
+			}
+			if (list.size() > 1) {
+				return ResultBaseBuilder.fails("数据错误，查到的数据超过1条").rb(request);
+			}
+
+			WmsMaterialStockCheckDetailDO value = list.get(0);
+			value.setStockAmt(stockAmt);
+			value.setDetail(detail);
+			value.setDeltaAmt(value.getStockAmt() - value.getOriStockAmt());
+			value.setStatus("1");
+			int i = checkDetailMapper.updateByPrimaryKeySelective(value);
+			if (i == 0) {
+				return ResultBaseBuilder.fails("未修改到任何记录").rb(request);
+			}
+			return ResultBaseBuilder.succ().rb(request);
+		} catch (Exception e) {
+			return ResultBaseBuilder.fails("系统异常").rb(request);
+		}
+	}
+
+	@RequestMapping(value = "/queryCheckMain", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryCheckMain() {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		Long id = CommonUtils.getLong(request, "id");
+		Date startDate = CommonUtils.getDate(request, "startDate");
+		Date endDate = CommonUtils.getDate(request, "endDate");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
-		Long mainId = CommonUtils.getLong(request, "mainId");
-		String detail = CommonUtils.get(request, "detail");
-		String materialCode = CommonUtils.get(request, "materialCode");
-		Double stockAmt = CommonUtils.getDbl(request, "stockAmt", null);
-		if (CommonUtils.isAnyBlank(cabinCode, materialCode) || mainId == null || stockAmt == null) {
-			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
+		Example example = new Example(WmsMaterialStockCheckMainDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("cabinCode", cabinCode);
+		if (endDate != null) {
+			cri.andLessThanOrEqualTo("startTime", DateBuilder.base(endDate).futureDays(1).date());
 		}
+		if (startDate != null) {
+			cri.andGreaterThanOrEqualTo("endTime", startDate);
+		}
+		cri.andEqualTo("id", id);
+		PageHelper.startPage(pageNo, pageSize);
+		PageHelper.orderBy("status ,start_time desc");
+		List<WmsMaterialStockCheckMainDO> list = checkMainMapper.selectByExample(example);
+		int totalRows = this.checkMainMapper.selectCountByExample(example);
+		PageResult<WmsMaterialStockCheckMainDO> page = new PageResult<>();
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setValues(list);
+		page.setTotalRows(totalRows);
+		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/queryCheckDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object queryCheckDetail() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		Long mainId = CommonUtils.getLong(request, "mainId");
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
 		Example example = new Example(WmsMaterialStockCheckDetailDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
-		cri.andEqualTo("materialCode", materialCode);
 		cri.andEqualTo("cabinCode", cabinCode);
 		cri.andEqualTo("mainId", mainId);
-
-		WmsMaterialStockCheckDetailDO value = new WmsMaterialStockCheckDetailDO();
-		value.setStockAmt(stockAmt);
-		value.setDetail(detail);
-		value.setStatus("1");
-		int i = checkDetailMapper.updateByExampleSelective(value, example);
-		if (i == 0) {
-			return ResultBaseBuilder.fails("未修改到任何记录").rb(request);
-		}
-		return ResultBaseBuilder.succ().rb(request);
+		cri.andEqualTo("materialCode", materialCode);
+		PageHelper.startPage(pageNo, pageSize);
+		PageHelper.orderBy("status desc, delta_amt desc, stock_amt desc, id");
+		List<WmsMaterialStockCheckDetailDO> list = checkDetailMapper.selectByExample(example);
+		int totalRows = this.checkDetailMapper.selectCountByExample(example);
+		PageResult<WmsMaterialStockCheckDetailDO> page = new PageResult<>();
+		page.setPageNo(pageNo);
+		page.setPageSize(pageSize);
+		page.setValues(list);
+		page.setTotalRows(totalRows);
+		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 }

@@ -23,9 +23,11 @@ public class WmsMaterialStockCheckDetailDO extends PageDTO implements Serializab
 	String cabinName;
 	String materialCode;
 	String materialName;
+	String category;
 	String stockUnit;
 	Double oriStockAmt;
 	Double stockAmt;
+	Double deltaAmt;
 	String status;
 	String detail;
 	String remark;
