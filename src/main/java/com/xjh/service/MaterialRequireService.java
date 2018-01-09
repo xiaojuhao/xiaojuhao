@@ -20,6 +20,7 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
 import com.xjh.valueobject.CabinVo;
@@ -184,6 +185,25 @@ public class MaterialRequireService {
 				de.setRealSpecAmt(de.getSpecAmt());
 				de.setInStockAmt(de.getStockAmt() * spec.getUtilizationRatio() / 100);
 				de.setRealStockAmt(de.getInStockAmt());
+				//如果是调拨，则校验拨出库存是否足够
+				if ("2".equals(keyFiled.get(2))) {
+					WmsMaterialStockDO cond = new WmsMaterialStockDO();
+					cond.setCabinCode(r.getFromCabinCode());
+					cond.setMaterialCode(de.getMaterialCode());
+					WmsMaterialStockDO stock = TkMappers.inst().getMaterialStockMapper().selectOne(cond);
+					if (stock == null) {
+						return ResultBaseBuilder
+								.fails("仓库" + de.getFromCabinName() + "中没有原料" + de.getMaterialName() + "的库存").rb();
+					}
+					if ("Y".equals(stock.getIsDeleted())) {
+						return ResultBaseBuilder
+								.fails("仓库" + de.getFromCabinName() + "的原料" + de.getMaterialName() + "已被删除").rb();
+					}
+					if (stock.getCurrStock() < de.getInStockAmt()) {
+						return ResultBaseBuilder
+								.fails("仓库" + de.getFromCabinName() + "的原料" + de.getMaterialName() + "库存不足").rb();
+					}
+				}
 				de.setStatus("1");
 				de.setGmtCreated(new Date());
 				de.setCreator(user.getUserCode());

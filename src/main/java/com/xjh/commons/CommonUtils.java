@@ -15,7 +15,9 @@ import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
@@ -1133,22 +1135,78 @@ public class CommonUtils {
 		return imageTypes.contains(suffix.toLowerCase());
 	}
 
-	static int mask = 0B1;
+	static String letters[] = { //
+			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", //
+			"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", //
+			"k", "l", "m", "n", "o", "p", "q", "r", "s", "t", //
+			"u", "v", "w", "x", "y", "z" };
 
-	public static void switch1325(int i) {
-		int b1 = i & mask;
-		int b2 = i >> 1 & mask;
-		int b3 = i >> 2 & mask;
-		int b4 = i >> 3 & mask;
-		int b5 = i >> 4 & mask;
-		System.out.println(b3 + "" + b5 + "" + b1 + "" + b4 + "" + b2);
-		int r = b3 & b5 << 1 & b1 << 2 & b4 << 3 & b2 << 4;
-		System.out.println(i + "=" + r);
+	public static int setBit(int val, int pos, boolean b) {
+		int mask0 = 0xFFFFFFFF;
+		int mask1 = 0x0;
+		mask0 = mask0 >> pos;
+		mask0 = mask0 & 0xFFFFFFFE;
+		if (b) {
+			mask1 = mask1 | 0b1;
+		}
+		while (pos-- > 0) {
+			mask0 = mask0 << 1 | 0b1;
+			mask1 = mask1 << 1;
+		}
+		return val & mask0 | mask1;
+	}
+
+	public static int getBit(int val, int pos) {
+		val = val >> pos;
+		return val & 0b1;
+	}
+
+	public static int swapbit(int val, int pos1, int pos2) {
+		boolean b1 = getBit(val, pos1) == 1;
+		boolean b2 = getBit(val, pos2) == 1;
+		val = setBit(val, pos2, b1);
+		val = setBit(val, pos1, b2);
+		return val;
+	}
+
+	private static String getLetters(int i) {
+		int b1 = i & 0B1;
+		int b2 = i >> 1 & 0B1;
+		int b3 = i >> 2 & 0B1;
+		int b4 = i >> 3 & 0B1;
+		int b5 = i >> 4 & 0B1;
+		int r = b3 | (b5 << 1) | (b1 << 2) | (b4 << 3) | (b2 << 4);
+		return letters[r];
+	}
+
+	public static String stirNumber(long num) {
+		StringBuilder sb = new StringBuilder();
+		long i = 0;
+		while (num > 0) {
+			i = num & 0B1111;
+			num = num >> 4;
+			int mask = 0;
+			if (random.nextInt() % 2 == 0) {
+				mask = 1;
+			}
+			i = i << 1 | mask;
+			sb.append(getLetters((int) i));
+		}
+		return sb.toString();
 	}
 
 	public static void main(String[] args) {
-		for (int i = 0; i < 35; i++) {
-			switch1325(i);
+		List<String> vals = new ArrayList<>();
+		for (int i = 1000000; i < 1000000 + 100; i++) {
+			String str = stirNumber(i);
+			if (vals.contains(str)) {
+				throw new RuntimeException();
+			}
+			vals.add(str);
+		}
+		Collections.sort(vals);
+		for (String str : vals) {
+			System.out.println(str);
 		}
 	}
 }

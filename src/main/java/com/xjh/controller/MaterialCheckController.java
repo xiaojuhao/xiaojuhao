@@ -195,6 +195,8 @@ public class MaterialCheckController {
 		Long mainId = CommonUtils.getLong(request, "mainId");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		String materialCode = CommonUtils.get(request, "materialCode");
+		String category = CommonUtils.get(request, "category");
+		String searchKey = CommonUtils.get(request, "searchKey");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 		Example example = new Example(WmsMaterialStockCheckDetailDO.class, false, false);
@@ -202,6 +204,10 @@ public class MaterialCheckController {
 		cri.andEqualTo("cabinCode", cabinCode);
 		cri.andEqualTo("mainId", mainId);
 		cri.andEqualTo("materialCode", materialCode);
+		cri.andEqualTo("category", category);
+		if (StringUtils.isNotBlank(searchKey)) {
+			cri.andLike("materialName", "%" + searchKey + "%");
+		}
 		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("status desc, delta_amt desc, stock_amt desc, id");
 		List<WmsMaterialStockCheckDetailDO> list = checkDetailMapper.selectByExample(example);

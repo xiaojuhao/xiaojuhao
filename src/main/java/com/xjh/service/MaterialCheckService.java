@@ -81,6 +81,7 @@ public class MaterialCheckService {
 			WmsMaterialStockDO stockCond = new WmsMaterialStockDO();
 			stockCond.setCabinCode(cabinCode);
 			stockCond.setStatus("1");
+			stockCond.setIsDeleted("N");
 			List<WmsMaterialStockDO> stockList = stockMapper.select(stockCond);
 			stockList.forEach((it) -> {
 				WmsMaterialDO material = materialService.queryMaterialByCode(it.getMaterialCode());
