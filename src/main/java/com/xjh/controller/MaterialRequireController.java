@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,10 +31,12 @@ import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/require")
+@Slf4j
 public class MaterialRequireController {
 	@Resource
 	HttpServletRequest request;
@@ -187,5 +190,36 @@ public class MaterialRequireController {
 		page.setPageSize(pageSize);
 
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/createRequire", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object createRequire() {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			List<String> mycabins = new ArrayList<>();
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
+			String cabinCode = CommonUtils.get(request, "cabinCode");
+			if (StringUtils.isNotBlank(cabinCode) && !mycabins.contains(cabinCode)) {
+				return ResultBaseBuilder.fails("无权操作门店" + cabinCode).rb(request);
+			}
+			if (StringUtils.isNotBlank(cabinCode)) {
+				this.materialRequireService.createMaterialRequre(Arrays.asList(cabinCode));
+			} else {
+				if ("1".equals(user.getIsSu())) {
+					this.materialRequireService.createMaterialRequre(null);
+				} else {
+					this.materialRequireService.createMaterialRequre(mycabins);
+				}
+			}
+			return ResultBaseBuilder.succ().rb(request);
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+		}
 	}
 }

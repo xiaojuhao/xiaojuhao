@@ -15,19 +15,24 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
+import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.dataobject.WmsNoticeDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
 import com.xjh.valueobject.CabinVo;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
+@Slf4j
 public class MaterialRequireService {
 	@Resource
 	CabinService cabinService;
@@ -37,10 +42,13 @@ public class MaterialRequireService {
 	TkWmsMaterialRequireMapper requireMapper;
 	@Resource
 	MaterialSpecService materialSpecService;
+	@Resource
+	TkWmsMaterialStockMapper materialStockMapper;
 
-	public void clearUnDealedRecord() {
+	public void clearUnDealedRecord(String cabinCode) {
 		WmsMaterialRequireDO cond = new WmsMaterialRequireDO();
 		cond.setStatus("0");
+		cond.setCabinCode(cabinCode);
 		this.requireMapper.delete(cond);
 	}
 
@@ -255,4 +263,57 @@ public class MaterialRequireService {
 		return ResultBaseBuilder.succ().rb();
 	}
 
+	public void createMaterialRequre(List<String> cabins) {
+		List<String> cabinCodes = new ArrayList<>();
+		if (cabins == null) {
+			cabinService.getAllCabins().forEach((it) -> {
+				cabinCodes.add(it.getCode());
+			});
+			this.clearUnDealedRecord(null);
+		} else {
+			cabinCodes.addAll(cabins);
+		}
+		//重新计算需求信息
+		cabinCodes.forEach((cabinCode) -> {
+			WmsMaterialStockDO cond = new WmsMaterialStockDO();
+			cond.setCabinCode(cabinCode);
+			cond.setIsDeleted("N");
+			List<WmsMaterialStockDO> stocks = this.materialStockMapper.select(cond);
+			for (WmsMaterialStockDO stock : stocks) {
+				try {
+					Double wariningAmt = stock.getWarningValue1();//最低库存预警值
+					//没有预警值得时候，不告警
+					if (wariningAmt == null || wariningAmt <= 0.01) {
+						continue;
+					}
+					//库存大于预警值，不告警
+					if (stock.getCurrStock() >= wariningAmt) {
+						continue;
+					}
+					//生成告警信息
+					WmsNoticeDO notice = new WmsNoticeDO();
+					notice.setStatus("1");
+					notice.setTitle("库存预警");
+					notice.setContent(stock.getCabinName() + "【" + stock.getMaterialName() + "】库存不足,请及时补货");
+					notice.setGmtCreated(new Date());
+					notice.setGmtExpired(DateBuilder.today().futureDays(7).date());
+					notice.setMsgType("warning");
+					TkMappers.inst().getNoticeMapper().insert(notice);
+					//生成原料需求单
+					final Double requireAmt = stock.getWarningValue2() - stock.getCurrStock();
+					TaskUtils.schedule(() -> {
+						this.addRequire(//
+								stock.getCabinCode(), //
+								stock.getMaterialCode(), //
+								requireAmt, //
+								null);
+					});
+
+				} catch (Exception e) {
+					log.error("", e);
+				}
+			}
+		});
+
+	}
 }

@@ -150,49 +150,7 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 	}
 
 	private void checkWaringAndGenRequire(final boolean isBusy) {
-		//把系统中现有的没有处理的需求信息都删除掉，因为本次计算出来的需求信息才是最新的
-		this.requireService.clearUnDealedRecord();
-		//重新计算需求信息
-		cabinService.getAllCabins().forEach((cabin) -> {
-			WmsMaterialStockDO cond = new WmsMaterialStockDO();
-			cond.setCabinCode(cabin.getCode());
-			cond.setIsDeleted("N");
-			List<WmsMaterialStockDO> stocks = this.materialStockMapper.select(cond);
-			for (WmsMaterialStockDO stock : stocks) {
-				try {
-					Double wariningAmt = stock.getWarningValue1();//最低库存预警值
-					//没有预警值得时候，不告警
-					if (wariningAmt == null || wariningAmt <= 0.01) {
-						continue;
-					}
-					//库存大于预警值，不告警
-					if (stock.getCurrStock() >= wariningAmt) {
-						continue;
-					}
-					//生成告警信息
-					WmsNoticeDO notice = new WmsNoticeDO();
-					notice.setStatus("1");
-					notice.setTitle("库存预警");
-					notice.setContent(stock.getCabinName() + "【" + stock.getMaterialName() + "】库存不足,请及时补货");
-					notice.setGmtCreated(new Date());
-					notice.setGmtExpired(DateBuilder.today().futureDays(7).date());
-					notice.setMsgType("warning");
-					TkMappers.inst().getNoticeMapper().insert(notice);
-					//生成原料需求单
-					final Double requireAmt = stock.getWarningValue2() - stock.getCurrStock();
-					TaskUtils.schedule(() -> {
-						requireService.addRequire(//
-								stock.getCabinCode(), //
-								stock.getMaterialCode(), //
-								requireAmt, //
-								null);
-					});
-
-				} catch (Exception e) {
-					log.error("", e);
-				}
-			}
-		});
+		this.requireService.createMaterialRequre(null);
 	}
 
 	/**
