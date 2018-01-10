@@ -159,6 +159,7 @@ public class MaterialRequireController {
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String status = CommonUtils.get(request, "status");
 		String searchKey = CommonUtils.get(request, "searchKey");
+		String category = CommonUtils.get(request, "category");
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 
@@ -167,6 +168,7 @@ public class MaterialRequireController {
 		cri.andEqualTo("cabinCode", cabinCode);
 		cri.andEqualTo("materialCode", materialCode);
 		cri.andEqualTo("status", status);
+		cri.andEqualTo("materialCate", category);
 		cri.andGreaterThanOrEqualTo("requireDate", CommonUtils.parseDate(startDate));
 		cri.andLessThanOrEqualTo("requireDate", CommonUtils.parseDate(endDate));
 		if (StringUtils.isNotBlank(searchKey)) {

@@ -53,6 +53,12 @@
 				and  concat(wm.material_name,',',wm.search_key) like "%"#{searchKey}"%"
 				)
 			</if>
+			<if test="category != null and category != ''">
+				and exists (select 1 from wms_material wm  
+				where wm.material_code = wms_material_stock.material_code 
+				and wm.category = #{category}
+				)
+			</if>
 			<if test="materialCode != null and materialCode != ''">
 				and material_code = #{materialCode}
 			</if>

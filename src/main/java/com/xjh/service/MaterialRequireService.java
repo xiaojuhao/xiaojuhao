@@ -217,8 +217,9 @@ public class MaterialRequireService {
 				de.setCreator(user.getUserCode());
 				de.setGmtModified(new Date());
 				de.setModifier(user.getUserCode());
+				de.setTotalPrice(de.getSpecPrice() * de.getSpecAmt());
 				de.setRemark("原料需求生成");
-				totalPrice += de.getSpecPrice() * de.getSpecAmt();
+				totalPrice += de.getTotalPrice();
 				details.add(de);
 			}
 			apply.setApplyNum(applyNum);
@@ -301,13 +302,11 @@ public class MaterialRequireService {
 					TkMappers.inst().getNoticeMapper().insert(notice);
 					//生成原料需求单
 					final Double requireAmt = stock.getWarningValue2() - stock.getCurrStock();
-					TaskUtils.schedule(() -> {
-						this.addRequire(//
-								stock.getCabinCode(), //
-								stock.getMaterialCode(), //
-								requireAmt, //
-								null);
-					});
+					this.addRequire(//
+							stock.getCabinCode(), //
+							stock.getMaterialCode(), //
+							requireAmt, //
+							null);
 
 				} catch (Exception e) {
 					log.error("", e);

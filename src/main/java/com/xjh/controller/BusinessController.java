@@ -323,12 +323,14 @@ public class BusinessController {
 		String cabCode = CommonUtils.get(request, "cabinCode");
 		String cabType = CommonUtils.get(request, "cabinType");
 		String searchKey = CommonUtils.get(request, "searchKey");
+		String category = CommonUtils.get(request, "category");
 		WmsMaterialStockDO example = new WmsMaterialStockDO();
 		example.setId(id);
 		example.setMaterialCode(materialCode);
 		example.setCabinCode(cabCode);
 		example.setCabinType(cabType);
 		example.setPageSize(pageSize);
+		example.setCategory(category);
 		example.setIsDeleted("N");
 		example.setPageNo(pageNo);
 		example.setSearchKey(searchKey);

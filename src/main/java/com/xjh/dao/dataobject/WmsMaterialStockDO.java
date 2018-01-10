@@ -42,4 +42,6 @@ public class WmsMaterialStockDO extends PageDTO {
 	String searchKey;
 	@Transient
 	List<String> mycabins;
+	@Transient
+	String category;
 }
