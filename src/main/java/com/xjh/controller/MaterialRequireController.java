@@ -22,6 +22,7 @@ import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsUserDO;
@@ -30,6 +31,8 @@ import com.xjh.service.CabinService;
 import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.PriceService;
+import com.xjh.service.TaskService;
 
 import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
@@ -50,6 +53,8 @@ public class MaterialRequireController {
 	MaterialSpecService materialSpecService;
 	@Resource
 	MaterialRequireService materialRequireService;
+	@Resource
+	PriceService priceService;
 
 	@RequestMapping(value = "/cancelRequire", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -134,6 +139,10 @@ public class MaterialRequireController {
 			}
 			list.add(dd);
 			requireMapper.updateByPrimaryKeySelective(dd);
+			WmsMaterialRequireDO ddd = dd;
+			TaskUtils.schedule(() -> {
+				priceService.updateSpecPrice(ddd.getSpecCode(), ddd.getCabinCode(), ddd.getSpecPrice());
+			});
 		}
 		//生成采购单
 		if ("2".equals(handleType)) {

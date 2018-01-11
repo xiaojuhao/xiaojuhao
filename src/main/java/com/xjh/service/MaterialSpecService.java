@@ -29,6 +29,7 @@ public class MaterialSpecService {
 	SequenceService sequence;
 	@Resource
 	MaterialService materialService;
+	
 
 	public WmsMaterialSpecDO queryByCode(String specCode) {
 		if (StringUtils.isBlank(specCode)) {

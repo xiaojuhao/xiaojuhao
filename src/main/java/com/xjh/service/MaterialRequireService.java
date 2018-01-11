@@ -276,11 +276,18 @@ public class MaterialRequireService {
 		}
 		//重新计算需求信息
 		cabinCodes.forEach((cabinCode) -> {
+			long start = System.currentTimeMillis();
+			log.info("创建{}需求信息------开始------", cabinCode);
 			WmsMaterialStockDO cond = new WmsMaterialStockDO();
 			cond.setCabinCode(cabinCode);
 			cond.setIsDeleted("N");
 			List<WmsMaterialStockDO> stocks = this.materialStockMapper.select(cond);
+			log.info("查询到{}条库存记录，开始遍历库存......", stocks.size());
+			int i = 0;
 			for (WmsMaterialStockDO stock : stocks) {
+				if (i++ % 100 == 0) {
+					log.info("已处理{}条记录", i);
+				}
 				try {
 					Double wariningAmt = stock.getWarningValue1();//最低库存预警值
 					//没有预警值得时候，不告警
@@ -312,6 +319,7 @@ public class MaterialRequireService {
 					log.error("", e);
 				}
 			}
+			log.info("创建{}需求信息------结束,耗时{}ms---", cabinCode, System.currentTimeMillis() - start);
 		});
 
 	}
