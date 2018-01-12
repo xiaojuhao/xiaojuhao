@@ -250,7 +250,7 @@ public class MaterialRequireController {
 		try {
 			WmsUserDO user = AccountUtils.getLoginUser(request);
 			if (user == null) {
-				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+				//return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
 			String ids = CommonUtils.get(request, "ids");
 			List<String> idList = CommonUtils.splitAsList(ids, ",");
