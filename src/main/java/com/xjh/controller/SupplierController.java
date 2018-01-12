@@ -91,6 +91,7 @@ public class SupplierController {
 				supplier.setModifer(user.getUserCode());
 				supplier.setStatus("1");
 				supplier.setGmtModified(new Date());
+				supplier.setIsDeleted("N");
 				TkMappers.inst().getSupplierMapper().insert(supplier);
 			}
 			// 否则修改供应商信息
