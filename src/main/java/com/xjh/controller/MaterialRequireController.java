@@ -2,6 +2,7 @@ package com.xjh.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import com.xjh.commons.ResultCode;
 import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
+import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
 import com.xjh.service.CabinService;
@@ -33,6 +35,7 @@ import com.xjh.service.LockService;
 import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
+import com.xjh.service.MaterialStockService;
 import com.xjh.service.PriceService;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
@@ -61,6 +64,8 @@ public class MaterialRequireController {
 	PriceService priceService;
 	@Resource
 	LockService lockService;
+	@Resource
+	MaterialStockService stockService;
 
 	@RequestMapping(value = "/cancelRequire", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -250,7 +255,7 @@ public class MaterialRequireController {
 		try {
 			WmsUserDO user = AccountUtils.getLoginUser(request);
 			if (user == null) {
-				//return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
 			String ids = CommonUtils.get(request, "ids");
 			List<String> idList = CommonUtils.splitAsList(ids, ",");
@@ -261,17 +266,45 @@ public class MaterialRequireController {
 			Example.Criteria cri = example.createCriteria();
 			cri.andIn("id", idList);
 			List<WmsMaterialRequireDO> list = this.requireMapper.selectByExample(example);
+			//按供应商或调拨仓库排序
+			Collections.sort(list, (a, b) -> {
+				String s1 = null;
+				String s2 = null;
+				if ("1".equals(a.getPurchaseType())) {
+					s1 = a.getSupplierCode();
+				} else {
+					s1 = a.getFromCabinCode();
+				}
+				if ("1".equals(b.getPurchaseType())) {
+					s2 = b.getSupplierCode();
+				} else {
+					s2 = b.getFromCabinCode();
+				}
+				if (s1 == null)
+					s1 = "";
+				if (s2 == null)
+					s2 = "";
+				return s1.compareTo(s2);
+			});
+			//导出excel
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
 			for (WmsMaterialRequireDO dd : list) {
+				WmsMaterialStockDO stock = stockService.queryMaterialStock(dd.getCabinCode(), dd.getMaterialCode());
 				CfRow row = sheet.newRow();
 				row.appendEx("ID", dd.getId(), //
 						"仓库", dd.getCabinName(), //
 						"原料", dd.getMaterialName(), //
-						"需求量", dd.getRequireAmt());
+						"需求量", dd.getRequireAmt(), //
+						"库存单位", dd.getStockUnit(), //
+						"当前库存", stock == null ? 0 : stock.getCurrStock(), //
+						"已选规格", dd.getSpecName(), //
+						"单价", dd.getSpecPrice(), //
+						"采购类型", "1".equals(dd.getPurchaseType()) ? "采购" : "调拨", //
+						"仓库/供应商", "1".equals(dd.getPurchaseType()) ? dd.getSupplierName() : dd.getFromCabinName());
 			}
 			response.setContentType("application/octet-stream");
-			response.setHeader("Content-Disposition", "attachment; filename=material.xlsx");
+			response.setHeader("Content-Disposition", "attachment; filename=YuanLiaoXuQiu"+CommonUtils.stringOfToday("yyyyMMdd")+".xlsx");
 			wb.toHSSFWorkbook().write(response.getOutputStream());
 			response.getOutputStream().close();
 			return null;
