@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -28,11 +29,14 @@ import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
 import com.xjh.service.CabinService;
+import com.xjh.service.LockService;
 import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.PriceService;
-import com.xjh.service.TaskService;
+import com.xjh.support.excel.CfWorkbook;
+import com.xjh.support.excel.model.CfRow;
+import com.xjh.support.excel.model.CfSheet;
 
 import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
@@ -55,6 +59,8 @@ public class MaterialRequireController {
 	MaterialRequireService materialRequireService;
 	@Resource
 	PriceService priceService;
+	@Resource
+	LockService lockService;
 
 	@RequestMapping(value = "/cancelRequire", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -218,6 +224,10 @@ public class MaterialRequireController {
 			if (StringUtils.isNotBlank(cabinCode) && !mycabins.contains(cabinCode)) {
 				return ResultBaseBuilder.fails("无权操作门店" + cabinCode).rb(request);
 			}
+			String lock = "createRequire_" + user.getUserCode();
+			if (!lockService.tryLock(lock, 180)) {
+				return ResultBaseBuilder.fails("操作太频繁，请稍后").rb(request);
+			}
 			if (StringUtils.isNotBlank(cabinCode)) {
 				this.materialRequireService.createMaterialRequre(Arrays.asList(cabinCode));
 			} else {
@@ -231,6 +241,43 @@ public class MaterialRequireController {
 		} catch (Exception e) {
 			log.error("", e);
 			return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+		}
+	}
+
+	@RequestMapping(value = "/downloadRequire", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object downloadRequire(HttpServletResponse response) {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String ids = CommonUtils.get(request, "ids");
+			List<String> idList = CommonUtils.splitAsList(ids, ",");
+			if (idList.size() == 0) {
+				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+			}
+			Example example = new Example(WmsMaterialRequireDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andIn("id", idList);
+			List<WmsMaterialRequireDO> list = this.requireMapper.selectByExample(example);
+			CfWorkbook wb = new CfWorkbook();
+			CfSheet sheet = wb.newSheet("data");
+			for (WmsMaterialRequireDO dd : list) {
+				CfRow row = sheet.newRow();
+				row.appendEx("ID", dd.getId(), //
+						"仓库", dd.getCabinName(), //
+						"原料", dd.getMaterialName(), //
+						"需求量", dd.getRequireAmt());
+			}
+			response.setContentType("application/octet-stream");
+			response.setHeader("Content-Disposition", "attachment; filename=material.xlsx");
+			wb.toHSSFWorkbook().write(response.getOutputStream());
+			response.getOutputStream().close();
+			return null;
+		} catch (Exception ex) {
+			log.error("", ex);
+			return ResultBaseBuilder.fails(ex.getMessage()).rb(request);
 		}
 	}
 }
