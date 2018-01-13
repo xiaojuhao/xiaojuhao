@@ -229,7 +229,7 @@ public class BusinessController {
 			for (WmsMaterialSpecDetailDO sd : specDetailList) {
 				detailMapper.insert(sd);
 			}
-			materialStockService.initStock(material.getMaterialCode());
+			//materialStockService.initStock(material.getMaterialCode());
 			BusCruise.post(new MaterialChange(material), true);
 			return ResultBaseBuilder.succ().data(material).rb(request);
 		} catch (Exception e) {
