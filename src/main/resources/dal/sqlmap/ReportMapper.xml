@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xjh.dao.mapper.StockReportMapper">
+	
+	<select id="reportData" resultType="com.xjh.service.vo.StockReportVo">
+		select 
+			his.cabin_code,
+			his.cabin_name, 
+			m.material_code,
+			m.material_name,
+			(select curr_stock from wms_material_stock ms 
+			where ms.material_code = his.material_code and ms.cabin_code = his.cabin_code) currstock,
+			sum(case op_type when 'sale' then amt else 0 end) sale,
+			sum(case op_type when 'in_stock' then amt else 0 end ) in_stock,
+			sum(case op_type when 'in_stock_loss' then amt else 0 end ) in_stock_loss,
+			sum(case op_type when 'claim_loss' then amt else 0 end ) claim_loss,
+			sum(case op_type when 'correct_delta' then amt else 0 end ) correct_delta
+		from wms_material_stock_history his 
+		left join wms_material m on his.material_code = m.material_code
+		<where>
+			<if test="cabinCode != null and cabinCode != ''">
+				and his.cabin_code = #{cabinCode}
+			</if>
+			<if test="materialCode != null and materialCode != ''">
+				and his.material_code = #{materialCode}
+			</if>
+			<if test="category != null and category != ''">
+				and m.category = #{category}
+			</if>
+			<if test="searchKey != null and searchKey != ''">
+				and m.search_key like '%'||#{searchKey}||'%'
+			</if>
+		</where>
+		group by his.cabin_name, m.material_name
+	</select>
+</mapper>
