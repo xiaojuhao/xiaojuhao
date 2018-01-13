@@ -1,10 +1,12 @@
 package com.xjh.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -25,11 +27,16 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockCheckDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockCheckMainMapper;
 import com.xjh.service.MaterialCheckService;
+import com.xjh.support.excel.CfWorkbook;
+import com.xjh.support.excel.model.CfRow;
+import com.xjh.support.excel.model.CfSheet;
 
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/check")
+@Slf4j
 public class MaterialCheckController {
 	@Resource
 	HttpServletRequest request;
@@ -218,5 +225,53 @@ public class MaterialCheckController {
 		page.setValues(list);
 		page.setTotalRows(totalRows);
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/downloadCheckDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object downloadCheckDetail(HttpServletResponse response) {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			Long mainId = CommonUtils.getLong(request, "mainId");
+			String cabinCode = CommonUtils.get(request, "cabinCode");
+			String materialCode = CommonUtils.get(request, "materialCode");
+			String category = CommonUtils.get(request, "category");
+			String searchKey = CommonUtils.get(request, "searchKey");
+			Example example = new Example(WmsMaterialStockCheckDetailDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andEqualTo("cabinCode", cabinCode);
+			cri.andEqualTo("mainId", mainId);
+			cri.andEqualTo("materialCode", materialCode);
+			cri.andEqualTo("category", category);
+			if (StringUtils.isNotBlank(searchKey)) {
+				cri.andLike("materialName", "%" + searchKey + "%");
+			}
+			PageHelper.orderBy("status desc, delta_amt desc, stock_amt desc, id");
+			List<WmsMaterialStockCheckDetailDO> list = checkDetailMapper.selectByExample(example);
+
+			//导出excel
+			CfWorkbook wb = new CfWorkbook();
+			CfSheet sheet = wb.newSheet("data");
+			for (WmsMaterialStockCheckDetailDO dd : list) {
+				CfRow row = sheet.newRow();
+				row.appendEx("原料名称", dd.getMaterialName(), //
+						"初始库存", dd.getOriStockAmt(), //
+						"盘点库存", dd.getStockAmt(), //
+						"分类", dd.getCategory(), //
+						"差额", dd.getOriStockAmt() - dd.getStockAmt());
+			}
+			response.setContentType("application/octet-stream");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=checkresult" + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+			wb.toHSSFWorkbook().write(response.getOutputStream());
+			response.getOutputStream().close();
+			return null;
+		} catch (IOException e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+		}
 	}
 }

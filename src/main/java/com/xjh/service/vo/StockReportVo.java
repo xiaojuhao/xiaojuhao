@@ -12,6 +12,7 @@ public class StockReportVo implements Serializable{
 	String cabinName;
 	String materialCode;
 	String materialName;
+	String stockUnit;
 	Double currstock;
 	Double sale;
 	Double inStock;

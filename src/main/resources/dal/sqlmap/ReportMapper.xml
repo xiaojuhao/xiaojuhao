@@ -8,6 +8,7 @@
 			his.cabin_name, 
 			m.material_code,
 			m.material_name,
+			m.stock_unit,
 			(select curr_stock from wms_material_stock ms 
 			where ms.material_code = his.material_code and ms.cabin_code = his.cabin_code) currstock,
 			sum(case op_type when 'sale' then amt else 0 end) sale,

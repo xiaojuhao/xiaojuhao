@@ -15,7 +15,6 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
-import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsInventoryApplyDO;
 import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialDO;
@@ -119,10 +118,10 @@ public class MaterialRequireService {
 			if (CommonUtils.isAnyBlank(rd.getSpecCode(), rd.getSpecName())) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入规格信息").rb();
 			}
-			if (rd.getSpecAmt() == null) {
+			if (rd.getSpecAmt() == null || rd.getSpecAmt() <= 0.01) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入采购数量").rb();
 			}
-			if (rd.getSpecPrice() == null) {
+			if (rd.getSpecPrice() == null || rd.getSpecPrice() <= 0.01) {
 				return ResultBaseBuilder.fails(rd.getMaterialName() + "没有输入采购金额").rb();
 			}
 			if ("1".equals(rd.getPurchaseType())) {
