@@ -18,26 +18,25 @@
 			sum(case op_type when 'correct_delta' then amt else 0 end ) correct_delta
 		from wms_material_stock_history his 
 		left join wms_material m on his.material_code = m.material_code
-		<where>
-			<if test="cabinCode != null and cabinCode != ''">
-				and his.cabin_code = #{cabinCode}
-			</if>
-			<if test="materialCode != null and materialCode != ''">
-				and his.material_code = #{materialCode}
-			</if>
-			<if test="category != null and category != ''">
-				and m.category = #{category}
-			</if>
-			<if test="searchKey != null and searchKey != ''">
-				and concat(m.material_name,',',m.search_key) like "%"#{searchKey}"%"
-			</if>
-			<if test="startDate != null">
-				and gmt_created &gt;= #{startDate}
-			</if>
-			<if test="endDate != null">
-				and gmt_created &lt;= #{endDate}
-			</if>
-		</where>
+		where m.is_deleted = 'N'
+		<if test="cabinCode != null and cabinCode != ''">
+			and his.cabin_code = #{cabinCode}
+		</if>
+		<if test="materialCode != null and materialCode != ''">
+			and his.material_code = #{materialCode}
+		</if>
+		<if test="category != null and category != ''">
+			and m.category = #{category}
+		</if>
+		<if test="searchKey != null and searchKey != ''">
+			and concat(m.material_name,',',m.search_key) like "%"#{searchKey}"%"
+		</if>
+		<if test="startDate != null">
+			and gmt_created &gt;= #{startDate}
+		</if>
+		<if test="endDate != null">
+			and gmt_created &lt;= #{endDate}
+		</if>
 		group by his.cabin_name, m.material_name
 		order by currstock desc
 	</select>
