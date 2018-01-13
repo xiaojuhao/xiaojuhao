@@ -16,6 +16,7 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsMenuDO;
 import com.xjh.dao.dataobject.WmsRolesDO;
 import com.xjh.dao.dataobject.WmsRolesMenusDO;
 import com.xjh.dao.dataobject.WmsUserDO;
@@ -77,14 +78,18 @@ public class RoleController {
 			Observable.just(menuCodes) //
 					.flatMap((s) -> Observable.fromArray(s.split(","))) //
 					.map((menuCode) -> {
-						WmsRolesMenusDO menu = new WmsRolesMenusDO();
+						WmsMenuDO menu = new WmsMenuDO();
 						menu.setMenuCode(menuCode);
-						menu.setRoleName(role.getRoleName());
-						menu.setRoleCode(role.getRoleCode());
-						return menu;
-					}).subscribe((m) -> {
-						TkMappers.inst().getRolesMenusMapper().insert(m);
-					});
+						menu = TkMappers.inst().getMenuMapper().selectOne(menu);
+						if ("link".equals(menu.getType())) {
+							WmsRolesMenusDO rolemenu = new WmsRolesMenusDO();
+							rolemenu.setMenuCode(menuCode);
+							rolemenu.setRoleName(role.getRoleName());
+							rolemenu.setRoleCode(role.getRoleCode());
+							TkMappers.inst().getRolesMenusMapper().insert(rolemenu);
+						}
+						return true;
+					}).subscribe();
 		}
 		return ResultBaseBuilder.succ().data(roleDO).rb(request);
 	}
