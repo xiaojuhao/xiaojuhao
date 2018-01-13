@@ -28,7 +28,13 @@
 				and m.category = #{category}
 			</if>
 			<if test="searchKey != null and searchKey != ''">
-				and m.search_key like '%'||#{searchKey}||'%'
+				and concat(m.material_name,',',m.search_key) like "%"#{searchKey}"%"
+			</if>
+			<if test="startDate != null">
+				and gmt_created &gt;= #{startDate}
+			</if>
+			<if test="endDate != null">
+				and gmt_created &lt;= #{endDate}
 			</if>
 		</where>
 		group by his.cabin_name, m.material_name

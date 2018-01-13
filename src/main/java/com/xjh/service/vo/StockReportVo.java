@@ -1,6 +1,7 @@
 package com.xjh.service.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -20,4 +21,6 @@ public class StockReportVo implements Serializable{
 	
 	String category;
 	String searchKey;
+	Date startDate;
+	Date endDate;
 }
