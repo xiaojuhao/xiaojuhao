@@ -14,5 +14,6 @@ public class MenuVo implements Serializable {
 	String type;
 	String menuIcon;
 	String menuIndex;
+	Integer orderBy;
 	List<MenuVo> subs;
 }

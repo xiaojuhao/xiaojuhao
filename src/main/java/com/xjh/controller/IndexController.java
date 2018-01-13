@@ -2,6 +2,7 @@ package com.xjh.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -113,6 +114,7 @@ public class IndexController {
 			m.setMenuIndex(r.getMenuIndex());
 			m.setMenuIcon(r.getMenuIcon());
 			m.setType(r.getType());
+			m.setOrderBy(r.getOrderBy() == null ? 0 : r.getOrderBy());
 			WmsMenuDO subCond = new WmsMenuDO();
 			subCond.setParentCode(r.getMenuCode());
 			subCond.setStatus(1);
@@ -130,12 +132,14 @@ public class IndexController {
 				sv.setMenuIndex(s.getMenuIndex());
 				sv.setMenuIcon(s.getMenuIcon());
 				sv.setType(s.getType());
+				sv.setOrderBy(s.getOrderBy() == null ? 0 : s.getOrderBy());
 				subs.add(sv);
 			}
+			subs.sort((a, b) -> a.getOrderBy().compareTo(b.getOrderBy()));
 			m.setSubs(subs);
 			menus.add(m);
 		}
-
+		menus.sort((a, b) -> a.getOrderBy().compareTo(b.getOrderBy()));
 		return ResultBaseBuilder.succ().data(menus).rb(request);
 	}
 

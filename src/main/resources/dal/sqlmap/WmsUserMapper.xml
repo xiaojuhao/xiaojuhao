@@ -7,5 +7,6 @@
 		join wms_roles_menus b on a.role_code = b.role_code
 		join wms_menu c on b.menu_code = c.menu_code
 		where a.user_code=#{userCode}
+		order by c.order_by
 	</select>
 </mapper>

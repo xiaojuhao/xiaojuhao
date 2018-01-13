@@ -31,9 +31,11 @@ import com.xjh.service.UserService;
 import com.xjh.valueobject.UserVo;
 
 import io.reactivex.Observable;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 	@Resource
 	UserService userService;
@@ -71,14 +73,38 @@ public class UserController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		JSONObject json = new JSONObject();
-		json.put("userCode", user.getUserCode());
-		json.put("userName", user.getUserName());
-		json.put("status", user.getStatus());
-		json.put("authStores", user.getAuthStores());
-		json.put("authWarehouse", user.getAuthWarehouse());
-		json.put("isSu", user.getIsSu());
-		return ResultBaseBuilder.succ().data(json).rb(request);
+		user.setPassword(null);
+		user.setLoginCookie(null);
+		return ResultBaseBuilder.succ().data(user).rb(request);
+	}
+
+	@RequestMapping(value = "/modifyMyProfile", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object modifyMyProfile(HttpServletResponse response) {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String userName = CommonUtils.get(request, "userName");
+			String password = CommonUtils.get(request, "password");
+			String userMobile = CommonUtils.get(request, "userMobile");
+
+			if (StringUtils.isNotBlank(userName)) {
+				user.setUserName(userName);
+			}
+			if (StringUtils.isNotBlank(password)) {
+				user.setPassword(CommonUtils.md5(password));
+			}
+			if(StringUtils.isNotBlank(userMobile)){
+				user.setUserMobile(userMobile);
+			}
+			TkMappers.inst().getUserMapper().updateByPrimaryKey(user);
+			return ResultBaseBuilder.succ().rb(request);
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails("系统异常:" + e.getMessage()).rb(request);
+		}
 	}
 
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
