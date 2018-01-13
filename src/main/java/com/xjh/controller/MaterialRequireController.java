@@ -28,6 +28,7 @@ import com.xjh.commons.TaskUtils;
 import com.xjh.dao.dataobject.WmsMaterialRequireDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
+import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialRequireMapper;
 import com.xjh.service.CabinService;
@@ -37,6 +38,7 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
 import com.xjh.service.PriceService;
+import com.xjh.service.TkMappers;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
 import com.xjh.support.excel.model.CfSheet;
@@ -210,8 +212,52 @@ public class MaterialRequireController {
 		page.setValues(list);
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
-
+		this.setCurrentStock(page.getValues());
+		this.setSpecSelection(page.getValues());
+		this.setSupplierSelection(page.getValues());
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	private void setCurrentStock(List<WmsMaterialRequireDO> list) {
+		if (list == null)
+			return;
+		for (WmsMaterialRequireDO dd : list) {
+			WmsMaterialStockDO record = new WmsMaterialStockDO();
+			record.setMaterialCode(dd.getMaterialCode());
+			record.setCabinCode(dd.getCabinCode());
+			record = TkMappers.inst().getMaterialStockMapper().selectOne(record);
+			if (record != null) {
+				dd.setCurrStock(record.getCurrStock());
+			}
+		}
+	}
+
+	private void setSpecSelection(List<WmsMaterialRequireDO> list) {
+		if (list == null)
+			return;
+		for (WmsMaterialRequireDO dd : list) {
+			List<WmsMaterialSpecDetailDO> specs = this.materialSpecService
+					.queryMaterialSepcsByMaterialCode(dd.getMaterialCode());
+			for (WmsMaterialSpecDetailDO spec : specs) {
+				spec.setIsDeleted(null);
+				spec.setGmtCreated(null);
+				spec.setId(null);
+			}
+			dd.setSpecSelection(specs);
+		}
+	}
+
+	private void setSupplierSelection(List<WmsMaterialRequireDO> list) {
+		if (list == null)
+			return;
+		for (WmsMaterialRequireDO dd : list) {
+			WmsMaterialSupplierDO record = new WmsMaterialSupplierDO();
+			record.setMaterialCode(dd.getMaterialCode());
+			record.setIsDeleted("N");
+			record.setPageSize(30);
+			List<WmsMaterialSupplierDO> sps = TkMappers.inst().getMaterialSupplierMapper().select(record);
+			dd.setSupplierSelection(sps);
+		}
 	}
 
 	@RequestMapping(value = "/createRequire", produces = "application/json;charset=UTF-8")
@@ -304,7 +350,8 @@ public class MaterialRequireController {
 						"仓库/供应商", "1".equals(dd.getPurchaseType()) ? dd.getSupplierName() : dd.getFromCabinName());
 			}
 			response.setContentType("application/octet-stream");
-			response.setHeader("Content-Disposition", "attachment; filename=YuanLiaoXuQiu"+CommonUtils.stringOfToday("yyyyMMdd")+".xlsx");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=YuanLiaoXuQiu" + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
 			wb.toHSSFWorkbook().write(response.getOutputStream());
 			response.getOutputStream().close();
 			return null;

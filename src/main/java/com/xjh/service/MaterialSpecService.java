@@ -29,7 +29,6 @@ public class MaterialSpecService {
 	SequenceService sequence;
 	@Resource
 	MaterialService materialService;
-	
 
 	public WmsMaterialSpecDO queryByCode(String specCode) {
 		if (StringUtils.isBlank(specCode)) {
@@ -39,6 +38,17 @@ public class MaterialSpecService {
 		cond.setSpecCode(specCode);
 		WmsMaterialSpecDO spec = specMapper.selectOne(cond);
 		return spec;
+	}
+
+	public List<WmsMaterialSpecDetailDO> queryMaterialSepcsByMaterialCode(String materialCode) {
+		if (StringUtils.isBlank(materialCode)) {
+			return new ArrayList<>();
+		}
+		WmsMaterialSpecDetailDO cond = new WmsMaterialSpecDetailDO();
+		cond.setMaterialCode(materialCode);
+		cond.setIsDeleted("N");
+		List<WmsMaterialSpecDetailDO> list = this.specDetailMapper.select(cond);
+		return list;
 	}
 
 	public WmsMaterialSpecDetailDO querySpecDetailByCode(String materialCode, String specCode) {

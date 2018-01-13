@@ -2,11 +2,13 @@ package com.xjh.dao.dataobject;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,4 +48,11 @@ public class WmsMaterialRequireDO extends PageDTO implements Serializable {
 	String modifier;
 	String remark;
 	String status;
+	
+	@Transient
+	Double currStock;
+	@Transient
+	List<WmsMaterialSpecDetailDO> specSelection;
+	@Transient
+	List<WmsMaterialSupplierDO> supplierSelection;
 }
