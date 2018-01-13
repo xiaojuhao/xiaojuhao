@@ -38,5 +38,6 @@
 			</if>
 		</where>
 		group by his.cabin_name, m.material_name
+		order by currstock desc
 	</select>
 </mapper>
