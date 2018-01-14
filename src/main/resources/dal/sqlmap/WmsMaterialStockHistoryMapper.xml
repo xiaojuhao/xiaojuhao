@@ -13,4 +13,10 @@
 		where status = '0' 
 		order by id asc limit 1
 	</select>
+	
+	<select id="selectListToDeal" resultType="com.xjh.dao.dataobject.WmsMaterialStockHistoryDO">
+		select * from wms_material_stock_history
+		where status = '0' 
+		order by id asc limit 100
+	</select>
 </mapper>

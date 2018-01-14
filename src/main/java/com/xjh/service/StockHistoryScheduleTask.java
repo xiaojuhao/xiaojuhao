@@ -1,6 +1,6 @@
 package com.xjh.service;
 
-import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Holder;
-import com.xjh.commons.ResultBase;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
-import com.xjh.dao.dataobject.WmsTaskDO;
 import com.xjh.dao.mapper.WmsMaterialStockHistoryMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
 import com.xjh.support.enums.StockOpType;
@@ -113,17 +111,28 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			return;
 		}
 		try {
+			long start = System.currentTimeMillis();
+			log.info("处理库存历史记录 ---- 开始 ------");
 			while (true) {
-				WmsMaterialStockHistoryDO dd = wmsMaterialStockHistoryMapper.selectOneToDeal();
-				if (dd == null) {
+				long startLoop = System.currentTimeMillis();
+				log.info("查询数据开始------");
+				List<WmsMaterialStockHistoryDO> list = wmsMaterialStockHistoryMapper.selectListToDeal();
+				if (list == null || list.size() == 0) {
 					break;
 				}
-				if (dd.getOpType().equals("correct")) {
-					this.handleCorrect(dd);
-				} else {
-					this.changeStock(dd);
+				log.info("查询数据结束，获取{}条记录，耗时{}", list.size(), System.currentTimeMillis() - startLoop);
+				log.info("处理数据开始------");
+				startLoop = System.currentTimeMillis();
+				for (WmsMaterialStockHistoryDO dd : list) {
+					if (dd.getOpType().equals("correct")) {
+						this.handleCorrect(dd);
+					} else {
+						this.changeStock(dd);
+					}
 				}
+				log.info("处理数据结束，耗时{}", System.currentTimeMillis() - startLoop);
 			}
+			log.info("处理库存历史记录 ---- 结束,耗时{}---", System.currentTimeMillis() - start);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
