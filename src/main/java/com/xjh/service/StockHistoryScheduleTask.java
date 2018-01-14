@@ -46,29 +46,38 @@ public class StockHistoryScheduleTask implements InitializingBean {
 	public void changeStock(WmsMaterialStockHistoryDO record) {
 		// 更新状态为处理中.....
 		WmsMaterialStockHistoryDO status = new WmsMaterialStockHistoryDO();
-		status.setId(record.getId());
-		status.setStatus("9");
-		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+//		status.setId(record.getId());
+//		status.setStatus("9");
+//		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
 		// 初始化库存
-		materialService.initMaterialStock(record.getMaterialCode(), record.getCabinCode());
+		
 		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
 		changeVo.setOperator(record.getOperator());
-		wmsMaterialStockMapper.changeByDelta(changeVo);
-		//更新每日库存表里面的消费信息
-		if (StockOpType.fromCode(record.getOpType()) == StockOpType.SALE) {
-			stockDailyService.addConsume(record.getMaterialCode(), //
-					record.getCabinCode(), //
-					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
-					Math.abs(record.getAmt()), null);
-		} else if (record.getAmt() < 0) {
-			stockDailyService.addConsume(record.getMaterialCode(), //
-					record.getCabinCode(), //
-					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
-					null, Math.abs(record.getAmt()));
+		int i = wmsMaterialStockMapper.changeByDelta(changeVo);
+		if( i == 0){
+			materialService.initMaterialStock(record.getMaterialCode(), record.getCabinCode());
+			changeVo = new MaterialStockChangeVo();
+			changeVo.setMaterialCode(record.getMaterialCode());
+			changeVo.setCabinCode(record.getCabinCode());
+			changeVo.setStockChgAmt(record.getAmt());
+			changeVo.setOperator(record.getOperator());
+			wmsMaterialStockMapper.changeByDelta(changeVo);
 		}
+		//更新每日库存表里面的消费信息
+//		if (StockOpType.fromCode(record.getOpType()) == StockOpType.SALE) {
+//			stockDailyService.addConsume(record.getMaterialCode(), //
+//					record.getCabinCode(), //
+//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+//					Math.abs(record.getAmt()), null);
+//		} else if (record.getAmt() < 0) {
+//			stockDailyService.addConsume(record.getMaterialCode(), //
+//					record.getCabinCode(), //
+//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+//					null, Math.abs(record.getAmt()));
+//		}
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");
