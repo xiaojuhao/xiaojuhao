@@ -1,6 +1,8 @@
 package com.xjh.service;
 
-import java.util.List;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Types;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -11,13 +13,12 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Holder;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.mapper.WmsMaterialStockHistoryMapper;
 import com.xjh.dao.mapper.WmsMaterialStockMapper;
-import com.xjh.support.enums.StockOpType;
+import com.xjh.support.datasource.WmsDataSource;
 import com.xjh.valueobject.MaterialStockChangeVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,22 +43,24 @@ public class StockHistoryScheduleTask implements InitializingBean {
 	DiandanSystemService diandanService;
 	@Resource
 	OrderMaterialService orderMaterialService;
+	@Resource
+	WmsDataSource wmsDataSource;
 
 	public void changeStock(WmsMaterialStockHistoryDO record) {
 		// 更新状态为处理中.....
 		WmsMaterialStockHistoryDO status = new WmsMaterialStockHistoryDO();
-//		status.setId(record.getId());
-//		status.setStatus("9");
-//		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
+		//		status.setId(record.getId());
+		//		status.setStatus("9");
+		//		TkMappers.inst().getMaterialStockHistoryMapper().updateByPrimaryKeySelective(status);
 		// 初始化库存
-		
+
 		MaterialStockChangeVo changeVo = new MaterialStockChangeVo();
 		changeVo.setMaterialCode(record.getMaterialCode());
 		changeVo.setCabinCode(record.getCabinCode());
 		changeVo.setStockChgAmt(record.getAmt());
 		changeVo.setOperator(record.getOperator());
 		int i = wmsMaterialStockMapper.changeByDelta(changeVo);
-		if( i == 0){
+		if (i == 0) {
 			materialService.initMaterialStock(record.getMaterialCode(), record.getCabinCode());
 			changeVo = new MaterialStockChangeVo();
 			changeVo.setMaterialCode(record.getMaterialCode());
@@ -67,17 +70,17 @@ public class StockHistoryScheduleTask implements InitializingBean {
 			wmsMaterialStockMapper.changeByDelta(changeVo);
 		}
 		//更新每日库存表里面的消费信息
-//		if (StockOpType.fromCode(record.getOpType()) == StockOpType.SALE) {
-//			stockDailyService.addConsume(record.getMaterialCode(), //
-//					record.getCabinCode(), //
-//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
-//					Math.abs(record.getAmt()), null);
-//		} else if (record.getAmt() < 0) {
-//			stockDailyService.addConsume(record.getMaterialCode(), //
-//					record.getCabinCode(), //
-//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
-//					null, Math.abs(record.getAmt()));
-//		}
+		//		if (StockOpType.fromCode(record.getOpType()) == StockOpType.SALE) {
+		//			stockDailyService.addConsume(record.getMaterialCode(), //
+		//					record.getCabinCode(), //
+		//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+		//					Math.abs(record.getAmt()), null);
+		//		} else if (record.getAmt() < 0) {
+		//			stockDailyService.addConsume(record.getMaterialCode(), //
+		//					record.getCabinCode(), //
+		//					CommonUtils.formatDate(record.getGmtCreated(), "yyyyMMdd"), //
+		//					null, Math.abs(record.getAmt()));
+		//		}
 		// 处理完成。。。
 		status.setId(record.getId());
 		status.setStatus("1");
@@ -119,34 +122,49 @@ public class StockHistoryScheduleTask implements InitializingBean {
 		if (!isRunning.compareAndSet(false, true)) {
 			return;
 		}
-		try {
+		try (Connection connection = wmsDataSource.getConnection()) {
 			long start = System.currentTimeMillis();
-			log.info("处理库存历史记录 ---- 开始 ------");
-			while (true) {
-				long startLoop = System.currentTimeMillis();
-				log.info("查询数据开始------");
-				List<WmsMaterialStockHistoryDO> list = wmsMaterialStockHistoryMapper.selectListToDeal();
-				if (list == null || list.size() == 0) {
-					break;
-				}
-				log.info("查询数据结束，获取{}条记录，耗时{}", list.size(), System.currentTimeMillis() - startLoop);
-				log.info("处理数据开始------");
-				startLoop = System.currentTimeMillis();
-				for (WmsMaterialStockHistoryDO dd : list) {
-					if (dd.getOpType().equals("correct")) {
-						this.handleCorrect(dd);
-					} else {
-						this.changeStock(dd);
-					}
-				}
-				log.info("处理数据结束，耗时{}", System.currentTimeMillis() - startLoop);
-			}
-			log.info("处理库存历史记录 ---- 结束,耗时{}---", System.currentTimeMillis() - start);
+			log.info("调用库存轨迹存储过程---start---");
+			String sql = "{call sp_handle_stock_his(?)}";
+			CallableStatement stmt = connection.prepareCall(sql);
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.execute();
+			int ret = stmt.getInt(1);
+			stmt.close();
+			log.info("调用库存轨迹存储过程---end,hanle:{},cost:{}", ret, System.currentTimeMillis() - start);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("", ex);
 		} finally {
 			isRunning.set(false);
 		}
+		//		try {
+		//			long start = System.currentTimeMillis();
+		//			log.info("处理库存历史记录 ---- 开始 ------");
+		//			while (true) {
+		//				long startLoop = System.currentTimeMillis();
+		//				log.info("查询数据开始------");
+		//				List<WmsMaterialStockHistoryDO> list = wmsMaterialStockHistoryMapper.selectListToDeal();
+		//				if (list == null || list.size() == 0) {
+		//					break;
+		//				}
+		//				log.info("查询数据结束，获取{}条记录，耗时{}", list.size(), System.currentTimeMillis() - startLoop);
+		//				log.info("处理数据开始------");
+		//				startLoop = System.currentTimeMillis();
+		//				for (WmsMaterialStockHistoryDO dd : list) {
+		//					if (dd.getOpType().equals("correct")) {
+		//						this.handleCorrect(dd);
+		//					} else {
+		//						this.changeStock(dd);
+		//					}
+		//				}
+		//				log.info("处理数据结束，耗时{}", System.currentTimeMillis() - startLoop);
+		//			}
+		//			log.info("处理库存历史记录 ---- 结束,耗时{}---", System.currentTimeMillis() - start);
+		//		} catch (Exception ex) {
+		//			ex.printStackTrace();
+		//		} finally {
+		//			isRunning.set(false);
+		//		}
 	}
 
 	public static void startTask() {
