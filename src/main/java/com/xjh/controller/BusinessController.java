@@ -99,6 +99,22 @@ public class BusinessController {
 	@Resource
 	SupplierService supplierService;
 
+	@RequestMapping(value = "/refreshMaterialSearchKey", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object refreshMaterialSearchKey() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		TkMappers.inst().getMaterialMapper().selectAll()//
+				.forEach((m) -> {
+					String searchKey = CommonUtils.genSearchKey(m.getMaterialName(), null);
+					m.setSearchKey(searchKey+","+m.getMaterialName());
+					TkMappers.inst().getMaterialMapper().updateByPrimaryKeySelective(m);
+				});
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
 	@RequestMapping(value = "/deleteMaterials", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object deleteMaterials() {
