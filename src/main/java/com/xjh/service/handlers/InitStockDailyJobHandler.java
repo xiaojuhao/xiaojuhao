@@ -79,7 +79,7 @@ public class InitStockDailyJobHandler implements TimerJobHandler {
 		if (list == null || list.size() == 0) {
 			Date scheduledTime = DateBuilder//
 					.now()//
-					.futureMinutes(10)//
+					.futureMinutes(60)//
 					.date();
 			WmsTimerJobDO record = new WmsTimerJobDO();
 			record.setJobType(JOB_TYPE);

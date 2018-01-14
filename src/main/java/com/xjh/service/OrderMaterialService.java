@@ -3,6 +3,8 @@ package com.xjh.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import javax.annotation.Resource;
 
@@ -63,6 +65,7 @@ public class OrderMaterialService {
 		Date startDate = DateBuilder.today().date();
 		Date endDate = startDate;
 		int index = 0;
+		CountDownLatch latch = new CountDownLatch(0);
 		try {
 			//删除的记录: status=2 & isDeleted = Y
 			log.info("处理订单原料-----处理删除的记录---开始---");
@@ -78,6 +81,7 @@ public class OrderMaterialService {
 				log.info("处理订单原料-----处理删除的记录---第{}批---", index++);
 				//遍历每一个order
 				for (WmsOrdersDO order : orders) {
+					latch.await();
 					if (CommonUtils.partiallyOrder(order.getSaleDate(), startDate)) {
 						startDate = order.getSaleDate();
 					}
