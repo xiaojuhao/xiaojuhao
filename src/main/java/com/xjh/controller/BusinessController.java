@@ -154,6 +154,8 @@ public class BusinessController {
 			String specQty = CommonUtils.get(request, "specQty");
 			String specDetail = CommonUtils.get(request, "specDetail");
 			String category = CommonUtils.get(request, "category");
+			Double warningCoeffient1 = CommonUtils.getDbl(request, "warningCoeffient1", 3D);
+			Double warningCoeffient2 = CommonUtils.getDbl(request, "warningCoeffient2", 5D);
 			JSONArray specList = CommonUtils.parseJSONArray(specDetail);
 			if (specList.size() == 0) {
 				return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
@@ -166,6 +168,8 @@ public class BusinessController {
 			String searchKey = CommonUtils.get(request, "searchKey");
 			material.setSpecUnit(specUnit);
 			material.setCategory(category);
+			material.setWarningCoeffient1(warningCoeffient1);
+			material.setWarningCoeffient2(warningCoeffient2);
 			if (categoryDO != null) {
 				material.setOrderBy(categoryDO.getOrderBy() == null ? 0 : categoryDO.getOrderBy());
 			}

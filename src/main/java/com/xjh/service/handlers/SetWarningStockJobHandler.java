@@ -11,11 +11,9 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
-import com.xjh.commons.TaskUtils;
-import com.xjh.dao.dataobject.WmsMaterialRequireDO;
+import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDailyDO;
-import com.xjh.dao.dataobject.WmsNoticeDO;
 import com.xjh.dao.dataobject.WmsTimerJobDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockDailyMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
@@ -24,7 +22,6 @@ import com.xjh.service.CabinService;
 import com.xjh.service.MaterialRequireService;
 import com.xjh.service.MaterialService;
 import com.xjh.service.TimerJobHandler;
-import com.xjh.service.TkMappers;
 
 import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
@@ -135,15 +132,16 @@ public class SetWarningStockJobHandler implements TimerJobHandler {
 				}
 				totalConsume += consumeAmt2;
 			}
-			//int factor = isBusy ? 3 : 2;
-			WmsMaterialStockDO update = new WmsMaterialStockDO();
-			update.setId(stock.getId());
-			//update.setWarningStock(totalConsume * factor / 14);
-			update.setWarningStock(totalConsume / 14);//改成日均值
-			update.setWarningValue1(update.getWarningStock() * 3);//改为最低库存值：日均值*3
-			update.setWarningValue2(update.getWarningStock() * 5);//最高库存值：日均*5
-			update.setGmtSetWarningStock(new Date());
-			materialStockMapper.updateByPrimaryKeySelective(update);
+			WmsMaterialDO material = materialService.queryMaterialByCode(stock.getMaterialCode());
+			if (material != null) {
+				WmsMaterialStockDO update = new WmsMaterialStockDO();
+				update.setId(stock.getId());
+				update.setWarningStock(totalConsume / 14);//改成日均值
+				update.setWarningValue1(update.getWarningStock() * material.getWarningCoeffient1());//改为最低库存值：日均值*3
+				update.setWarningValue2(update.getWarningStock() * material.getWarningCoeffient2());//最高库存值：日均*5
+				update.setGmtSetWarningStock(new Date());
+				materialStockMapper.updateByPrimaryKeySelective(update);
+			}
 		} catch (Exception e) {
 			log.error("", e);
 		}
