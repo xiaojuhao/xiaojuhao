@@ -108,7 +108,9 @@ public class InventoryOrderController {
 		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
 		cond.setStatus(status);
 		cond.setApplyType("purchase");
-		cond.setProposer(user.getUserCode());
+		if (!"1".equals(user.getIsSu())) {
+			cond.setProposer(user.getUserCode());
+		}
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
@@ -135,7 +137,8 @@ public class InventoryOrderController {
 		Example.Criteria cri = example.createCriteria();
 		cri.andEqualTo("status", status);
 		cri.andIn("applyType", Arrays.asList("allocation"));
-		cri.andEqualTo("proposer", user.getUserCode());
+		if (!"1".equals(user.getIsSu()))
+			cri.andEqualTo("proposer", user.getUserCode());
 		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("gmt_created desc");
 		List<WmsInventoryApplyDO> list = TkMappers.inst().getPurchaseOrderMapper().selectByExample(example);
