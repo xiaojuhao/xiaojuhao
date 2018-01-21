@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,9 +9,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -48,6 +52,9 @@ import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
+import com.xjh.support.excel.CfWorkbook;
+import com.xjh.support.excel.model.CfRow;
+import com.xjh.support.excel.model.CfSheet;
 import com.xjh.valueobject.CabinVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -682,6 +689,51 @@ public class InventoryApplyController {
 		//			tkWmsInventoryApplyMapper.updateByPrimaryKey(order);
 		//		}
 		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/downloadInventoryDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object downloadInventoryDetail(HttpServletResponse response) {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String ids = CommonUtils.get(request, "ids");
+		List<Long> idList = CommonUtils.splitAsList(ids, ",").stream()//
+				.map(it -> CommonUtils.parseLong(it, null))//
+				.collect(Collectors.toList());
+		Example example = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("id", idList);
+		List<WmsInventoryApplyDetailDO> list = tkWmsInventoryApplyDetailMapper.selectByExample(example);
+		//导出excel
+		CfWorkbook wb = new CfWorkbook();
+		CfSheet sheet = wb.newSheet("data");
+		//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+		for (WmsInventoryApplyDetailDO dd : list) {
+			CfRow row = sheet.newRow();
+			row.appendEx("ID", dd.getId(), //
+					"仓库", dd.getCabinName(), //
+					"供应商", dd.getCabinName(), //
+					"原料", dd.getMaterialName(), //
+					"采购单位", dd.getSpecUnit(), //
+					"采购数量", dd.getSpecAmt(), //
+					"单价", dd.getSpecPrice(), //
+					"总价", dd.getTotalPrice(), //
+					"录入时间", dd.getGmtCreated(), //
+					"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
+		}
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition",
+				"attachment; filename=Payment" + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+		try {
+			wb.toHSSFWorkbook().write(response.getOutputStream());
+			response.getOutputStream().close();
+			return null;
+		} catch (IOException e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+		}
 	}
 
 	@RequestMapping(value = "/paidInventoryDetail", produces = "application/json;charset=UTF-8")
