@@ -114,6 +114,9 @@ public class ReportController {
 			String endDate = CommonUtils.get(request, "endDate");
 			String applyType = CommonUtils.get(request, "applyType");
 			String download = CommonUtils.get(request, "download");
+			if (StringUtils.isBlank(cabinCode)) {
+				return ResultBaseBuilder.fails("仓库必输").rb(request);
+			}
 			InventoryReportVo input = new InventoryReportVo();
 			if (StringUtils.equals("true", groupBySupplier)) {
 				input.setGroupBySupplier("Y");
