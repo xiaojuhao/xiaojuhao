@@ -42,6 +42,10 @@
 			<if test="fromSrc != null and fromSrc != ''">
 				and (supplier_name like "%"#{fromSrc}"%" or from_cabin_name like "%"#{fromSrc}"%" )
 			</if>
+			<if test="mycabins != null">
+				and cabin_code in 
+				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsInventoryApplyDetailDO">

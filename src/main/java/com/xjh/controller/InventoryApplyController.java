@@ -234,6 +234,10 @@ public class InventoryApplyController {
 	@RequestMapping(value = "/queryInventoryDetailPage", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryInventoryDetailPage() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
 		String applyNum = CommonUtils.get(request, "applyNum");
 		String searchKey = CommonUtils.get(request, "searchKey");
 		String cabinCode = CommonUtils.get(request, "inCabinCode");
@@ -255,6 +259,12 @@ public class InventoryApplyController {
 		cond.setEndCreatedTime(CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd HH:mm:ss"));
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		cond.setPageNo(CommonUtils.getPageNo(request));
+		if (!"1".equals(user.getIsSu())) {
+			List<String> mycabins = new ArrayList<>();
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
+			cond.setMycabins(mycabins);
+		}
 		List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 		initCreatorName(list);
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
@@ -272,6 +282,7 @@ public class InventoryApplyController {
 		}
 		for (WmsInventoryApplyDetailDO dd : list) {
 			dd.setCreatorName(userService.getUserName(dd.getCreator()));
+			dd.setPaidOperatorName(userService.getUserName(dd.getPaidOperator()));
 		}
 	}
 
@@ -670,6 +681,45 @@ public class InventoryApplyController {
 		//			order.setStatus("5");
 		//			tkWmsInventoryApplyMapper.updateByPrimaryKey(order);
 		//		}
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/paidInventoryDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object paidInventoryDetail() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String dataJson = CommonUtils.get(request, "dataJson");
+		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
+		JSONArray array = CommonUtils.parseJSONArray(dataJson);
+		for (int i = 0; i < array.size(); i++) {
+			JSONObject j = array.getJSONObject(i);
+			Long id = j.getLong("id");
+			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
+			detail.setId(id);
+			detail = tkWmsInventoryApplyDetailMapper.selectOne(detail);
+			if (detail == null) {
+				continue;
+			}
+			if (!StringUtils.equals("2", detail.getStatus())) {
+				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能支付")
+						.rb(request);
+			}
+			//
+			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
+			update.setId(detail.getId());
+			update.setPaidStatus("1");
+			update.setPaidOperator(user.getUserCode());
+			update.setPaidAmt(detail.getPayables());
+			update.setPaidTime(new Date());
+			update.setModifier(user.getUserCode());
+			update.setGmtModified(new Date());
+			detailUpdateList.add(update);
+		}
+		// 采购单状态修改
+		database.diaoboConfirm(null, detailUpdateList, null);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

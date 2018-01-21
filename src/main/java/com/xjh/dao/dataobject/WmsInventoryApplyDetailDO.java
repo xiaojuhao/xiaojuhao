@@ -2,6 +2,7 @@ package com.xjh.dao.dataobject;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -69,4 +70,8 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	String fromSrc;
 	@Transient
 	String creatorName;
+	@Transient
+	String paidOperatorName;
+	@Transient
+	List<String> mycabins;
 }
