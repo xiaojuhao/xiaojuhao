@@ -57,4 +57,43 @@
 		select count(*) from wms_inventory_apply_detail
 		<include refid="where_sql"></include>
 	</select>
+	
+	<select id="statistics" parameterType="com.xjh.service.vo.InventoryReportVo" 
+		resultType="com.xjh.service.vo.InventoryReportVo">
+	select 
+	material_code,material_name,
+	cabin_code,cabin_name,stock_unit,
+	<if test="groupBySupplier != null ">
+	  supplier_code,supplier_name, 
+	</if>
+	sum(real_stock_amt) inventory_amt, sum(total_price) total_price,sum(paid_amt) total_paid_amt
+	from wms_inventory_apply_detail
+	<where>
+		<if test="startCreatedDate != null">
+			and gmt_created &gt;= #{startCreatedDate}
+		</if>
+		<if test="endCreatedDate != null">
+			and gmt_created &lt; #{endCreatedDate}
+		</if>
+		<if test="applyType != null and applyType != ''">
+			and apply_type = #{applyType}
+		</if>
+		<if test="materialCode != null and materialCode != ''">
+			and material_code = #{materialCode}
+		</if>
+		<if test="cabinCode!=null and cabinCode != ''">
+			and cabin_code = #{cabinCode}
+		</if>
+		<if test="supplierCode != null and supplierCode != ''">
+			and supplier_code = #{supplierCode}
+		</if>
+		<if test="searchKey != null and searchKey != ''">
+			and material_name like "%"#{searchKey}"%"
+		</if>
+	</where>
+	group by material_code,material_name,cabin_code,cabin_name,stock_unit
+	<if test="groupBySupplier != null ">
+	  ,supplier_code,supplier_name
+	</if>
+	</select>
 </mapper>
