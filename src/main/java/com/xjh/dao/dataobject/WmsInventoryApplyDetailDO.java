@@ -67,4 +67,6 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Date endCreatedTime;
 	@Transient
 	String fromSrc;
+	@Transient
+	String creatorName;
 }

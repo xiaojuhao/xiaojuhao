@@ -10,7 +10,9 @@ import com.xjh.dao.dataobject.WmsUserDO;
 public interface UserService {
 	public ResultBase<WmsUserDO> queryUser(String userCode);
 
-	public PageResult<WmsUserDO> queryUsers(WmsUserDO userDO)
-	;
+	public String getUserName(String userCode);
+
+	public PageResult<WmsUserDO> queryUsers(WmsUserDO userDO);
+
 	public ResultBase<WmsUserDO> login(WmsUserDO userDO, HttpServletRequest request, HttpServletResponse response);
 }

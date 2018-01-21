@@ -720,14 +720,22 @@ public class CommonUtils {
 		if (request == null) {
 			return 10;
 		}
-		return parseInt(request.getParameter("pageSize"), 10);
+		int pageSize = parseInt(request.getParameter("pageSize"), 10);
+		if (pageSize <= 0) {
+			pageSize = 10;
+		}
+		return pageSize;
 	}
 
 	public static int getPageNo(HttpServletRequest request) {
 		if (request == null) {
 			return 1;
 		}
-		return parseInt(request.getParameter("pageNo"), 1);
+		int pageNo = parseInt(request.getParameter("pageNo"), 1);
+		if (pageNo <= 0) {
+			pageNo = 1;
+		}
+		return pageNo;
 	}
 
 	public static Integer parseInt(String str, Integer defaultValue) {

@@ -46,6 +46,7 @@ import com.xjh.service.PriceService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
+import com.xjh.service.UserService;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
 import com.xjh.valueobject.CabinVo;
 
@@ -74,6 +75,8 @@ public class InventoryApplyController {
 	WmsInventoryApplyDetailMapper wmsInventoryApplyDetailMapper;
 	@Resource
 	SequenceService sequenceService;
+	@Resource
+	UserService userService;
 
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -253,6 +256,7 @@ public class InventoryApplyController {
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
+		initCreatorName(list);
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
 		PageResult<WmsInventoryApplyDetailDO> page = new PageResult<>();
 		page.setValues(list);
@@ -260,6 +264,15 @@ public class InventoryApplyController {
 		page.setPageNo(cond.getPageNo());
 		page.setPageSize(cond.getPageSize());
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	private void initCreatorName(List<WmsInventoryApplyDetailDO> list) {
+		if (list == null) {
+			return;
+		}
+		for (WmsInventoryApplyDetailDO dd : list) {
+			dd.setCreatorName(userService.getUserName(dd.getCreator()));
+		}
 	}
 
 	@RequestMapping(value = "/queryPurchaseOrderDetail", produces = "application/json;charset=UTF-8")
@@ -649,17 +662,17 @@ public class InventoryApplyController {
 		database.diaoboConfirm(null, detailUpdateList, historyInserts);
 		StockHistoryScheduleTask.startTask();
 
-//		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
-//		cond.setApplyNum(applyNum);
-//		cond.setStatus("1");
-//		int notHandleRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
-//		if (notHandleRows == 0) {
-//			order.setStatus("5");
-//			tkWmsInventoryApplyMapper.updateByPrimaryKey(order);
-//		}
+		//		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+		//		cond.setApplyNum(applyNum);
+		//		cond.setStatus("1");
+		//		int notHandleRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
+		//		if (notHandleRows == 0) {
+		//			order.setStatus("5");
+		//			tkWmsInventoryApplyMapper.updateByPrimaryKey(order);
+		//		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
-	
+
 	@RequestMapping(value = "/deleteInventory", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object deleteInventory() {
@@ -679,6 +692,15 @@ public class InventoryApplyController {
 		}
 		record.setStatus("6");
 		tkWmsInventoryApplyMapper.updateByPrimaryKeySelective(record);
+		Example example = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("applyNum", applyNum);
+		WmsInventoryApplyDetailDO detailUpdateVal = new WmsInventoryApplyDetailDO();
+		detailUpdateVal.setStatus("3");
+		detailUpdateVal.setRemark("作废");
+		detailUpdateVal.setModifier(user.getUserCode());
+		detailUpdateVal.setGmtModified(new Date());
+		tkWmsInventoryApplyDetailMapper.updateByExampleSelective(detailUpdateVal, example);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

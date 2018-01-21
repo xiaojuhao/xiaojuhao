@@ -36,6 +36,7 @@ import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
 import lombok.extern.slf4j.Slf4j;
+import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/diaobo")
@@ -325,6 +326,15 @@ public class DiaoboController {
 		}
 		record.setStatus("6");
 		TkMappers.inst().getInventoryApplyMapper().updateByPrimaryKeySelective(record);
+		Example example = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("applyNum", applyNum);
+		WmsInventoryApplyDetailDO detailUpdateVal = new WmsInventoryApplyDetailDO();
+		detailUpdateVal.setStatus("3");
+		detailUpdateVal.setRemark("作废");
+		detailUpdateVal.setModifier(user.getUserCode());
+		detailUpdateVal.setGmtModified(new Date());
+		TkMappers.inst().getInventoryApplyDetailMapper().updateByExampleSelective(detailUpdateVal, example);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 }

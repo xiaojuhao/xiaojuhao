@@ -44,6 +44,14 @@ public class UserServiceImpl implements UserService {
 		return ResultBaseBuilder.succ().data(user).rb();
 	}
 
+	public String getUserName(String userCode) {
+		ResultBase<WmsUserDO> user = this.queryUser(userCode);
+		if (user.getIsSuccess()) {
+			return user.getValue().getUserName();
+		}
+		return null;
+	}
+
 	@Override
 	public PageResult<WmsUserDO> queryUsers(WmsUserDO userDO) {
 		if (userDO == null) {
