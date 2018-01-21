@@ -90,6 +90,9 @@
 		<if test="searchKey != null and searchKey != ''">
 			and material_name like "%"#{searchKey}"%"
 		</if>
+		<if test="status != null and status != ''">
+			and status = #{status}
+		</if>
 	</where>
 	group by material_code,material_name,cabin_code,cabin_name,stock_unit
 	<if test="groupBySupplier != null ">

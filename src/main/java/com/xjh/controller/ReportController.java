@@ -123,6 +123,7 @@ public class ReportController {
 			input.setCabinCode(cabinCode);
 			input.setSearchKey(searchKey);
 			input.setApplyType(applyType);
+			input.setStatus("2");//暂时只允许查询已入库的数据
 			input.setStartCreatedDate(CommonUtils.parseDate(startDate));
 			if (StringUtils.isNotBlank(endDate)) {
 				Date endDateD = CommonUtils.parseDate(endDate);

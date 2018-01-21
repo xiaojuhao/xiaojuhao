@@ -25,4 +25,5 @@ public class InventoryReportVo implements Serializable {
 	String searchKey;
 	String groupBySupplier;
 	String applyType;
+	String status;
 }
