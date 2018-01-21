@@ -987,6 +987,9 @@ public class InventoryApplyController {
 		String images = CommonUtils.get(request, "images");
 		String remark = CommonUtils.get(request, "remark");
 		String imgBusiNo = CommonUtils.get(request, "busiNo");
+		if (lossAmt <= 0.00001) {
+			return ResultBaseBuilder.fails("报损数量不能为空").rb(request);
+		}
 		WmsInventoryApplyDO inorder = new WmsInventoryApplyDO();
 		inorder.setApplyNum(CommonUtils.uuid());
 		inorder.setCabinCode(cabinCode);
@@ -1029,6 +1032,9 @@ public class InventoryApplyController {
 		indetail.setImgBusiNo(imgBusiNo);
 		indetail.setUtilizationRatio(100);
 		indetail.setRemark(images);
+		indetail.setPaidStatus("3");
+		indetail.setPayables(0D);
+		indetail.setPaidAmt(0D);
 
 		WmsMaterialStockHistoryDO h = new WmsMaterialStockHistoryDO();
 		h.setOpType("claim_loss");
