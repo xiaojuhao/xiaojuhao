@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
+import com.xjh.commons.DateBuilder;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
@@ -262,8 +263,11 @@ public class InventoryApplyController {
 		cond.setPaidStatus(paidStatus);
 		cond.setSearchKey(searchKey);
 		cond.setFromSrc(fromSrc);
-		cond.setStartCreatedTime(CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd HH:mm:ss"));
-		cond.setEndCreatedTime(CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd HH:mm:ss"));
+		cond.setStartCreatedTime(CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd"));
+		if (StringUtils.isNotBlank(endCreatedTime)) {
+			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");
+			cond.setEndCreatedTime(DateBuilder.base(endCreatedDateD).futureDays(1).date());
+		}
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		if (!"1".equals(user.getIsSu())) {
