@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xjh.dao.mapper.WmsInventoryApplyDetailMapper">
+	<sql id="where_sql">
+		<where>
+			<if test="applyNum != null and applyNum != ''">
+				and apply_num = #{applyNum}
+			</if>
+			<if test="searchKey!=null and searchKey!=''">
+				and material_name like "%"#{searchKey}"%"
+			</if>
+			<if test="materialCode != null and materialCode != ''">
+				and material_code = #{materialCode}
+			</if>
+			<if test="cabinCode != null and cabinCode != ''">
+				and cabin_code = #{cabinCode}
+			</if>
+			<if test="applyType != null and applyType != ''">
+				and apply_type = #{applyType}
+			</if>
+			<if test="fromCabinCode != null and fromCabinCode != ''">
+				and from_cabin_code = #{fromCabinCode}
+			</if>
+			<if test="supplierCode != null and supplierCode != ''">
+				and supplier_code = #{supplierCode}
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+			<if test="paidStatus != null and paidStatus != ''">
+				and paid_status = #{paidStatus}
+			</if>
+			<if test="startCreatedTime != null">
+				and gmt_created &gt;= #{startCreatedTime}
+			</if>
+			<if test="endCreatedTime != null">
+				and gmt_created &lt; #{endCreatedTime}
+			</if>
+			<if test="fromSrc != null and fromSrc != ''">
+				and (supplier_name like "%"#{fromSrc}"%" or from_cabin_name like "%"#{fromSrc}"%" )
+			</if>
+		</where>
+	</sql>
+	<select id="query" resultType="com.xjh.dao.dataobject.WmsInventoryApplyDetailDO">
+		select * from wms_inventory_apply_detail
+		<include refid="where_sql"></include>
+		order by status asc, spec_amt desc,id desc limit #{start},#{pageSize}
+	</select>
+	<select id="count" resultType="int">
+		select count(*) from wms_inventory_apply_detail
+		<include refid="where_sql"></include>
+	</select>
+</mapper>

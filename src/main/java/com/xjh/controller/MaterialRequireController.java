@@ -38,6 +38,7 @@ import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
 import com.xjh.service.PriceService;
+import com.xjh.service.RecentMemService;
 import com.xjh.service.TkMappers;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
@@ -68,6 +69,8 @@ public class MaterialRequireController {
 	LockService lockService;
 	@Resource
 	MaterialStockService stockService;
+	@Resource
+	RecentMemService recentMemService;
 
 	@RequestMapping(value = "/cancelRequire", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -155,6 +158,8 @@ public class MaterialRequireController {
 			WmsMaterialRequireDO ddd = dd;
 			TaskUtils.schedule(() -> {
 				priceService.updateSpecPrice(ddd.getSpecCode(), ddd.getCabinCode(), ddd.getSpecPrice());
+				recentMemService.saveRecent(ddd.getCabinCode(), ddd.getMaterialCode(), ddd.getSupplierCode());
+
 			});
 		}
 		//生成采购单

@@ -2,6 +2,8 @@ package com.xjh.service.impl;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,22 +12,27 @@ import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyDetailMapper;
+import com.xjh.dao.tkmapper.TkWmsInventoryApplyMapper;
 import com.xjh.service.DatabaseService;
 import com.xjh.service.TkMappers;
 
 @Service
 public class DatabaseServiceImpl implements DatabaseService {
-
+	@Resource
+	TkWmsInventoryApplyMapper inventoryApplyMapper;
+	@Resource
+	TkWmsInventoryApplyDetailMapper inventoryApplyDetailMapper;
 	@Override
 	@Transactional
 	public void diaoboCommit(WmsInventoryApplyDO applyDO, //
 			List<WmsInventoryApplyDetailDO> applyDetailList, //
 			List<WmsMaterialStockHistoryDO> historyList) {
 		// 1.
-		TkMappers.inst().getPurchaseOrderMapper().insert(applyDO);
+		inventoryApplyMapper.insert(applyDO);
 		// 2.
 		for (WmsInventoryApplyDetailDO detail : applyDetailList) {
-			TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
+			inventoryApplyDetailMapper.insert(detail);
 		}
 		// 3.
 		for (WmsMaterialStockHistoryDO his : historyList) {
@@ -38,12 +45,15 @@ public class DatabaseServiceImpl implements DatabaseService {
 	public void diaoboConfirm(WmsInventoryApplyDO applyUpdate, List<WmsInventoryApplyDetailDO> applyDetailUpdateList,
 			List<WmsMaterialStockHistoryDO> historyInsertList) {
 		// 1.
-		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(applyUpdate);
+		if(applyUpdate != null)
+		inventoryApplyMapper.updateByPrimaryKeySelective(applyUpdate);
 		// 2.
+		if(applyDetailUpdateList!=null)
 		for (WmsInventoryApplyDetailDO update : applyDetailUpdateList) {
-			TkMappers.inst().getPurchaseOrderDetailMapper().updateByPrimaryKeySelective(update);
+			inventoryApplyDetailMapper.updateByPrimaryKeySelective(update);
 		}
 		// 3.
+		if(historyInsertList != null)
 		for (WmsMaterialStockHistoryDO insert : historyInsertList) {
 			TkMappers.inst().getMaterialStockHistoryMapper().insert(insert);
 		}
@@ -54,11 +64,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 	public void commitPurchaseOrder(List<WmsInventoryApplyDO> applyList, List<WmsInventoryApplyDetailDO> list) {
 		// 1.
 		for (WmsInventoryApplyDetailDO detail : list) {
-			TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
+			inventoryApplyDetailMapper.insert(detail);
 		}
 		// 2.
 		for (WmsInventoryApplyDO applyDO : applyList) {
-			TkMappers.inst().getPurchaseOrderMapper().insert(applyDO);
+			inventoryApplyMapper.insert(applyDO);
 		}
 	}
 
@@ -66,8 +76,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 	@Transactional
 	public void claimLossInsert(WmsInventoryApplyDO applyDO, WmsInventoryApplyDetailDO applyDetailDO,
 			WmsMaterialStockHistoryDO historyDO) {
-		TkMappers.inst().getPurchaseOrderMapper().insert(applyDO);
-		TkMappers.inst().getPurchaseOrderDetailMapper().insert(applyDetailDO);
+		inventoryApplyMapper.insert(applyDO);
+		inventoryApplyDetailMapper.insert(applyDetailDO);
 		TkMappers.inst().getMaterialStockHistoryMapper().insert(historyDO);
 	}
 

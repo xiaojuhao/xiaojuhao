@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,4 +52,19 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Date gmtCreated;
 	Date gmtModified;
 	String status;
+	String paidStatus;
+	Double paidAmt;
+	Double payables;
+	Date paidTime;
+	String paidOperator;
+	String paidRemark;
+	
+	@Transient
+	String searchKey;
+	@Transient
+	Date startCreatedTime;
+	@Transient
+	Date endCreatedTime;
+	@Transient
+	String fromSrc;
 }

@@ -30,6 +30,7 @@ import com.xjh.service.DatabaseService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
 import com.xjh.service.PriceService;
+import com.xjh.service.SequenceService;
 import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
@@ -52,6 +53,8 @@ public class DiaoboController {
 	PriceService priceService;
 	@Resource
 	MaterialStockService materialStockService;
+	@Resource
+	SequenceService sequenceService;
 
 	@RequestMapping(value = "/commit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -84,7 +87,9 @@ public class DiaoboController {
 			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
 			List<WmsInventoryApplyDetailDO> indetails = new ArrayList<>();
 			// 保存采购单
-			apply.setApplyNum(CommonUtils.uuid());
+			String prefix = CommonUtils.stringOfToday("yyyyMMdd") + inCabinCode;
+			long num = this.sequenceService.next(prefix);
+			apply.setApplyNum(prefix + StringUtils.leftPad(num + "", 3, "0"));
 			apply.setCabinCode(inCabinCode);
 			apply.setCabinName(inCabin.getName());
 			apply.setFromCabinCode(outCabinCode);
@@ -98,7 +103,7 @@ public class DiaoboController {
 			apply.setModifier(user.getUserCode());
 			apply.setStatus(status);
 			apply.setRemark(remark);
-			apply.setPaidStatus("1");
+			apply.setPaidStatus("3");//无需支付
 			apply.setPaidAmt(0D);
 			apply.setPayables(0D);
 			apply.setTotalPrice(0D);
@@ -156,6 +161,9 @@ public class DiaoboController {
 				TaskUtils.schedule(() -> {
 					priceService.updateSpecPrice(detail.getSpecCode(), detail.getCabinCode(), detail.getSpecPrice());
 				});
+				detail.setPayables(0D);
+				detail.setPaidAmt(0D);
+				detail.setPaidStatus("3");
 				indetails.add(detail);
 			}
 			// 插入数据库
@@ -182,7 +190,7 @@ public class DiaoboController {
 		}
 		WmsInventoryApplyDO order = new WmsInventoryApplyDO();
 		order.setApplyNum(applyNum);
-		order = TkMappers.inst().getPurchaseOrderMapper().selectOne(order);
+		order = TkMappers.inst().getInventoryApplyMapper().selectOne(order);
 		if (order == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}
@@ -203,7 +211,7 @@ public class DiaoboController {
 			Double realStock = j.getDouble("realStockAmt");
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
-			detail = TkMappers.inst().getPurchaseOrderDetailMapper().selectOne(detail);
+			detail = TkMappers.inst().getInventoryApplyDetailMapper().selectOne(detail);
 			if (detail == null) {
 				return ResultBaseBuilder.fails(materialName + "记录不存在").rb(request);
 			}
@@ -289,10 +297,10 @@ public class DiaoboController {
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyNum(applyNum);
 		cond.setStatus("1");
-		int notHandleRows = TkMappers.inst().getPurchaseOrderDetailMapper().selectCount(cond);
+		int notHandleRows = TkMappers.inst().getInventoryApplyDetailMapper().selectCount(cond);
 		if (notHandleRows == 0) {
 			order.setStatus("5");
-			TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKey(order);
+			TkMappers.inst().getInventoryApplyMapper().updateByPrimaryKey(order);
 		}
 		StockHistoryScheduleTask.startTask();
 		return ResultBaseBuilder.succ().rb(request);
@@ -311,12 +319,12 @@ public class DiaoboController {
 		}
 		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
 		cond.setApplyNum(applyNum);
-		WmsInventoryApplyDO record = TkMappers.inst().getPurchaseOrderMapper().selectOne(cond);
+		WmsInventoryApplyDO record = TkMappers.inst().getInventoryApplyMapper().selectOne(cond);
 		if (record == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb(request);
 		}
 		record.setStatus("6");
-		TkMappers.inst().getPurchaseOrderMapper().updateByPrimaryKeySelective(record);
+		TkMappers.inst().getInventoryApplyMapper().updateByPrimaryKeySelective(record);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 }

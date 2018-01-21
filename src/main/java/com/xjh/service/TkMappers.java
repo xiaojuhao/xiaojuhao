@@ -71,9 +71,9 @@ public class TkMappers implements InitializingBean {
 	@Resource
 	TkWmsMaterialSplitMapper materialSplitMapper;
 	@Resource
-	TkWmsInventoryApplyMapper purchaseOrderMapper;
+	TkWmsInventoryApplyMapper inventoryApplyMapper;
 	@Resource
-	TkWmsInventoryApplyDetailMapper purchaseOrderDetailMapper;
+	TkWmsInventoryApplyDetailMapper inventoryApplyDetailMapper;
 	@Resource
 	TkWmsUploadFilesMapper uploadFilesMapper;
 	@Resource

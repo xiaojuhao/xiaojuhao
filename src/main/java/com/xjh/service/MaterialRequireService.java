@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
@@ -43,6 +44,8 @@ public class MaterialRequireService {
 	MaterialSpecService materialSpecService;
 	@Resource
 	TkWmsMaterialStockMapper materialStockMapper;
+	@Resource
+	SequenceService sequenceService;
 
 	public void clearUnDealedRecord(String cabinCode) {
 		WmsMaterialRequireDO cond = new WmsMaterialRequireDO();
@@ -155,7 +158,9 @@ public class MaterialRequireService {
 			if (glist == null || glist.size() == 0) {
 				continue;
 			}
-			String applyNum = CommonUtils.uuid();//申请单号
+			String prefix = CommonUtils.stringOfToday("yyyyMMdd") + keyFiled.get(0);
+			long num = sequenceService.next(prefix);
+			String applyNum = prefix + StringUtils.leftPad(num + "", 3, "0");//申请单号
 			WmsInventoryApplyDO apply = new WmsInventoryApplyDO();
 			double totalPrice = 0D;
 			for (WmsMaterialRequireDO r : glist) {
@@ -218,6 +223,15 @@ public class MaterialRequireService {
 				de.setModifier(user.getUserCode());
 				de.setTotalPrice(de.getSpecPrice() * de.getSpecAmt());
 				de.setRemark("原料需求生成");
+				de.setPaidAmt(0D);
+				if ("allocation".equals(de.getApplyType())) {
+					de.setPaidStatus("3");
+					de.setPayables(0D);
+				} else {
+					de.setPaidStatus("0");
+					de.setPayables(de.getTotalPrice());
+				}
+
 				totalPrice += de.getTotalPrice();
 				details.add(de);
 			}
@@ -252,10 +266,10 @@ public class MaterialRequireService {
 		}
 		//保存数据
 		for (WmsInventoryApplyDetailDO detail : details) {
-			TkMappers.inst().getPurchaseOrderDetailMapper().insert(detail);
+			TkMappers.inst().getInventoryApplyDetailMapper().insert(detail);
 		}
 		for (WmsInventoryApplyDO apply : applys) {
-			TkMappers.inst().getPurchaseOrderMapper().insert(apply);
+			TkMappers.inst().getInventoryApplyMapper().insert(apply);
 		}
 		for (WmsMaterialRequireDO require : requireList) {
 			this.requireMapper.updateByPrimaryKeySelective(require);
