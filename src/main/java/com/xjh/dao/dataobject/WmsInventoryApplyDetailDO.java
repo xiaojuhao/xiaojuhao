@@ -78,4 +78,6 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	String confirmUserName;
 	@Transient
 	List<String> mycabins;
+	@Transient
+	String category;
 }

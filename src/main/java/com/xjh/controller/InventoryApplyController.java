@@ -255,6 +255,7 @@ public class InventoryApplyController {
 		String endCreatedTime = CommonUtils.get(request, "endCreatedTime");
 		String paidStatus = CommonUtils.get(request, "paidStatus");
 		String fromSrc = CommonUtils.get(request, "fromSrc");
+		String category = CommonUtils.get(request, "category");
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyNum(applyNum);
 		cond.setApplyType(applyType);
@@ -263,6 +264,7 @@ public class InventoryApplyController {
 		cond.setPaidStatus(paidStatus);
 		cond.setSearchKey(searchKey);
 		cond.setFromSrc(fromSrc);
+		cond.setCategory(category);
 		cond.setStartCreatedTime(CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd"));
 		if (StringUtils.isNotBlank(endCreatedTime)) {
 			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");

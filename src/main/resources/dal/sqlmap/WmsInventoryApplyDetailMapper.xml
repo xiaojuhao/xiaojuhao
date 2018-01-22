@@ -46,6 +46,13 @@
 				and cabin_code in 
 				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
 			</if>
+			<if test="category != null and category != ''">
+				and exists (
+				select 1 from wms_material m 
+				 where m.material_code = wms_inventory_apply_detail.material_code
+				   and m.category = #{category}
+				)
+			</if>
 		</where>
 	</sql>
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsInventoryApplyDetailDO">
