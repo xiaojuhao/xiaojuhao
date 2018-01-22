@@ -51,7 +51,7 @@
 	<select id="query" resultType="com.xjh.dao.dataobject.WmsInventoryApplyDetailDO">
 		select * from wms_inventory_apply_detail
 		<include refid="where_sql"></include>
-		order by status asc, spec_amt desc,id desc limit #{start},#{pageSize}
+		order by status asc,id desc limit #{start},#{pageSize}
 	</select>
 	<select id="count" resultType="int">
 		select count(*) from wms_inventory_apply_detail

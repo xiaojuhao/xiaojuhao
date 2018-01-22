@@ -294,6 +294,7 @@ public class InventoryApplyController {
 		for (WmsInventoryApplyDetailDO dd : list) {
 			dd.setCreatorName(userService.getUserName(dd.getCreator()));
 			dd.setPaidOperatorName(userService.getUserName(dd.getPaidOperator()));
+			dd.setConfirmUserName(userService.getUserName(dd.getConfirmUser()));
 		}
 	}
 
@@ -678,6 +679,10 @@ public class InventoryApplyController {
 			} else {
 				update.setRealSpecAmt(update.getSpecAmt());
 			}
+			update.setModifier(user.getUserCode());
+			update.setGmtModified(new Date());
+			update.setConfirmUser(user.getUserCode());
+			update.setConfirmTime(new Date());
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改

@@ -59,6 +59,8 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Date paidTime;
 	String paidOperator;
 	String paidRemark;
+	String confirmUser;
+	Date confirmTime;
 	
 	@Transient
 	String searchKey;
@@ -72,6 +74,8 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	String creatorName;
 	@Transient
 	String paidOperatorName;
+	@Transient
+	String confirmUserName;
 	@Transient
 	List<String> mycabins;
 }
