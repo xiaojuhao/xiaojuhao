@@ -46,6 +46,10 @@
 				and cabin_code in 
 				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
 			</if>
+			<if test="statusList != null">
+				and status in 
+				<foreach collection="statusList" item="item" open="(" close=")" separator=",">#{item}</foreach>
+			</if>
 			<if test="category != null and category != ''">
 				and exists (
 				select 1 from wms_material m 

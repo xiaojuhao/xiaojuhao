@@ -268,6 +268,7 @@ public class InventoryApplyController {
 		cond.setSearchKey(searchKey);
 		cond.setFromSrc(fromSrc);
 		cond.setCategory(category);
+		cond.setStatusList(Arrays.asList("1", "2"));//只查询未入库或已入库的记录
 		cond.setStartCreatedTime(CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd"));
 		if (StringUtils.isNotBlank(endCreatedTime)) {
 			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");
@@ -282,7 +283,7 @@ public class InventoryApplyController {
 			cond.setMycabins(mycabins);
 		}
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
-		if ("excel".equals(download)) {
+		if ("excel".equals(download) || "excelInventory".equals(download)) {
 			if (totalRows > 500) {
 				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
 			}
@@ -298,18 +299,19 @@ public class InventoryApplyController {
 						"仓库", dd.getCabinName(), //
 						"供应商", dd.getCabinName(), //
 						"原料", dd.getMaterialName(), //
-						"采购单位", dd.getSpecUnit(), //
-						"采购数量", dd.getSpecAmt(), //
+						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
+						"入库状态", "1".equals(dd.getStatus()) ? "未入库" : "已入库", //
 						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
 						"单价", dd.getSpecPrice(), //
 						"总价", dd.getTotalPrice(), //
-
 						"录入时间", dd.getGmtCreated(), //
+						"支付时间", dd.getPaidTime(), //
 						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
 			}
+			String fileName = "excel".equals(download) ? "Payment" : "Inventory";
 			response.setContentType("application/octet-stream");
 			response.setHeader("Content-Disposition",
-					"attachment; filename=Payment" + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+					"attachment; filename=" + fileName + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
 			try {
 				wb.toHSSFWorkbook().write(response.getOutputStream());
 				response.getOutputStream().close();
