@@ -321,7 +321,7 @@ public class InventoryApplyController {
 				response.getOutputStream().close();
 				log.info("响应成功");
 				return null;
-			} catch (IOException e) {
+			} catch (Exception e) {
 				log.error("", e);
 				return ResultBaseBuilder.fails(e.getMessage()).rb(request);
 			}finally{
