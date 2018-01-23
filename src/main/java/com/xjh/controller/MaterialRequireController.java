@@ -341,15 +341,15 @@ public class MaterialRequireController {
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
 			for (WmsMaterialRequireDO dd : list) {
-				WmsMaterialStockDO stock = stockService.queryMaterialStock(dd.getCabinCode(), dd.getMaterialCode());
+				//WmsMaterialStockDO stock = stockService.queryMaterialStock(dd.getCabinCode(), dd.getMaterialCode());
 				CfRow row = sheet.newRow();
 				row.appendEx("ID", dd.getId(), //
 						"仓库", dd.getCabinName(), //
 						"原料", dd.getMaterialName(), //
-						"需求量", dd.getRequireAmt(), //
-						"库存单位", dd.getStockUnit(), //
-						"当前库存", stock == null ? 0 : stock.getCurrStock(), //
-						"已选规格", dd.getSpecName(), //
+						"采购量", dd.getSpecAmt() + dd.getSpecUnit(), //
+						//"需求量", dd.getRequireAmt(), //
+						//"当前库存", stock == null ? 0 : stock.getCurrStock(), //
+						//"库存单位", dd.getStockUnit(), //
 						"单价", dd.getSpecPrice(), //
 						"采购类型", "1".equals(dd.getPurchaseType()) ? "采购" : "调拨", //
 						"仓库/供应商", "1".equals(dd.getPurchaseType()) ? dd.getSupplierName() : dd.getFromCabinName());

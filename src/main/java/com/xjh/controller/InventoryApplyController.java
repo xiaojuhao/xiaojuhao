@@ -54,6 +54,7 @@ import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
+import com.xjh.support.enums.PaidStatus;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
 import com.xjh.support.excel.model.CfSheet;
@@ -242,11 +243,12 @@ public class InventoryApplyController {
 
 	@RequestMapping(value = "/queryInventoryDetailPage", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object queryInventoryDetailPage() {
+	public Object queryInventoryDetailPage(HttpServletResponse response) {
 		WmsUserDO user = AccountUtils.getLoginUser(request);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String download = CommonUtils.get(request, "download");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		String searchKey = CommonUtils.get(request, "searchKey");
 		String cabinCode = CommonUtils.get(request, "inCabinCode");
@@ -279,15 +281,53 @@ public class InventoryApplyController {
 			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
 			cond.setMycabins(mycabins);
 		}
-		List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
-		initCreatorName(list);
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
-		PageResult<WmsInventoryApplyDetailDO> page = new PageResult<>();
-		page.setValues(list);
-		page.setTotalRows(totalRows);
-		page.setPageNo(cond.getPageNo());
-		page.setPageSize(cond.getPageSize());
-		return ResultBaseBuilder.succ().data(page).rb(request);
+		if ("excel".equals(download)) {
+			if (totalRows > 500) {
+				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
+			}
+			cond.setPageSize(500);
+			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
+			//initCreatorName(list);
+			//导出excel
+			CfWorkbook wb = new CfWorkbook();
+			CfSheet sheet = wb.newSheet("data");
+			for (WmsInventoryApplyDetailDO dd : list) {
+				CfRow row = sheet.newRow();
+				row.appendEx("ID", dd.getId(), //
+						"仓库", dd.getCabinName(), //
+						"供应商", dd.getCabinName(), //
+						"原料", dd.getMaterialName(), //
+						"采购单位", dd.getSpecUnit(), //
+						"采购数量", dd.getSpecAmt(), //
+						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
+						"单价", dd.getSpecPrice(), //
+						"总价", dd.getTotalPrice(), //
+
+						"录入时间", dd.getGmtCreated(), //
+						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
+			}
+			response.setContentType("application/octet-stream");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=Payment" + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+			try {
+				wb.toHSSFWorkbook().write(response.getOutputStream());
+				response.getOutputStream().close();
+				return null;
+			} catch (IOException e) {
+				log.error("", e);
+				return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+			}
+		} else {
+			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
+			initCreatorName(list);
+			PageResult<WmsInventoryApplyDetailDO> page = new PageResult<>();
+			page.setValues(list);
+			page.setTotalRows(totalRows);
+			page.setPageNo(cond.getPageNo());
+			page.setPageSize(cond.getPageSize());
+			return ResultBaseBuilder.succ().data(page).rb(request);
+		}
 	}
 
 	private void initCreatorName(List<WmsInventoryApplyDetailDO> list) {
@@ -415,9 +455,9 @@ public class InventoryApplyController {
 				d.setModifier(user.getUserCode());
 				d.setStatus("1");
 				if ("purchase".equals(d.getApplyType())) {
-					d.setPaidStatus("0");
+					d.setPaidStatus(PaidStatus.not_paid.code());
 				} else {
-					d.setPaidStatus("3");
+					d.setPaidStatus(PaidStatus.not_need_paid.code());
 				}
 				d.setPayables(d.getTotalPrice());
 				d.setPaidAmt(0D);
@@ -462,7 +502,7 @@ public class InventoryApplyController {
 				order.setTotalPrice(sumPrice);
 				order.setPayables(sumPrice);
 				order.setPaidAmt(0D);
-				order.setPaidStatus("0");
+				order.setPaidStatus(PaidStatus.not_paid.code());
 				//供应商
 				order.setSupplierCode(group.getValue().get(0).getSupplierCode());
 				order.setSupplierName(group.getValue().get(0).getSupplierName());
@@ -790,7 +830,7 @@ public class InventoryApplyController {
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());
-			update.setPaidStatus("1");
+			update.setPaidStatus(PaidStatus.paid_success.code());
 			update.setPaidOperator(user.getUserCode());
 			update.setPaidAmt(detail.getPayables());
 			update.setPaidTime(new Date());
@@ -805,7 +845,7 @@ public class InventoryApplyController {
 			for (String applyNum : applyNums) {
 				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 				cond.setApplyNum(applyNum);
-				cond.setPaidStatus("0");
+				cond.setPaidStatus(PaidStatus.not_paid.code());
 				int notPaidRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
 				//都支付了，更新主表状态
 				if (notPaidRows == 0) {
@@ -813,7 +853,7 @@ public class InventoryApplyController {
 					Example.Criteria applyCri = applyExample.createCriteria();
 					applyCri.andEqualTo("applyNum", applyNum);
 					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
-					val.setPaidStatus("1"); //全部都支付了
+					val.setPaidStatus(PaidStatus.paid_success.code()); //全部都支付了
 					val.setPaidOperator(user.getUserCode());
 					val.setPaidTime(new Date());
 					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
@@ -895,13 +935,13 @@ public class InventoryApplyController {
 		if (apply == null) {
 			return ResultBaseBuilder.fails("采购单不存在").rb(request);
 		}
-		if (!"0".equals(apply.getPaidStatus())) {
+		if (!PaidStatus.not_paid.code().equals(apply.getPaidStatus())) {
 			return ResultBaseBuilder.fails("采购单已支付,请勿重复操作").rb(request);
 		}
 		//设置更新信息
 		WmsInventoryApplyDO update = new WmsInventoryApplyDO();
 		update.setId(apply.getId());
-		update.setPaidStatus("1");
+		update.setPaidStatus(PaidStatus.paid_success.code());
 		update.setPaidAmt(paidAmt);
 		update.setPaytoBank(paytoBank);
 		update.setPaytoAccount(paytoAccount);
@@ -915,10 +955,10 @@ public class InventoryApplyController {
 		Example.Criteria cri = example.createCriteria();
 		cri.andEqualTo("applyNum", applyNum);
 		WmsInventoryApplyDetailDO value = new WmsInventoryApplyDetailDO();
-		value.setPaidStatus("1");
+		value.setPaidStatus(PaidStatus.paid_success.code());
 		value.setPaidOperator(user.getUserCode());
 		value.setPaidTime(new Date());
-		value.setPaidRemark("总单支付"+paidAmt);
+		value.setPaidRemark("总单支付" + paidAmt);
 		tkWmsInventoryApplyDetailMapper.updateByExampleSelective(value, example);
 		return ResultBaseBuilder.succ().rb(request);
 	}
@@ -1073,7 +1113,7 @@ public class InventoryApplyController {
 		inorder.setModifier(user.getUserCode());
 		inorder.setStatus("5");
 		inorder.setRemark(remark);
-		inorder.setPaidStatus("1");
+		inorder.setPaidStatus(PaidStatus.paid_success.code());
 		inorder.setPaidAmt(0D);
 		inorder.setPayables(0D);
 		inorder.setTotalPrice(0D);
@@ -1102,7 +1142,7 @@ public class InventoryApplyController {
 		indetail.setImgBusiNo(imgBusiNo);
 		indetail.setUtilizationRatio(100);
 		indetail.setRemark(images);
-		indetail.setPaidStatus("3");
+		indetail.setPaidStatus(PaidStatus.not_need_paid.code());
 		indetail.setPayables(0D);
 		indetail.setPaidAmt(0D);
 
