@@ -578,6 +578,8 @@ public class InventoryApplyController {
 			} else {
 				update.setRealSpecAmt(update.getSpecAmt());
 			}
+			update.setConfirmTime(new Date());
+			update.setConfirmUser(user.getUserCode());
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
