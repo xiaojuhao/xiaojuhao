@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -601,6 +602,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		final Set<String> applyNums = new HashSet<>();
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
 		List<WmsMaterialStockHistoryDO> historyInserts = new ArrayList<>();
@@ -616,6 +618,7 @@ public class InventoryApplyController {
 			if (detail == null) {
 				continue;
 			}
+			applyNums.add(detail.getApplyNum());
 			if (!StringUtils.equals("1", detail.getStatus())) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理")
 						.rb(request);
@@ -690,15 +693,25 @@ public class InventoryApplyController {
 		// 采购单状态修改
 		database.diaoboConfirm(null, detailUpdateList, historyInserts);
 		StockHistoryScheduleTask.startTask();
+		//更新wms_inventory_apply的状态
+		TaskUtils.schedule(() -> {
+			for (String applyNum : applyNums) {
+				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+				cond.setApplyNum(applyNum);
+				cond.setStatus("1");//查询采购单下面的未入库的记录
+				int notHandleRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
+				//都入库了，更新主表状态
+				if (notHandleRows == 0) {
+					Example applyExample = new Example(WmsInventoryApplyDO.class, false, false);
+					Example.Criteria applyCri = applyExample.createCriteria();
+					applyCri.andEqualTo("applyNum", applyNum);
+					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
+					val.setStatus("5"); //全部都入库了
+					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
+				}
+			}
+		});
 
-		//		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
-		//		cond.setApplyNum(applyNum);
-		//		cond.setStatus("1");
-		//		int notHandleRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
-		//		if (notHandleRows == 0) {
-		//			order.setStatus("5");
-		//			tkWmsInventoryApplyMapper.updateByPrimaryKey(order);
-		//		}
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -754,6 +767,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		final Set<String> applyNums = new HashSet<>();
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
 		JSONArray array = CommonUtils.parseJSONArray(dataJson);
@@ -766,6 +780,7 @@ public class InventoryApplyController {
 			if (detail == null) {
 				continue;
 			}
+			applyNums.add(detail.getApplyNum());
 			if (!StringUtils.equals("2", detail.getStatus())) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能支付")
 						.rb(request);
@@ -783,6 +798,26 @@ public class InventoryApplyController {
 		}
 		// 采购单状态修改
 		database.diaoboConfirm(null, detailUpdateList, null);
+		//更新wms_inventory_apply的状态
+		TaskUtils.schedule(() -> {
+			for (String applyNum : applyNums) {
+				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+				cond.setApplyNum(applyNum);
+				cond.setPaidStatus("0");
+				int notPaidRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
+				//都支付了，更新主表状态
+				if (notPaidRows == 0) {
+					Example applyExample = new Example(WmsInventoryApplyDO.class, false, false);
+					Example.Criteria applyCri = applyExample.createCriteria();
+					applyCri.andEqualTo("applyNum", applyNum);
+					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
+					val.setPaidStatus("1"); //全部都支付了
+					val.setPaidOperator(user.getUserCode());
+					val.setPaidTime(new Date());
+					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
+				}
+			}
+		});
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -814,6 +849,18 @@ public class InventoryApplyController {
 		detailUpdateVal.setModifier(user.getUserCode());
 		detailUpdateVal.setGmtModified(new Date());
 		tkWmsInventoryApplyDetailMapper.updateByExampleSelective(detailUpdateVal, example);
+
+		//更新detail的状态
+		Example exampleDetail = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria criDetail = example.createCriteria();
+		criDetail.andEqualTo("applyNum", applyNum);
+		WmsInventoryApplyDetailDO detailValue = new WmsInventoryApplyDetailDO();
+		detailValue.setStatus("3");
+		detailValue.setModifier(user.getUserCode());
+		detailValue.setGmtModified(new Date());
+		detailValue.setRemark("作废by" + user.getUserCode());
+		tkWmsInventoryApplyDetailMapper.updateByExampleSelective(detailValue, exampleDetail);
+
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
@@ -861,6 +908,16 @@ public class InventoryApplyController {
 		update.setPaidOperator(user.getUserCode());
 		update.setPaidTime(new Date());
 		tkWmsInventoryApplyMapper.updateByPrimaryKeySelective(update);
+		//更新detail的状态
+		Example example = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("applyNum", applyNum);
+		WmsInventoryApplyDetailDO value = new WmsInventoryApplyDetailDO();
+		value.setPaidStatus("1");
+		value.setPaidOperator(user.getUserCode());
+		value.setPaidTime(new Date());
+		value.setPaidRemark("总单支付"+paidAmt);
+		tkWmsInventoryApplyDetailMapper.updateByExampleSelective(value, example);
 		return ResultBaseBuilder.succ().rb(request);
 	}
 

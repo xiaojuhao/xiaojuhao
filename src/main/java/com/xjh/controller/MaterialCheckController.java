@@ -27,6 +27,7 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockCheckDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockCheckMainMapper;
 import com.xjh.service.MaterialCheckService;
+import com.xjh.service.UserService;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
 import com.xjh.support.excel.model.CfSheet;
@@ -46,6 +47,8 @@ public class MaterialCheckController {
 	TkWmsMaterialStockCheckDetailMapper checkDetailMapper;
 	@Resource
 	MaterialCheckService materialCheckService;
+	@Resource
+	UserService userService;
 
 	@RequestMapping(value = "/startCheck", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -183,6 +186,9 @@ public class MaterialCheckController {
 		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("status ,start_time desc");
 		List<WmsMaterialStockCheckMainDO> list = checkMainMapper.selectByExample(example);
+		for (WmsMaterialStockCheckMainDO main : list) {
+			main.setCheckerName(userService.getUserName(main.getChecker()));
+		}
 		int totalRows = this.checkMainMapper.selectCountByExample(example);
 		PageResult<WmsMaterialStockCheckMainDO> page = new PageResult<>();
 		page.setPageNo(pageNo);

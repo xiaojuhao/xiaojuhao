@@ -291,6 +291,8 @@ public class DiaoboController {
 			update.setStatus("2");
 			update.setRealSpecAmt(realSpecAmt);
 			update.setRealStockAmt(realStock);
+			update.setConfirmTime(new Date());
+			update.setConfirmUser(user.getUserCode());
 			updateList.add(update);
 		}
 

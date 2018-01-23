@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,4 +27,7 @@ public class WmsMaterialStockCheckMainDO extends PageDTO implements Serializable
 	String status;
 	String checker;
 	String remark;
+	
+	@Transient
+	String checkerName;
 }
