@@ -297,12 +297,10 @@ public class InventoryApplyController {
 			if (totalRows > 500) {
 				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
 			}
-			log.info("下载{}", totalRows);
 			cond.setPageSize(500);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			//initCreatorName(list);
 			//导出excel
-			log.info("构造CfWorkbook");
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
 			for (WmsInventoryApplyDetailDO dd : list) {
@@ -320,22 +318,18 @@ public class InventoryApplyController {
 						"支付时间", dd.getPaidTime(), //
 						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
 			}
-			log.info("构造CfWorkbook结束");
 			String fileName = "excel".equals(download) ? "Payment" : "Inventory";
 			response.setContentType("application/octet-stream");
 			response.setHeader("Content-Disposition",
 					"attachment; filename=" + fileName + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
 			try {
-				log.info("响应前端");
 				wb.toHSSFWorkbook().write(response.getOutputStream());
 				response.getOutputStream().close();
-				log.info("响应成功");
 				return null;
 			} catch (Exception e) {
 				log.error("", e);
 				return ResultBaseBuilder.fails(e.getMessage()).rb(request);
 			} finally {
-				log.info("响应结束");
 			}
 		} else {
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);

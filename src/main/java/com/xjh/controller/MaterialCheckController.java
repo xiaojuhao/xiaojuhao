@@ -169,7 +169,6 @@ public class MaterialCheckController {
 			}
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			Long mainId = CommonUtils.getLong(request, "mainId");
-			String detail = CommonUtils.get(request, "detail");
 			String materialCode = CommonUtils.get(request, "materialCode");
 			if (CommonUtils.isAnyBlank(cabinCode, materialCode) || mainId == null) {
 				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
