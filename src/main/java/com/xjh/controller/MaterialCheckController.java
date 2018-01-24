@@ -159,7 +159,45 @@ public class MaterialCheckController {
 			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
 	}
-
+	@RequestMapping(value = "/cancelCheckDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object cancelCheckDetail() {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+			}
+			String cabinCode = CommonUtils.get(request, "cabinCode");
+			Long mainId = CommonUtils.getLong(request, "mainId");
+			String detail = CommonUtils.get(request, "detail");
+			String materialCode = CommonUtils.get(request, "materialCode");
+			if (CommonUtils.isAnyBlank(cabinCode, materialCode) || mainId == null) {
+				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+			}
+			Example example = new Example(WmsMaterialStockCheckDetailDO.class, false, false);
+			Example.Criteria cri = example.createCriteria();
+			cri.andEqualTo("materialCode", materialCode);
+			cri.andEqualTo("cabinCode", cabinCode);
+			cri.andEqualTo("mainId", mainId);
+			List<WmsMaterialStockCheckDetailDO> list = checkDetailMapper.selectByExample(example);
+			if (list.size() == 0) {
+				return ResultBaseBuilder.fails("未修改到任何记录").rb(request);
+			}
+			if (list.size() > 1) {
+				return ResultBaseBuilder.fails("数据错误，查到的数据超过1条").rb(request);
+			}
+			WmsMaterialStockCheckDetailDO value = list.get(0);
+			value.setStatus("0");
+			value.setRemark("撤销 by "+user.getUserCode());
+			int i = checkDetailMapper.updateByPrimaryKeySelective(value);
+			if (i == 0) {
+				return ResultBaseBuilder.fails("未修改到任何记录").rb(request);
+			}
+			return ResultBaseBuilder.succ().rb(request);
+		} catch (Exception e) {
+			return ResultBaseBuilder.fails("系统异常").rb(request);
+		}
+	}
 	@RequestMapping(value = "/queryCheckMain", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object queryCheckMain() {

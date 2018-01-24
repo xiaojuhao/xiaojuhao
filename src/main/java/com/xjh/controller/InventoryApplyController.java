@@ -54,6 +54,7 @@ import com.xjh.service.StockHistoryScheduleTask;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
+import com.xjh.support.enums.InventoryDetailStatus;
 import com.xjh.support.enums.PaidStatus;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
@@ -141,6 +142,9 @@ public class InventoryApplyController {
 		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
 		PageHelper.orderBy("gmt_created desc");
 		List<WmsInventoryApplyDO> list = tkWmsInventoryApplyMapper.select(cond);
+		for (WmsInventoryApplyDO dd : list) {
+			dd.setProposerName(this.userService.getUserName(dd.getProposer()));
+		}
 		int totalRows = tkWmsInventoryApplyMapper.selectCount(cond);
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
 		page.setTotalRows(totalRows);
@@ -168,6 +172,9 @@ public class InventoryApplyController {
 		PageHelper.orderBy("gmt_created desc");
 		List<WmsInventoryApplyDO> list = tkWmsInventoryApplyMapper.selectByExample(example);
 		int totalRows = tkWmsInventoryApplyMapper.selectCountByExample(example);
+		for (WmsInventoryApplyDO dd : list) {
+			dd.setProposerName(this.userService.getUserName(dd.getProposer()));
+		}
 		PageResult<WmsInventoryApplyDO> page = new PageResult<>();
 		page.setTotalRows(totalRows);
 		page.setValues(list);
@@ -227,6 +234,7 @@ public class InventoryApplyController {
 			json.put("stockAmt", dd.getStockAmt());
 			json.put("stockUnit", dd.getStockUnit());
 			json.put("creator", dd.getCreator());
+			json.put("creatorName", this.userService.getUserName(dd.getCreator()));
 			json.put("createTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dd.getGmtCreated()));
 			json.put("images", images);
 			if (StringUtils.isNotBlank(dd.getImgBusiNo())) {
@@ -268,7 +276,9 @@ public class InventoryApplyController {
 		cond.setSearchKey(searchKey);
 		cond.setFromSrc(fromSrc);
 		cond.setCategory(category);
-		cond.setStatusList(Arrays.asList("1", "2"));//只查询未入库或已入库的记录
+		if (!"3".equals(status)) {
+			cond.setStatusList(Arrays.asList("1", "2"));//只查询未入库或已入库的记录
+		}
 		cond.setStartCreatedTime(CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd"));
 		if (StringUtils.isNotBlank(endCreatedTime)) {
 			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");
@@ -287,7 +297,7 @@ public class InventoryApplyController {
 			if (totalRows > 500) {
 				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
 			}
-			log.info("下载{}",totalRows);
+			log.info("下载{}", totalRows);
 			cond.setPageSize(500);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			//initCreatorName(list);
@@ -302,7 +312,7 @@ public class InventoryApplyController {
 						"供应商", dd.getCabinName(), //
 						"原料", dd.getMaterialName(), //
 						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
-						"入库状态", "1".equals(dd.getStatus()) ? "未入库" : "已入库", //
+						"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
 						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
 						"单价", dd.getSpecPrice(), //
 						"总价", dd.getTotalPrice(), //
@@ -324,7 +334,7 @@ public class InventoryApplyController {
 			} catch (Exception e) {
 				log.error("", e);
 				return ResultBaseBuilder.fails(e.getMessage()).rb(request);
-			}finally{
+			} finally {
 				log.info("响应结束");
 			}
 		} else {
@@ -743,6 +753,64 @@ public class InventoryApplyController {
 		}
 		// 采购单状态修改
 		database.diaoboConfirm(null, detailUpdateList, historyInserts);
+		StockHistoryScheduleTask.startTask();
+		//更新wms_inventory_apply的状态
+		TaskUtils.schedule(() -> {
+			for (String applyNum : applyNums) {
+				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
+				cond.setApplyNum(applyNum);
+				cond.setStatus("1");//查询采购单下面的未入库的记录
+				int notHandleRows = tkWmsInventoryApplyDetailMapper.selectCount(cond);
+				//都入库了，更新主表状态
+				if (notHandleRows == 0) {
+					Example applyExample = new Example(WmsInventoryApplyDO.class, false, false);
+					Example.Criteria applyCri = applyExample.createCriteria();
+					applyCri.andEqualTo("applyNum", applyNum);
+					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
+					val.setStatus("5"); //全部都入库了
+					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
+				}
+			}
+		});
+
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/deleteInventoryDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object deleteInventoryDetail() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		final Set<String> applyNums = new HashSet<>();
+		String dataJson = CommonUtils.get(request, "dataJson");
+		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
+		JSONArray array = CommonUtils.parseJSONArray(dataJson);
+		for (int i = 0; i < array.size(); i++) {
+			JSONObject j = array.getJSONObject(i);
+			Long id = j.getLong("id");
+			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
+			detail.setId(id);
+			detail = tkWmsInventoryApplyDetailMapper.selectOne(detail);
+			if (detail == null) {
+				continue;
+			}
+			applyNums.add(detail.getApplyNum());
+			if (!StringUtils.equals("1", detail.getStatus())) {
+				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理")
+						.rb(request);
+			}
+			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
+			update.setId(detail.getId());
+			update.setStatus("3");
+			update.setModifier(user.getUserCode());
+			update.setGmtModified(new Date());
+			update.setRemark("删除by" + user.getUserCode());
+			detailUpdateList.add(update);
+		}
+		// 采购单状态修改
+		database.diaoboConfirm(null, detailUpdateList, null);
 		StockHistoryScheduleTask.startTask();
 		//更新wms_inventory_apply的状态
 		TaskUtils.schedule(() -> {
