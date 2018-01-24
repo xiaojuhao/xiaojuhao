@@ -98,8 +98,48 @@ public class CfWorkbook {
 	 */
 	public HSSFWorkbook toHSSFWorkbook() {
 		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFDataFormat fmt = wb.createDataFormat();
+		HSSFDataFormat hssfDataFormat = wb.createDataFormat();
 		int sheetIdx = 0;
+		//
+		HSSFCellStyle style = wb.createCellStyle();
+		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		//
+		HSSFCellStyle titleStyle = wb.createCellStyle();
+		titleStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		titleStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		titleStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		titleStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		HSSFFont font = wb.createFont();
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		titleStyle.setFont(font);
+		titleStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		titleStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		titleStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		//
+		HSSFCellStyle readonlyStyle = wb.createCellStyle();
+		readonlyStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		readonlyStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		readonlyStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		readonlyStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		readonlyStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		readonlyStyle.setFillForegroundColor(HSSFColor.LIGHT_TURQUOISE.index);
+		//
+		HSSFCellStyle dateStyle = wb.createCellStyle();
+		dateStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		dateStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		dateStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		dateStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		dateStyle.setDataFormat(hssfDataFormat.getFormat("yyyy-MM-dd"));
+		//
+		HSSFCellStyle integerStyle = wb.createCellStyle();
+		integerStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		integerStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		integerStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		integerStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		integerStyle.setDataFormat(hssfDataFormat.getFormat("0"));
 		//遍历sheet
 		for (CfSheet sheet : sheets) {
 			sheet.sheetInx = sheetIdx++;
@@ -118,26 +158,13 @@ public class CfWorkbook {
 				//遍历cells
 				for (CfCell cell : row.cells) {
 					cellIdx++;
-					HSSFCellStyle style = wb.createCellStyle();
-					//给cell加上边框
-					style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-					style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-					style.setBorderRight(HSSFCellStyle.BORDER_THIN);
-					style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-					if (row.isTitleRow) {//如果是title,则加上背景色，并居中
-						HSSFFont font = wb.createFont();
-						font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-						style.setFont(font);
-						style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
-						style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-						style.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
-					} else if (cell.isReadOnly) {//只读的内容，加上背景色
-						style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-						style.setFillForegroundColor(HSSFColor.LIGHT_TURQUOISE.index);
-					}
-
 					HSSFCell c = r.createCell(cellIdx);
 					c.setCellStyle(style);
+					if (row.isTitleRow) {//如果是title,则加上背景色，并居中
+						c.setCellStyle(titleStyle);
+					} else if (cell.isReadOnly) {//只读的内容，加上背景色
+						c.setCellStyle(readonlyStyle);
+					}
 					//String
 					if (cell instanceof CfStringCell) {
 						String val = ((CfStringCell) cell).value;
@@ -151,10 +178,7 @@ public class CfWorkbook {
 					//Date
 					else if (cell instanceof CfDateCell) {
 						CfDateCell dateCell = (CfDateCell) cell;
-						String format = dateCell.format;
-						if (format == null)
-							format = "yyyy-MM-dd";
-						style.setDataFormat(fmt.getFormat(format));
+						c.setCellStyle(dateStyle);
 						c.setCellValue(dateCell.value);
 						sheet.minWidth(cellIdx, 15);
 					}
@@ -166,19 +190,19 @@ public class CfWorkbook {
 					//Long
 					else if (cell instanceof CfLongCell) {
 						CfLongCell longCell = (CfLongCell) cell;
-						style.setDataFormat(fmt.getFormat("0"));
+						c.setCellStyle(integerStyle);
 						c.setCellValue(longCell.value);
 					}
 					//Integer
 					else if (cell instanceof CfIntegerCell) {
 						CfIntegerCell intCell = (CfIntegerCell) cell;
-						style.setDataFormat(fmt.getFormat("0"));
+						c.setCellStyle(integerStyle);
 						c.setCellValue(intCell.value);
 					}
 					//Byte
 					else if (cell instanceof CfByteCell) {
 						CfByteCell byteCell = (CfByteCell) cell;
-						style.setDataFormat(fmt.getFormat("0"));
+						c.setCellStyle(integerStyle);
 						c.setCellValue(byteCell.value);
 					}
 					//NULL
