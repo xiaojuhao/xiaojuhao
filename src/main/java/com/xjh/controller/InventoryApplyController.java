@@ -903,7 +903,7 @@ public class InventoryApplyController {
 
 		//更新detail的状态
 		Example exampleDetail = new Example(WmsInventoryApplyDetailDO.class, false, false);
-		Example.Criteria criDetail = example.createCriteria();
+		Example.Criteria criDetail = exampleDetail.createCriteria();
 		criDetail.andEqualTo("applyNum", applyNum);
 		WmsInventoryApplyDetailDO detailValue = new WmsInventoryApplyDetailDO();
 		detailValue.setStatus("3");
