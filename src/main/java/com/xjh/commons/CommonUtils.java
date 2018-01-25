@@ -15,7 +15,6 @@ import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,6 +52,7 @@ import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.xjh.dao.dataobject.WmsUserDO;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -692,7 +692,15 @@ public class CommonUtils {
 		}
 		return val;
 	}
-
+	public static List<String> mycabins(WmsUserDO user){
+		if(user==null){
+			return new ArrayList<>();
+		}
+		List<String> mycabins = new ArrayList<>();
+		mycabins.addAll(splitAsList(user.getAuthStores(), ","));
+		mycabins.addAll(splitAsList(user.getAuthWarehouse(), ","));
+		return mycabins;
+	}
 	public static Date getDate(HttpServletRequest request, String paramName) {
 		String val = request.getParameter(paramName);
 		return parseDate(val);

@@ -751,22 +751,6 @@ public class InventoryApplyController {
 		//更新wms_inventory_apply的状态
 		TaskUtils.schedule(() -> {
 			for (String applyNum : applyNums) {
-				//判断明细是否都是删除状态
-				Example allDeletedExample = new Example(WmsInventoryApplyDetailDO.class, false, false);
-				Example.Criteria allDeleetedCri = allDeletedExample.createCriteria();
-				allDeleetedCri.andEqualTo("applyNum", applyNum);
-				allDeleetedCri.andNotEqualTo("status", "3");//是否存在不等于3的记录
-				int validRows = tkWmsInventoryApplyDetailMapper.selectCountByExample(allDeleetedCri);
-				//所有记录都被删除了
-				if (validRows == 0) {
-					Example applyExample = new Example(WmsInventoryApplyDO.class, false, false);
-					Example.Criteria applyCri = applyExample.createCriteria();
-					applyCri.andEqualTo("applyNum", applyNum);
-					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
-					val.setStatus("6"); //删除状态
-					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
-					continue;
-				}
 				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 				cond.setApplyNum(applyNum);
 				cond.setStatus("1");//查询采购单下面的未入库的记录
@@ -825,6 +809,22 @@ public class InventoryApplyController {
 		//更新wms_inventory_apply的状态
 		TaskUtils.schedule(() -> {
 			for (String applyNum : applyNums) {
+				//判断明细是否都是删除状态
+				Example allDeletedExample = new Example(WmsInventoryApplyDetailDO.class, false, false);
+				Example.Criteria allDeleetedCri = allDeletedExample.createCriteria();
+				allDeleetedCri.andEqualTo("applyNum", applyNum);
+				allDeleetedCri.andNotEqualTo("status", "3");//是否存在不等于3的记录
+				int validRows = tkWmsInventoryApplyDetailMapper.selectCountByExample(allDeletedExample);
+				//所有记录都被删除了
+				if (validRows == 0) {
+					Example applyExample = new Example(WmsInventoryApplyDO.class, false, false);
+					Example.Criteria applyCri = applyExample.createCriteria();
+					applyCri.andEqualTo("applyNum", applyNum);
+					WmsInventoryApplyDO val = new WmsInventoryApplyDO();
+					val.setStatus("6"); //删除状态
+					tkWmsInventoryApplyMapper.updateByExampleSelective(val, applyExample);
+					continue;
+				}
 				WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 				cond.setApplyNum(applyNum);
 				cond.setStatus("1");//查询采购单下面的未入库的记录

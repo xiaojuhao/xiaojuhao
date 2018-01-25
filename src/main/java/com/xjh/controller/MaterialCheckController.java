@@ -213,6 +213,9 @@ public class MaterialCheckController {
 		Example example = new Example(WmsMaterialStockCheckMainDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
 		cri.andEqualTo("cabinCode", cabinCode);
+		if(!"1".equals(user.getIsSu())){
+			cri.andIn("cabinCode", CommonUtils.mycabins(user));
+		}
 		if (endDate != null) {
 			cri.andLessThanOrEqualTo("startTime", DateBuilder.base(endDate).futureDays(1).date());
 		}
@@ -257,6 +260,9 @@ public class MaterialCheckController {
 		cri.andEqualTo("category", category);
 		if (StringUtils.isNotBlank(searchKey)) {
 			cri.andLike("materialName", "%" + searchKey + "%");
+		}
+		if(!"1".equals(user.getIsSu())){
+			cri.andIn("cabinCode", CommonUtils.mycabins(user));
 		}
 		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("status desc, delta_amt desc, stock_amt desc, id");
