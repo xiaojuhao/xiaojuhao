@@ -82,4 +82,6 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	String category;
 	@Transient
 	List<String> statusList;
+	@Transient
+	Double basePrice;
 }

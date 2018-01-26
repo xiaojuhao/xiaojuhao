@@ -300,6 +300,7 @@ public class InventoryApplyController {
 			cond.setPageSize(500);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			//initCreatorName(list);
+			initBasePrice(list);
 			//导出excel
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
@@ -313,6 +314,7 @@ public class InventoryApplyController {
 						"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
 						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
 						"单价", dd.getSpecPrice(), //
+						"基价", dd.getBasePrice(), //
 						"总价", dd.getTotalPrice(), //
 						"录入时间", dd.getGmtCreated(), //
 						"支付时间", dd.getPaidTime(), //
@@ -334,12 +336,25 @@ public class InventoryApplyController {
 		} else {
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			initCreatorName(list);
+			initBasePrice(list);
 			PageResult<WmsInventoryApplyDetailDO> page = new PageResult<>();
 			page.setValues(list);
 			page.setTotalRows(totalRows);
 			page.setPageNo(cond.getPageNo());
 			page.setPageSize(cond.getPageSize());
 			return ResultBaseBuilder.succ().data(page).rb(request);
+		}
+	}
+
+	private void initBasePrice(List<WmsInventoryApplyDetailDO> list) {
+		for (WmsInventoryApplyDetailDO dd : list) {
+			WmsMaterialSpecDetailDO spec = materialSpecService.querySpecDetailByCode(//
+					dd.getMaterialCode(), dd.getSpecCode());
+			if (spec != null) {
+				dd.setBasePrice(spec.getBasePrice());
+			} else {
+				dd.setBasePrice(0D);
+			}
 		}
 	}
 
@@ -650,6 +665,51 @@ public class InventoryApplyController {
 		return ResultBaseBuilder.succ().rb(request);
 	}
 
+	@RequestMapping(value = "/modifyInventoryDetail", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object modifyInventoryDetail() {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String dataJson = CommonUtils.get(request, "dataJson");
+		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
+		JSONArray array = CommonUtils.parseJSONArray(dataJson);
+		for (int i = 0; i < array.size(); i++) {
+			JSONObject j = array.getJSONObject(i);
+			Long id = j.getLong("id");
+			Double realStockAmt = CommonUtils.parseDouble(j.getString("realStockAmt"), null);
+			Double realSpecAmt = CommonUtils.parseDouble(j.getString("realSpecAmt"), null);
+			Double totalPrice = CommonUtils.parseDouble(j.getString("totalPrice"), null);
+			//Double specPrice = CommonUtils.parseDouble(j.getString("specPrice"), null);
+			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
+			detail.setId(id);
+			detail = tkWmsInventoryApplyDetailMapper.selectOne(detail);
+			if (detail == null) {
+				continue;
+			}
+			if (realStockAmt == null || realSpecAmt == null || totalPrice == null) {
+				return ResultBaseBuilder.fails(detail.getMaterialName() + "输入错误").rb(request);
+			}
+			//
+			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
+			String remark = "modify by " + user.getUserCode() + "|" + detail.getRealStockAmt() + ":"
+					+ detail.getRealSpecAmt() + ":" + detail.getTotalPrice();
+			update.setId(detail.getId());
+			update.setRealStockAmt(realStockAmt);
+			update.setRealSpecAmt(realSpecAmt);
+			update.setTotalPrice(totalPrice);
+			update.setModifier(user.getUserCode());
+			update.setGmtModified(new Date());
+			update.setRemark(remark);
+			detailUpdateList.add(update);
+		}
+		// 采购单状态修改
+		database.diaoboConfirm(null, detailUpdateList, null);
+		StockHistoryScheduleTask.startTask();
+		return ResultBaseBuilder.succ().rb(request);
+	}
+
 	@RequestMapping(value = "/confirmInventoryDetail", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public Object confirmInventoryDetail() {
@@ -791,9 +851,10 @@ public class InventoryApplyController {
 				continue;
 			}
 			applyNums.add(detail.getApplyNum());
-			if (!StringUtils.equals("1", detail.getStatus())) {
-				return ResultBaseBuilder.fails(detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理")
-						.rb(request);
+			//管理员可以删除任何状态的记录
+			if (!"1".equals(user.getIsSu()) && !StringUtils.equals("1", detail.getStatus())) {
+				return ResultBaseBuilder.fails( //
+						detail.getMaterialName() + "状态为" + detail.getStatus() + "，不能处理").rb(request);
 			}
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			update.setId(detail.getId());

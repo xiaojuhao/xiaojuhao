@@ -222,7 +222,8 @@ public class BusinessController {
 					return ResultBaseBuilder.fails(sd.getSpecName() + "没有填写正确的入库数量").rb(request);
 				}
 				sd.setTransRate(transRate);
-				sd.setBasePrice(0D);
+				Double basePrice = CommonUtils.parseDouble(json.getString("basePrice"), 0D);
+				sd.setBasePrice(basePrice);
 				specDetailList.add(sd);
 			}
 			if (material.getId() == null) {
