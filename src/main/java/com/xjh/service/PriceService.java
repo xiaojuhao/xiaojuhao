@@ -30,6 +30,9 @@ public class PriceService {
 		JSONObject data = CommonUtils.parseJSON(record.getPriceInfo());
 		data.put(cabinCode, price);
 		record.setPriceInfo(data.toJSONString());
+		if(record.getBasePrice() == null || record.getBasePrice() <= 0.001){
+			record.setBasePrice(price);
+		}
 		specDetailMapper.updateByPrimaryKeySelective(record);
 	}
 }

@@ -46,7 +46,9 @@ public class MaterialRequireService {
 	TkWmsMaterialStockMapper materialStockMapper;
 	@Resource
 	SequenceService sequenceService;
-
+	@Resource
+	RecentMemService recentMemService;
+	
 	public void clearUnDealedRecord(String cabinCode) {
 		WmsMaterialRequireDO cond = new WmsMaterialRequireDO();
 		cond.setStatus("0");
@@ -94,6 +96,10 @@ public class MaterialRequireService {
 			r.setGmtModified(new Date());
 			r.setModifier("system");
 			r.setStockUnit(material.getStockUnit());
+			String recentCabin = recentMemService.recentValue(r.getCabinCode(), r.getMaterialCode());
+			if(StringUtils.isNotBlank(recentCabin)){
+				r.setFromCabinCode(recentCabin);
+			}
 			requireMapper.insert(r);
 		} else {
 			WmsMaterialRequireDO r = list.get(0);
