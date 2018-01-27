@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -236,6 +237,9 @@ public class MaterialRequireController {
 				dd.setSpecAmt(0D);
 				dd.setSpecPrice(spec.getBasePrice());
 				dd.setTransRate(spec.getTransRate().doubleValue());
+				if (dd.getTransRate() != null && dd.getTransRate() > 0.001) {
+					dd.setSpecAmt(Math.ceil(dd.getRequireAmt() / dd.getTransRate()));
+				}
 			}
 			if ("1".equals(dd.getPurchaseType()) && StringUtils.isBlank(dd.getSupplierCode())
 					&& !CollectionUtils.isEmpty(dd.getSupplierSelection())) {
@@ -244,7 +248,7 @@ public class MaterialRequireController {
 				dd.setSupplierName(sp.getSupplierName());
 			}
 			//如果没有供应商，则默认将采购类型改为调拨
-			if(CollectionUtils.isEmpty(dd.getSupplierSelection())){
+			if (CollectionUtils.isEmpty(dd.getSupplierSelection())) {
 				dd.setPurchaseType("2");
 				dd.setFromCabinCode("WH0001");
 			}
