@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -211,16 +212,48 @@ public class MaterialRequireController {
 		PageHelper.startPage(pageNo, pageSize);
 		List<WmsMaterialRequireDO> list = requireMapper.selectByExample(example);
 		int totalRows = requireMapper.selectCountByExample(example);
-
-		PageResult<WmsMaterialRequireDO> page = new PageResult<>();
+		this.setCurrentStock(list);
+		this.setSpecSelection(list);
+		this.setSupplierSelection(list);
+		//response to client
+		PageResult<JSONObject> page = new PageResult<>();
 		page.setTotalRows(totalRows);
-		page.setValues(list);
+		page.setValues(convertToJson(list));
 		page.setPageNo(pageNo);
 		page.setPageSize(pageSize);
-		this.setCurrentStock(page.getValues());
-		this.setSpecSelection(page.getValues());
-		this.setSupplierSelection(page.getValues());
+
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	private List<JSONObject> convertToJson(List<WmsMaterialRequireDO> list) {
+		List<JSONObject> jsons = new ArrayList<>();
+		for (WmsMaterialRequireDO dd : list) {
+			if (StringUtils.isBlank(dd.getSpecCode()) && !CollectionUtils.isEmpty(dd.getSpecSelection())) {
+				WmsMaterialSpecDetailDO spec = dd.getSpecSelection().get(0);
+				dd.setSpecCode(spec.getSpecCode());
+				dd.setSpecName(spec.getSpecName());
+				dd.setSpecUnit(spec.getSpecUnit());
+				dd.setSpecAmt(0D);
+				dd.setSpecPrice(spec.getBasePrice());
+				dd.setTransRate(spec.getTransRate().doubleValue());
+			}
+			if ("1".equals(dd.getPurchaseType()) && StringUtils.isBlank(dd.getSupplierCode())
+					&& !CollectionUtils.isEmpty(dd.getSupplierSelection())) {
+				WmsMaterialSupplierDO sp = dd.getSupplierSelection().get(0);
+				dd.setSupplierCode(sp.getSupplierCode());
+				dd.setSupplierName(sp.getSupplierName());
+			}
+			//如果没有供应商，则默认将采购类型改为调拨
+			if(CollectionUtils.isEmpty(dd.getSupplierSelection())){
+				dd.setPurchaseType("2");
+				dd.setFromCabinCode("WH0001");
+			}
+			JSONObject j = CommonUtils.toJSONObject(dd);
+			j.put("requireDateStr", CommonUtils.formatDate(dd.getRequireDate(), "yyyy-MM-dd"));
+			j.put("requireAmtAndUnit", dd.getRequireAmt() + dd.getStockUnit());
+			jsons.add(j);
+		}
+		return jsons;
 	}
 
 	private void setCurrentStock(List<WmsMaterialRequireDO> list) {

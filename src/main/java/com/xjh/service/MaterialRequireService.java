@@ -93,6 +93,7 @@ public class MaterialRequireService {
 			r.setCreator("system");
 			r.setGmtModified(new Date());
 			r.setModifier("system");
+			r.setStockUnit(material.getStockUnit());
 			requireMapper.insert(r);
 		} else {
 			WmsMaterialRequireDO r = list.get(0);

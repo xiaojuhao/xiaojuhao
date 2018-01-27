@@ -55,4 +55,6 @@ public class WmsMaterialRequireDO extends PageDTO implements Serializable {
 	List<WmsMaterialSpecDetailDO> specSelection;
 	@Transient
 	List<WmsMaterialSupplierDO> supplierSelection;
+	@Transient
+	Double transRate;
 }
