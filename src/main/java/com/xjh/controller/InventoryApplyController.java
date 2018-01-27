@@ -681,24 +681,25 @@ public class InventoryApplyController {
 			Double realStockAmt = CommonUtils.parseDouble(j.getString("realStockAmt"), null);
 			Double realSpecAmt = CommonUtils.parseDouble(j.getString("realSpecAmt"), null);
 			Double totalPrice = CommonUtils.parseDouble(j.getString("totalPrice"), null);
-			//Double specPrice = CommonUtils.parseDouble(j.getString("specPrice"), null);
+			Double specPrice = CommonUtils.parseDouble(j.getString("specPrice"), null);
 			WmsInventoryApplyDetailDO detail = new WmsInventoryApplyDetailDO();
 			detail.setId(id);
 			detail = tkWmsInventoryApplyDetailMapper.selectOne(detail);
 			if (detail == null) {
 				continue;
 			}
-			if (realStockAmt == null || realSpecAmt == null || totalPrice == null) {
+			if (realStockAmt == null || realSpecAmt == null || totalPrice == null || specPrice == null) {
 				return ResultBaseBuilder.fails(detail.getMaterialName() + "输入错误").rb(request);
 			}
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
 			String remark = "modify by " + user.getUserCode() + "|" + detail.getRealStockAmt() + ":"
-					+ detail.getRealSpecAmt() + ":" + detail.getTotalPrice();
+					+ detail.getRealSpecAmt() + ":" + detail.getTotalPrice() + ":" + detail.getSpecPrice();
 			update.setId(detail.getId());
 			update.setRealStockAmt(realStockAmt);
 			update.setRealSpecAmt(realSpecAmt);
 			update.setTotalPrice(totalPrice);
+			update.setSpecPrice(specPrice);
 			update.setModifier(user.getUserCode());
 			update.setGmtModified(new Date());
 			update.setRemark(remark);
