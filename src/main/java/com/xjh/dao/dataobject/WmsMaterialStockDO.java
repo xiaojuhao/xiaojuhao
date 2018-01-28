@@ -38,10 +38,16 @@ public class WmsMaterialStockDO extends PageDTO {
 	Date checkStockTime;
 	String status;
 	String isDeleted;
+	
+	//
 	@Transient
 	String searchKey;
 	@Transient
 	List<String> mycabins;
 	@Transient
 	String category;
+	@Transient
+	String currStockAmtAndUnit;
+	@Transient
+	String currSpecAmtAndUnit;
 }

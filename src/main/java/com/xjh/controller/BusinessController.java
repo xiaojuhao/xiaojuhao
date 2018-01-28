@@ -35,7 +35,6 @@ import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsMaterialSupplierDO;
 import com.xjh.dao.dataobject.WmsOrdersDO;
 import com.xjh.dao.dataobject.WmsOrdersMaterialDO;
-import com.xjh.dao.dataobject.WmsSupplierDO;
 import com.xjh.dao.dataobject.WmsUnitGroupDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.WmsMaterialMapper;
@@ -109,7 +108,7 @@ public class BusinessController {
 		TkMappers.inst().getMaterialMapper().selectAll()//
 				.forEach((m) -> {
 					String searchKey = CommonUtils.genSearchKey(m.getMaterialName(), null);
-					m.setSearchKey(searchKey+","+m.getMaterialName());
+					m.setSearchKey(searchKey + "," + m.getMaterialName());
 					TkMappers.inst().getMaterialMapper().updateByPrimaryKeySelective(m);
 				});
 		return ResultBaseBuilder.succ().rb(request);
@@ -369,6 +368,15 @@ public class BusinessController {
 				String sk = CommonUtils.genSearchKey(stock.getMaterialName(), "");
 				sk += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
 				stock.setSearchKey(sk);
+				//currSpecAmtAndUnit
+				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(stock.getMaterialCode());
+				if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
+					double specAmt = new BigDecimal(stock.getCurrStock()).divide(spec.getTransRate()).setScale(2)
+							.doubleValue();
+					stock.setCurrSpecAmtAndUnit(specAmt + spec.getSpecUnit());
+				}
+				//currStockAmtAndUnit
+				stock.setCurrStockAmtAndUnit(stock.getCurrStock() + stock.getStockUnit());
 			}
 		}
 		page.setValues(tempList);

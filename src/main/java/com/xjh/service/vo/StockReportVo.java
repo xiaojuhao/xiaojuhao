@@ -24,4 +24,8 @@ public class StockReportVo implements Serializable{
 	String searchKey;
 	Date startDate;
 	Date endDate;
+	
+	//
+	String currStockAndUnit;
+	String currSpecAndUnit;
 }

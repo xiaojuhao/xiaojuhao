@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -18,9 +19,11 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.DateBuilder;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.StockReportMapper;
 import com.xjh.dao.mapper.WmsInventoryApplyDetailMapper;
+import com.xjh.service.MaterialSpecService;
 import com.xjh.service.vo.InventoryReportVo;
 import com.xjh.service.vo.StockReportVo;
 import com.xjh.support.excel.CfWorkbook;
@@ -39,6 +42,8 @@ public class ReportController {
 	StockReportMapper stockReportMapper;
 	@Resource
 	WmsInventoryApplyDetailMapper inventoryDetailMapper;
+	@Resource
+	MaterialSpecService materialSpecService;
 
 	@RequestMapping(value = "/stockReport", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -72,6 +77,13 @@ public class ReportController {
 				CfWorkbook wb = new CfWorkbook();
 				CfSheet sheet = wb.newSheet("data");
 				for (StockReportVo dd : list) {
+					dd.setCurrStockAndUnit(dd.getCurrstock() + dd.getStockUnit());
+					WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(dd.getMaterialCode());
+					if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
+						double specAmt = new BigDecimal(dd.getCurrstock()).divide(spec.getTransRate()).setScale(2)
+								.doubleValue();
+						dd.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
+					}
 					CfRow row = sheet.newRow();
 					row.appendEx("原料名称", dd.getMaterialName(), //
 							"仓库名称", dd.getCabinName(), //

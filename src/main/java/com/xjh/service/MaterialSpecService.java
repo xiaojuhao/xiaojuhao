@@ -51,6 +51,18 @@ public class MaterialSpecService {
 		return list;
 	}
 
+	public WmsMaterialSpecDetailDO queryFirstSpecDetail(String materialCode) {
+		if (CommonUtils.isAnyBlank(materialCode)) {
+			return null;
+		}
+		WmsMaterialSpecDetailDO cond = new WmsMaterialSpecDetailDO();
+		cond.setMaterialCode(materialCode);
+		PageHelper.startPage(1, 1);
+		PageHelper.orderBy("id");
+		WmsMaterialSpecDetailDO spec = specDetailMapper.selectOne(cond);
+		return spec;
+	}
+
 	public WmsMaterialSpecDetailDO querySpecDetailByCode(String materialCode, String specCode) {
 		if (CommonUtils.isAnyBlank(materialCode, specCode)) {
 			return null;
