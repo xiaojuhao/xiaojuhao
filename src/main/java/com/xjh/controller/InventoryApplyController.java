@@ -38,6 +38,7 @@ import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
 import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsMaterialStockHistoryDO;
 import com.xjh.dao.dataobject.WmsStoreDO;
+import com.xjh.dao.dataobject.WmsSupplierDO;
 import com.xjh.dao.dataobject.WmsUploadFilesDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.dataobject.WmsWarehouseDO;
@@ -51,10 +52,10 @@ import com.xjh.service.MaterialSpecService;
 import com.xjh.service.PriceService;
 import com.xjh.service.SequenceService;
 import com.xjh.service.StockHistoryScheduleTask;
+import com.xjh.service.SupplierService;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UserService;
 import com.xjh.service.handlers.PostCheckStockJobHandler;
-import com.xjh.support.enums.InventoryDetailStatus;
 import com.xjh.support.enums.PaidStatus;
 import com.xjh.support.excel.CfWorkbook;
 import com.xjh.support.excel.model.CfRow;
@@ -88,6 +89,8 @@ public class InventoryApplyController {
 	SequenceService sequenceService;
 	@Resource
 	UserService userService;
+	@Resource
+	SupplierService supplierService;
 
 	@RequestMapping(value = "/queryInventoryApply", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -267,6 +270,7 @@ public class InventoryApplyController {
 		String paidStatus = CommonUtils.get(request, "paidStatus");
 		String fromSrc = CommonUtils.get(request, "fromSrc");
 		String category = CommonUtils.get(request, "category");
+		String creatorSearch = CommonUtils.get(request, "creatorSearch");
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyNum(applyNum);
 		cond.setApplyType(applyType);
@@ -276,6 +280,7 @@ public class InventoryApplyController {
 		cond.setSearchKey(searchKey);
 		cond.setFromSrc(fromSrc);
 		cond.setCategory(category);
+		cond.setCreatorSearch(creatorSearch);
 		if (!"3".equals(status)) {
 			cond.setStatusList(Arrays.asList("1", "2"));//只查询未入库或已入库的记录
 		}
@@ -305,14 +310,34 @@ public class InventoryApplyController {
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
 			for (WmsInventoryApplyDetailDO dd : list) {
+				WmsSupplierDO sp = supplierService.getSupplierByCode(dd.getSupplierCode());
+				String spName = null;
+				String account = null;
+				String accountName = null;
+				if (sp != null) {
+					spName = sp.getSupplierName();
+					if ("bank".equals(sp.getPayWay())) {
+						account = sp.getBankAccount();
+						accountName = sp.getBankAccountName();
+					} else if ("alipay".equals(sp.getPayWay())) {
+						account = sp.getAlipayAccount();
+						accountName = sp.getAlipayAccountName();
+					} else if ("weixin".equals(sp.getPayWay())) {
+						account = sp.getWeixinAccount();
+						accountName = sp.getWeixinAccountName();
+					}
+				}
+
 				CfRow row = sheet.newRow();
 				row.appendEx("ID", dd.getId(), //
 						"仓库", dd.getCabinName(), //
-						"供应商", dd.getSupplierName(), //
+						"供应商", spName, //
 						"原料", dd.getMaterialName(), //
 						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
-						"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
+						//"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
 						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
+						"收款账户", account, //
+						"收款户名", accountName, //
 						"单价", dd.getSpecPrice(), //
 						"基价", dd.getBasePrice(), //
 						"总价", dd.getTotalPrice(), //
@@ -765,9 +790,35 @@ public class InventoryApplyController {
 			h.setGmtCreated(new Date());
 			h.setStatus("0");
 			h.setRelateCode(detail.getApplyNum());
-			h.setRemark("采购入库,供应商:" + detail.getSupplierName());
+			if ("allocation".equals(detail.getApplyType())) {
+				h.setRemark("库存调拨,拨出到:" + detail.getCabinName());
+			} else {
+				h.setRemark("采购入库,供应商:" + detail.getSupplierName());
+			}
 			h.setAffectStock("Y");
 			historyInserts.add(h);
+			if ("allocation".equals(detail.getApplyType())) {
+				WmsMaterialStockHistoryDO h2 = new WmsMaterialStockHistoryDO();
+				h2.setOpType("out_stock");
+				h2.setCabinCode(detail.getFromCabinCode());
+				h2.setCabinName(detail.getFromCabinName());
+				h2.setCabinType(detail.getFromCabinCode().startsWith("WH") ? "1" : "2");
+				h2.setMaterialCode(detail.getMaterialCode());
+				h2.setMaterialName(detail.getMaterialName());
+				h2.setKeepDays(detail.getKeepTime());
+				h2.setTotalPrice(detail.getTotalPrice());
+				h2.setUnitPrice(unitPrice);
+				h2.setProductDate(detail.getProdDate());
+				h2.setStockUnit(detail.getStockUnit());
+				h2.setAmt(-1 * detail.getInStockAmt());
+				h2.setOperator(detail.getModifier());
+				h2.setGmtCreated(new Date());
+				h2.setStatus("0");
+				h2.setRelateCode(detail.getApplyNum());
+				h2.setRemark("调拨出库,来源:" + detail.getFromCabinName());
+				h2.setAffectStock("Y");
+				historyInserts.add(h2);
+			}
 
 			if (Math.abs(detail.getInStockAmt() - realStock) > 0.001) {
 				WmsMaterialStockHistoryDO loss = new WmsMaterialStockHistoryDO();
@@ -787,7 +838,11 @@ public class InventoryApplyController {
 				loss.setAffectStock("N");//不参与库存计算
 				loss.setStatus("1"); // 入库损耗数据不需要更新库存，仅做记录
 				loss.setRelateCode(detail.getApplyNum());
-				loss.setRemark("采购入库损耗,供应商:" + detail.getSupplierName());
+				String sp = detail.getSupplierName();
+				if (StringUtils.isBlank(sp)) {
+					sp = detail.getFromCabinName();
+				}
+				loss.setRemark("入库损耗,供应商:" + sp);
 				historyInserts.add(loss);
 			}
 			//
