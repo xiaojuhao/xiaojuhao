@@ -308,7 +308,7 @@ public class InventoryApplyController {
 				CfRow row = sheet.newRow();
 				row.appendEx("ID", dd.getId(), //
 						"仓库", dd.getCabinName(), //
-						"供应商", dd.getCabinName(), //
+						"供应商", dd.getSupplierName(), //
 						"原料", dd.getMaterialName(), //
 						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
 						"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
