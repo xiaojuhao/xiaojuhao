@@ -310,28 +310,33 @@ public class InventoryApplyController {
 			CfWorkbook wb = new CfWorkbook();
 			CfSheet sheet = wb.newSheet("data");
 			for (WmsInventoryApplyDetailDO dd : list) {
-				WmsSupplierDO sp = supplierService.getSupplierByCode(dd.getSupplierCode());
-				String spName = null;
+				String supplierOrCabin = null;
 				String account = null;
 				String accountName = null;
-				if (sp != null) {
-					spName = sp.getSupplierName();
-					if ("bank".equals(sp.getPayWay())) {
-						account = sp.getBankAccount();
-						accountName = sp.getBankAccountName();
-					} else if ("alipay".equals(sp.getPayWay())) {
-						account = sp.getAlipayAccount();
-						accountName = sp.getAlipayAccountName();
-					} else if ("weixin".equals(sp.getPayWay())) {
-						account = sp.getWeixinAccount();
-						accountName = sp.getWeixinAccountName();
+				if ("purchase".equals(dd.getApplyType())) {
+					WmsSupplierDO sp = supplierService.getSupplierByCode(dd.getSupplierCode());
+
+					if (sp != null) {
+						supplierOrCabin = sp.getSupplierName();
+						if ("bank".equals(sp.getPayWay())) {
+							account = sp.getBankAccount();
+							accountName = sp.getBankAccountName();
+						} else if ("alipay".equals(sp.getPayWay())) {
+							account = sp.getAlipayAccount();
+							accountName = sp.getAlipayAccountName();
+						} else if ("weixin".equals(sp.getPayWay())) {
+							account = sp.getWeixinAccount();
+							accountName = sp.getWeixinAccountName();
+						}
 					}
+				} else if ("allocation".equals(dd.getApplyType())) {
+					supplierOrCabin = dd.getFromCabinName();
 				}
 
 				CfRow row = sheet.newRow();
 				row.appendEx("ID", dd.getId(), //
 						"仓库", dd.getCabinName(), //
-						"供应商", spName, //
+						"供应商", supplierOrCabin, //
 						"原料", dd.getMaterialName(), //
 						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
 						//"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
