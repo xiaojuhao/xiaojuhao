@@ -367,6 +367,13 @@ public class InventoryApplyController {
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			initCreatorName(list);
 			initBasePrice(list);
+			for (WmsInventoryApplyDetailDO dd : list) {
+				if ("purchase".equals(dd.getApplyType())) {
+					dd.setSupplierOrFromCabin(dd.getSupplierName());
+				} else {
+					dd.setSupplierOrFromCabin(dd.getFromCabinName());
+				}
+			}
 			PageResult<WmsInventoryApplyDetailDO> page = new PageResult<>();
 			page.setValues(list);
 			page.setTotalRows(totalRows);

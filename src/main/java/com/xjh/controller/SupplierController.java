@@ -78,15 +78,18 @@ public class SupplierController {
 				supplier.setSupplierPhone(supplierPhone);
 				supplier.setSupplierEmail(supplierEmail);
 				supplier.setPayMode(payMode);
-				supplier.setPayWay(payWay);
-				supplier.setBankName(bankName);
-				supplier.setDepositBank(depositBank);
-				supplier.setBankAccount(bankAccount);
-				supplier.setBankAccountName(bankAccountName);
-				supplier.setAlipayAccount(alipayAccount);
-				supplier.setAlipayAccountName(alipayAccountName);
-				supplier.setWeixinAccount(weixinAccount);
-				supplier.setWeixinAccountName(weixinAccountName);
+				//只有超级管理员才能添加银行账户信息
+				if ("1".equals(user.getIsSu())) {
+					supplier.setPayWay(payWay);
+					supplier.setBankName(bankName);
+					supplier.setDepositBank(depositBank);
+					supplier.setBankAccount(bankAccount);
+					supplier.setBankAccountName(bankAccountName);
+					supplier.setAlipayAccount(alipayAccount);
+					supplier.setAlipayAccountName(alipayAccountName);
+					supplier.setWeixinAccount(weixinAccount);
+					supplier.setWeixinAccountName(weixinAccountName);
+				}
 				supplier.setRemark(remark);
 				supplier.setModifer(user.getUserCode());
 				supplier.setStatus("1");
@@ -109,21 +112,24 @@ public class SupplierController {
 				if (supplier == null) {
 					return ResultBaseBuilder.fails("供应商修改失败:no data").rb(request);
 				}
-				supplier.setSupplierName(supplierName);
-				supplier.setSupplierFullName(supplierFullName);
 				supplier.setSupplierTel(supplierTel);
 				supplier.setSupplierPhone(supplierPhone);
 				supplier.setSupplierEmail(supplierEmail);
-				supplier.setPayMode(payMode);
-				supplier.setPayWay(payWay);
-				supplier.setBankName(bankName);
-				supplier.setDepositBank(depositBank);
-				supplier.setBankAccount(bankAccount);
-				supplier.setBankAccountName(bankAccountName);
-				supplier.setAlipayAccount(alipayAccount);
-				supplier.setAlipayAccountName(alipayAccountName);
-				supplier.setWeixinAccount(weixinAccount);
-				supplier.setWeixinAccountName(weixinAccountName);
+				//只有超级管理员才能修改银行账户信息 + 名字
+				if ("1".equals(user.getIsSu())) {
+					supplier.setSupplierName(supplierName);
+					supplier.setSupplierFullName(supplierFullName);
+					supplier.setPayMode(payMode);
+					supplier.setPayWay(payWay);
+					supplier.setBankName(bankName);
+					supplier.setDepositBank(depositBank);
+					supplier.setBankAccount(bankAccount);
+					supplier.setBankAccountName(bankAccountName);
+					supplier.setAlipayAccount(alipayAccount);
+					supplier.setAlipayAccountName(alipayAccountName);
+					supplier.setWeixinAccount(weixinAccount);
+					supplier.setWeixinAccountName(weixinAccountName);
+				}
 				supplier.setRemark(remark);
 				supplier.setModifer(user.getUserCode());
 				supplier.setGmtModified(new Date());
