@@ -73,18 +73,20 @@ public class ReportController {
 				input.setEndDate(DateBuilder.base(CommonUtils.parseDate(endDate)).futureDays(1).date());
 			}
 			List<StockReportVo> list = stockReportMapper.reportData(input);
+			for (StockReportVo vo : list) {
+				vo.setCurrStockAndUnit(vo.getCurrstock() + vo.getStockUnit());
+				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(vo.getMaterialCode());
+				if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
+					double specAmt = new BigDecimal(vo.getCurrstock())
+							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
+					vo.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
+				}
+			}
 			if ("excel".equals(download)) {
 				//导出excel
 				CfWorkbook wb = new CfWorkbook();
 				CfSheet sheet = wb.newSheet("data");
 				for (StockReportVo dd : list) {
-					dd.setCurrStockAndUnit(dd.getCurrstock() + dd.getStockUnit());
-					WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(dd.getMaterialCode());
-					if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
-						double specAmt = new BigDecimal(dd.getCurrstock())
-								.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
-						dd.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
-					}
 					CfRow row = sheet.newRow();
 					row.appendEx("原料名称", dd.getMaterialName(), //
 							"仓库名称", dd.getCabinName(), //
