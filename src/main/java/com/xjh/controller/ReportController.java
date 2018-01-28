@@ -2,6 +2,7 @@ package com.xjh.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
@@ -80,15 +81,16 @@ public class ReportController {
 					dd.setCurrStockAndUnit(dd.getCurrstock() + dd.getStockUnit());
 					WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(dd.getMaterialCode());
 					if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
-						double specAmt = new BigDecimal(dd.getCurrstock()).divide(spec.getTransRate()).setScale(2)
-								.doubleValue();
+						double specAmt = new BigDecimal(dd.getCurrstock())
+								.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
 						dd.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
 					}
 					CfRow row = sheet.newRow();
 					row.appendEx("原料名称", dd.getMaterialName(), //
 							"仓库名称", dd.getCabinName(), //
 							"库存单位", dd.getStockUnit(), //
-							"当前库存", dd.getCurrstock(), //
+							"采购库存", dd.getCurrSpecAndUnit(), //
+							"食材库存", dd.getCurrStockAndUnit(), //
 							"入库数量", dd.getInStock(), //
 							"销售数量", dd.getSale(), //
 							"入库损失", dd.getInStockLoss(), //

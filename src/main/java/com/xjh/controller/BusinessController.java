@@ -1,6 +1,7 @@
 package com.xjh.controller;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -371,8 +372,8 @@ public class BusinessController {
 				//currSpecAmtAndUnit
 				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(stock.getMaterialCode());
 				if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
-					double specAmt = new BigDecimal(stock.getCurrStock()).divide(spec.getTransRate()).setScale(2)
-							.doubleValue();
+					double specAmt = new BigDecimal(stock.getCurrStock())
+							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
 					stock.setCurrSpecAmtAndUnit(specAmt + spec.getSpecUnit());
 				}
 				//currStockAmtAndUnit
