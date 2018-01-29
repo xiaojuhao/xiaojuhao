@@ -259,6 +259,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String onlymy = CommonUtils.get(request, "onlymy");
 		String download = CommonUtils.get(request, "download");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		String searchKey = CommonUtils.get(request, "searchKey");
@@ -289,6 +290,9 @@ public class InventoryApplyController {
 			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");
 			cond.setEndCreatedTime(DateBuilder.base(endCreatedDateD).futureDays(1).date());
 		}
+		if ("true".equals(onlymy) && !"1".equals(user.getIsSu())) {
+			cond.setCreator(user.getUserCode());
+		}
 		cond.setPageSize(CommonUtils.getPageSize(request));
 		cond.setPageNo(CommonUtils.getPageNo(request));
 		if (!"1".equals(user.getIsSu())) {
@@ -313,18 +317,22 @@ public class InventoryApplyController {
 				String supplierOrCabin = null;
 				String account = null;
 				String accountName = null;
+				String payway = null;
 				if ("purchase".equals(dd.getApplyType())) {
 					WmsSupplierDO sp = supplierService.getSupplierByCode(dd.getSupplierCode());
 
 					if (sp != null) {
 						supplierOrCabin = sp.getSupplierName();
 						if ("bank".equals(sp.getPayWay())) {
+							payway = "银行";
 							account = sp.getBankAccount();
 							accountName = sp.getBankAccountName();
 						} else if ("alipay".equals(sp.getPayWay())) {
+							payway = "支付宝";
 							account = sp.getAlipayAccount();
 							accountName = sp.getAlipayAccountName();
 						} else if ("weixin".equals(sp.getPayWay())) {
+							payway = "微信";
 							account = sp.getWeixinAccount();
 							accountName = sp.getWeixinAccountName();
 						}
@@ -341,6 +349,7 @@ public class InventoryApplyController {
 						"采购数量", dd.getSpecAmt() + dd.getSpecUnit(), //
 						//"入库状态", InventoryDetailStatus.from(dd.getStatus()).remark(), //
 						"支付状态", PaidStatus.from(dd.getPaidStatus()).remark(), //
+						"支付方式", payway, //
 						"收款账户", account, //
 						"收款户名", accountName, //
 						"单价", dd.getSpecPrice(), //

@@ -43,8 +43,11 @@
 				and (supplier_name like "%"#{fromSrc}"%" or from_cabin_name like "%"#{fromSrc}"%" )
 			</if>
 			<if test="mycabins != null">
-				and cabin_code in 
+				and (cabin_code in 
 				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
+				or from_cabin_code in 
+				<foreach collection="mycabins" item="item" open="(" close=")" separator=",">#{item}</foreach>
+				)
 			</if>
 			<if test="statusList != null">
 				and status in 
@@ -62,6 +65,9 @@
 					where user.user_code = wms_inventory_apply_detail.creator
 					and concat(user_code,',',user_name) like "%"#{creatorSearch}"%"
 					)
+			</if>
+			<if test="creator != null and creator != ''">
+				and creator = #{creator}
 			</if>
 		</where>
 	</sql>
