@@ -60,6 +60,12 @@
 				   and m.category = #{category}
 				)
 			</if>
+			<if test="payMode != null and payMode != ''">
+				and exists (select 1 from wms_supplier sp 
+				   where sp.supplier_code = wms_inventory_apply_detail.supplier_code
+					 and pay_mode = #{payMode}
+				)
+			</if>
 			<if test="creatorSearch != null and creatorSearch != ''">
 				and exists (select 1 from wms_user user 
 					where user.user_code = wms_inventory_apply_detail.creator

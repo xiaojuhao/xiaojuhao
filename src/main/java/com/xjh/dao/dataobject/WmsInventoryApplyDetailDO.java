@@ -88,4 +88,6 @@ public class WmsInventoryApplyDetailDO extends PageDTO implements Serializable {
 	Double basePrice;
 	@Transient
 	String creatorSearch;
+	@Transient
+	String payMode;
 }

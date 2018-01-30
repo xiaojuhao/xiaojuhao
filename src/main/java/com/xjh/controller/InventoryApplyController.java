@@ -272,6 +272,7 @@ public class InventoryApplyController {
 		String fromSrc = CommonUtils.get(request, "fromSrc");
 		String category = CommonUtils.get(request, "category");
 		String creatorSearch = CommonUtils.get(request, "creatorSearch");
+		String payMode = CommonUtils.get(request, "payMode");
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyNum(applyNum);
 		cond.setApplyType(applyType);
@@ -282,6 +283,8 @@ public class InventoryApplyController {
 		cond.setFromSrc(fromSrc);
 		cond.setCategory(category);
 		cond.setCreatorSearch(creatorSearch);
+		cond.setPayMode(payMode);
+		log.info(creatorSearch);
 		if (!"3".equals(status)) {
 			cond.setStatusList(Arrays.asList("1", "2"));//只查询未入库或已入库的记录
 		}
@@ -308,7 +311,7 @@ public class InventoryApplyController {
 			}
 			cond.setPageSize(500);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
-			//initCreatorName(list);
+			initCreatorName(list);
 			initBasePrice(list);
 			//导出excel
 			CfWorkbook wb = new CfWorkbook();
@@ -355,6 +358,7 @@ public class InventoryApplyController {
 						"单价", dd.getSpecPrice(), //
 						"基价", dd.getBasePrice(), //
 						"总价", dd.getTotalPrice(), //
+						"录入人", dd.getCreatorName(), //
 						"录入时间", dd.getGmtCreated(), //
 						"支付时间", dd.getPaidTime(), //
 						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
