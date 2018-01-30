@@ -75,10 +75,16 @@ public class ReportController {
 			List<StockReportVo> list = stockReportMapper.reportData(input);
 			for (StockReportVo vo : list) {
 				vo.setCurrStockAndUnit(vo.getCurrstock() + vo.getStockUnit());
+				//将食材库存转换为第一个采购单位
 				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(vo.getMaterialCode());
-				if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
+				if (spec != null && spec.getTransRate() != null //
+						&& spec.getTransRate().doubleValue() > 0.001//
+						&& spec.getUtilizationRatio() > 0) {
 					double specAmt = new BigDecimal(vo.getCurrstock())
-							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
+							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP) //
+							.divide(new BigDecimal(100), 2, RoundingMode.HALF_UP) //
+							.multiply(new BigDecimal(100))//
+							.setScale(2).doubleValue();
 					vo.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
 				}
 			}

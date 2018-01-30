@@ -375,11 +375,18 @@ public class BusinessController {
 				String sk = CommonUtils.genSearchKey(stock.getMaterialName(), "");
 				sk += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
 				stock.setSearchKey(sk);
-				//currSpecAmtAndUnit
+				//需求：根据食材库存，折算为第一个采购单位：currSpecAmtAndUnit
 				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(stock.getMaterialCode());
-				if (spec != null && spec.getTransRate() != null && spec.getTransRate().doubleValue() > 0.001) {
+				if (spec != null && spec.getTransRate() != null //
+						&& spec.getTransRate().doubleValue() > 0.001 //
+						&& spec.getUtilizationRatio() > 0//
+				) {
+					//公式:食材库存/转化率/利用率
 					double specAmt = new BigDecimal(stock.getCurrStock())
-							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP).setScale(2).doubleValue();
+							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP)//
+							.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.HALF_UP) //
+							.multiply(new BigDecimal(100))//
+							.setScale(2).doubleValue();
 					stock.setCurrSpecAmtAndUnit(specAmt + spec.getSpecUnit());
 				}
 				//currStockAmtAndUnit
