@@ -64,7 +64,7 @@ public class DiaoboController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String inCabinCode = CommonUtils.get(request, "inCabinCode");
 		String outCabinCode = CommonUtils.get(request, "outCabinCode");
 		String dataJson = CommonUtils.get(request, "dataJson");
@@ -183,7 +183,7 @@ public class DiaoboController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String dataJson = CommonUtils.get(request, "dataJson");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {
@@ -316,6 +316,7 @@ public class DiaoboController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(applyNum)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

@@ -25,8 +25,11 @@ import com.xjh.dao.mapper.WmsRecipesMapper;
 import com.xjh.service.RecipesService;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
 @RequestMapping("/recipes")
+@Slf4j
 public class RecipesController {
 	@Resource
 	HttpServletRequest request;
@@ -42,6 +45,7 @@ public class RecipesController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String formula = request.getParameter("formulaJson");
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String recipesName = CommonUtils.get(request, "recipesName");
@@ -107,6 +111,7 @@ public class RecipesController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		if (StringUtils.isBlank(recipesCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -129,6 +134,7 @@ public class RecipesController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String hadFormula = CommonUtils.get(request, "hadFormula");
 		String searchKey = CommonUtils.get(request, "searchKey");
@@ -156,6 +162,7 @@ public class RecipesController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		WmsRecipesDO wmsRecipesDO = new WmsRecipesDO();
 		wmsRecipesDO.setPageSize(1000);
 		wmsRecipesDO.setIsDeleted("N");
@@ -182,6 +189,7 @@ public class RecipesController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		if (StringUtils.isBlank(recipesCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

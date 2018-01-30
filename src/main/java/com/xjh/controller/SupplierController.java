@@ -46,6 +46,7 @@ public class SupplierController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String supplierCode = CommonUtils.get(request, "supplierCode");
 			String supplierName = CommonUtils.get(request, "supplierName");
 			String supplierTel = CommonUtils.get(request, "supplierTel");
@@ -184,6 +185,7 @@ public class SupplierController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		WmsSupplierDO cond = new WmsSupplierDO();
 		cond.setSupplierCode(supplierCode);
@@ -210,6 +212,7 @@ public class SupplierController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		if (StringUtils.isBlank(supplierCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);

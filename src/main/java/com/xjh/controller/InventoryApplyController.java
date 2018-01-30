@@ -99,6 +99,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String status = CommonUtils.get(request, "status");
 		String paidStatus = CommonUtils.get(request, "paidStatus");
 		String applyTypes = CommonUtils.get(request, "applyTypes");
@@ -133,6 +134,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String status = CommonUtils.get(request, "status");
 		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
 		cond.setStatus(status);
@@ -162,6 +164,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		int pageNo = CommonUtils.getPageNo(request);
 		int pageSize = CommonUtils.getPageSize(request);
 		String status = CommonUtils.get(request, "status");
@@ -191,6 +194,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String status = CommonUtils.get(request, "status");
 		WmsInventoryApplyDO cond = new WmsInventoryApplyDO();
 		cond.setStatus(status);
@@ -215,6 +219,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
 		cond.setApplyType("claim_loss");
 		//超管可以查看所有的记录
@@ -259,6 +264,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String onlymy = CommonUtils.get(request, "onlymy");
 		String download = CommonUtils.get(request, "download");
 		String applyNum = CommonUtils.get(request, "applyNum");
@@ -455,6 +461,7 @@ public class InventoryApplyController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			CabinVo cabinVo = cabinService.getCabinByCode(cabinCode);
 			String status = CommonUtils.get(request, "status");
@@ -603,6 +610,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String dataJson = CommonUtils.get(request, "dataJson");
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(dataJson) || StringUtils.isBlank(applyNum)) {
@@ -722,6 +730,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
 		JSONArray array = CommonUtils.parseJSONArray(dataJson);
@@ -768,6 +777,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		final Set<String> applyNums = new HashSet<>();
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
@@ -918,6 +928,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		final Set<String> applyNums = new HashSet<>();
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
@@ -993,6 +1004,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String ids = CommonUtils.get(request, "ids");
 		List<Long> idList = CommonUtils.splitAsList(ids, ",").stream()//
 				.map(it -> CommonUtils.parseLong(it, null))//
@@ -1038,6 +1050,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		final Set<String> applyNums = new HashSet<>();
 		String dataJson = CommonUtils.get(request, "dataJson");
 		List<WmsInventoryApplyDetailDO> detailUpdateList = new ArrayList<>();
@@ -1099,6 +1112,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String applyNum = CommonUtils.get(request, "applyNum");
 		if (StringUtils.isBlank(applyNum)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -1142,6 +1156,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String applyNum = CommonUtils.get(request, "applyNum");
 		String paidWay = CommonUtils.get(request, "paidWay");
 		Double paidAmt = CommonUtils.getDbl(request, "paidAmt", null);
@@ -1199,6 +1214,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = request.getParameter("cabinCode");
 		if (StringUtils.isBlank(cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -1245,6 +1261,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = request.getParameter("cabinCode");
 		if (StringUtils.isBlank(cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -1313,6 +1330,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		String cabinName = CommonUtils.get(request, "cabinName");
 		String materialCode = CommonUtils.get(request, "materialCode");
@@ -1407,6 +1425,7 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		String materialCode = request.getParameter("materialCode");
 		if (id == null || StringUtils.isBlank(materialCode)) {

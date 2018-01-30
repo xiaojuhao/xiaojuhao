@@ -2,7 +2,6 @@ package com.xjh.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +23,11 @@ import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.service.SequenceService;
 
 import io.reactivex.Observable;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/warehouse")
+@Slf4j
 public class WarehouseController {
 	@Resource
 	HttpServletRequest request;
@@ -42,6 +43,7 @@ public class WarehouseController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		String warehouseCode = CommonUtils.get(request, "warehouseCode");
 		String warehouseName = CommonUtils.get(request, "warehouseName");
@@ -77,6 +79,7 @@ public class WarehouseController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		String warehouseCode = CommonUtils.get(request, "warehouseCode");
 		String warehouseName = CommonUtils.get(request, "warehouseName");
@@ -111,6 +114,7 @@ public class WarehouseController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String warehouseCode = CommonUtils.get(request, "warehouseCode");
 		if (StringUtils.isBlank(warehouseCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -128,6 +132,7 @@ public class WarehouseController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		final String auths = user.getAuthWarehouse() == null ? "" : user.getAuthWarehouse();
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		List<WmsWarehouseDO> list = this.warehouseMapper.select(warehouse);

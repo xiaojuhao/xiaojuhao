@@ -106,6 +106,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		TkMappers.inst().getMaterialMapper().selectAll()//
 				.forEach((m) -> {
 					String searchKey = CommonUtils.genSearchKey(m.getMaterialName(), null);
@@ -122,6 +123,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCode = CommonUtils.get(request, "materialCode");
 
 		if (StringUtils.isBlank(materialCode)) {
@@ -147,7 +149,7 @@ public class BusinessController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
-
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String storageLifeNum = CommonUtils.get(request, "storageLifeNum");
 			String storageLifeUnit = CommonUtils.get(request, "storageLifeUnit");
 			String specUnit = CommonUtils.get(request, "specUnit");
@@ -266,6 +268,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		String materialCode = CommonUtils.get(request, "materialCode");
@@ -299,6 +302,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCode = CommonUtils.get(request, "materialCode");
 		List<WmsMaterialSplitDO> splits = new ArrayList<>();
 		if (StringUtils.isBlank(materialCode)) {
@@ -317,6 +321,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		if (id == null) {
 			return ResultBaseBuilder.fails("无数据").rb(request);
@@ -337,6 +342,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		int pageSize = CommonUtils.getPageSize(request);
 		int pageNo = CommonUtils.getPageNo(request);
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
@@ -394,6 +400,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCodes = CommonUtils.get(request, "materialCodes");
 		List<String> materialList = CommonUtils.splitAsList(materialCodes, ",");
 		if (materialList.size() == 0) {
@@ -414,6 +421,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
 		if (id == null) {
 			return ResultBaseBuilder.fails("入参错误").rb(request);
@@ -434,6 +442,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		int pageSize = CommonUtils.parseInt(request.getParameter("pageSize"), 10);
 		int pageNo = CommonUtils.parseInt(request.getParameter("pageNo"), 1);
 		String materialCode = CommonUtils.get(request, "materialCode");
@@ -473,7 +482,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String supplierCode = CommonUtils.get(request, "supplierCode");
 		if (CommonUtils.isAllBlank(materialCode, supplierCode)) {
@@ -494,6 +503,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCodes = CommonUtils.get(request, "materialCodes");
 		List<String> materialCodeList = CommonUtils.splitAsList(materialCodes, ",");
 		if (materialCodeList.size() == 0) {
@@ -514,7 +524,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (StringUtils.isBlank(cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -533,7 +543,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setPageSize(3000);
 		ms.setIsDeleted("N");
@@ -556,6 +566,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String storeCode = CommonUtils.get(request, "storeCode");
 		String saleDateStart = CommonUtils.get(request, "saleDateStart");
 		String saleDateEnd = CommonUtils.get(request, "saleDateEnd");
@@ -654,6 +665,7 @@ public class BusinessController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long orderId = CommonUtils.getLong(request, "orderId");
 		String storeCode = CommonUtils.get(request, "storeCode");
 		String recipesCode = CommonUtils.get(request, "recipesCode");

@@ -1,6 +1,5 @@
 package com.xjh.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +23,11 @@ import com.xjh.service.SequenceService;
 import com.xjh.service.StoreService;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
 @RequestMapping("/store")
+@Slf4j
 public class StoreController {
 	@Resource
 	HttpServletRequest request;
@@ -41,6 +43,7 @@ public class StoreController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		String storeName = CommonUtils.get(request, "storeName");
 		String storeAddr = CommonUtils.get(request, "storeAddr");
@@ -77,6 +80,7 @@ public class StoreController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		WmsStoreDO cond = new WmsStoreDO();
 		cond.setPageSize(300);
 		PageResult<WmsStoreDO> page = storeService.queryStore(cond);
@@ -90,6 +94,7 @@ public class StoreController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String storeCode = request.getParameter("storeCode");
 		WmsStoreDO store = storeService.queryByStoreCode(storeCode);
 		if (store == null) {
@@ -105,6 +110,7 @@ public class StoreController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		WmsStoreDO store = new WmsStoreDO();
 		final String auths = user.getAuthStores() == null ? "" : user.getAuthStores();
 

@@ -29,10 +29,12 @@ import com.xjh.service.TkMappers;
 import com.xjh.valueobject.CabinVo;
 
 import io.reactivex.Observable;
+import lombok.extern.slf4j.Slf4j;
 import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/order")
+@Slf4j
 public class OrderController {
 	@Resource
 	HttpServletRequest request;
@@ -48,7 +50,7 @@ public class OrderController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String recipesCode = CommonUtils.get(request, "recipesCode");
 		String storeCode = CommonUtils.get(request, "storeCode");
 		if (CommonUtils.isAnyBlank(recipesCode, storeCode)) {

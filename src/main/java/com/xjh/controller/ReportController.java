@@ -54,7 +54,7 @@ public class ReportController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
-
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			String materialCode = CommonUtils.get(request, "materialCode");
 			String searchKey = CommonUtils.get(request, "searchKey");
@@ -119,8 +119,9 @@ public class ReportController {
 		try {
 			WmsUserDO user = AccountUtils.getLoginUser(request);
 			if (user == null) {
-				//return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String materialCode = CommonUtils.get(request, "materialCode");
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			String supplierCode = CommonUtils.get(request, "supplierCode");

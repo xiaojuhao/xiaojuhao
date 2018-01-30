@@ -57,6 +57,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		ResultBase<WmsMaterialStockCheckMainDO> rb = materialCheckService.startCheck(cabinCode, user);
 		return ResultBaseBuilder.wrap(rb).rb(request);
@@ -69,6 +70,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (id == null || StringUtils.isBlank(cabinCode)) {
@@ -89,6 +91,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (StringUtils.isBlank(cabinCode)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -103,6 +106,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		if (id == null || StringUtils.isBlank(cabinCode)) {
@@ -124,6 +128,7 @@ public class MaterialCheckController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			Long mainId = CommonUtils.getLong(request, "mainId");
 			String detail = CommonUtils.get(request, "detail");
@@ -167,6 +172,7 @@ public class MaterialCheckController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			Long mainId = CommonUtils.getLong(request, "mainId");
 			String materialCode = CommonUtils.get(request, "materialCode");
@@ -204,6 +210,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long id = CommonUtils.getLong(request, "id");
 		Date startDate = CommonUtils.getDate(request, "startDate");
 		Date endDate = CommonUtils.getDate(request, "endDate");
@@ -245,6 +252,7 @@ public class MaterialCheckController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		Long mainId = CommonUtils.getLong(request, "mainId");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		String materialCode = CommonUtils.get(request, "materialCode");
@@ -284,6 +292,7 @@ public class MaterialCheckController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			Long mainId = CommonUtils.getLong(request, "mainId");
 			String cabinCode = CommonUtils.get(request, "cabinCode");
 			String materialCode = CommonUtils.get(request, "materialCode");

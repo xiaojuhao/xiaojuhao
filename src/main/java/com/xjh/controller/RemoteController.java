@@ -20,8 +20,11 @@ import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DiandanSystemService;
 import com.xjh.service.OrderMaterialService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
 @RequestMapping("/remote")
+@Slf4j
 public class RemoteController {
 	@Resource
 	HttpServletRequest request;
@@ -43,6 +46,7 @@ public class RemoteController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String date = CommonUtils.get(request, "date");
 		Date saleDate = CommonUtils.parseDate(date, "yyyyMMdd");
 		this.diandanSystemService.initSearchKey(saleDate);
@@ -56,6 +60,7 @@ public class RemoteController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		this.diandanSystemService.syncStores();
 		return ResultBaseBuilder.succ().rb(request);
 	}
@@ -67,6 +72,7 @@ public class RemoteController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		this.diandanSystemService.syncRecipes();
 		return ResultBaseBuilder.succ().rb(request);
 	}
@@ -78,6 +84,7 @@ public class RemoteController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String date = CommonUtils.get(request, "date");
 		Date saleDate = CommonUtils.parseDate(date, "yyyy-MM-dd");
 		diandanSystemService.syncRecipes();//同步菜单

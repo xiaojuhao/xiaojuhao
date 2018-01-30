@@ -81,6 +81,7 @@ public class MaterialRequireController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String items = CommonUtils.get(request, "items");
 		if (StringUtils.isBlank(items)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
@@ -111,6 +112,7 @@ public class MaterialRequireController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String requires = CommonUtils.get(request, "requires");
 		String handleType = CommonUtils.get(request, "handleType");
 		JSONArray jsonArr = CommonUtils.parseJSONArray(requires);
@@ -181,7 +183,7 @@ public class MaterialRequireController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		String startDate = CommonUtils.get(request, "startDate");
 		String endDate = CommonUtils.get(request, "endDate");
@@ -310,6 +312,7 @@ public class MaterialRequireController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			List<String> mycabins = new ArrayList<>();
 			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
 			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
@@ -345,6 +348,7 @@ public class MaterialRequireController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String ids = CommonUtils.get(request, "ids");
 			List<String> idList = CommonUtils.splitAsList(ids, ",");
 			if (idList.size() == 0) {

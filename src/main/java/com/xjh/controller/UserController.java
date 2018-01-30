@@ -86,6 +86,7 @@ public class UserController {
 			if (user == null) {
 				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 			String userName = CommonUtils.get(request, "userName");
 			String password = CommonUtils.get(request, "password");
 			String userMobile = CommonUtils.get(request, "userMobile");
@@ -121,6 +122,7 @@ public class UserController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		PageResult<WmsUserDO> page = this.userService.queryUsers(userDO);
 		return ResultBaseBuilder.succ().data(page).rb(request);
 	}

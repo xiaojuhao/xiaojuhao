@@ -7,8 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBaseBuilder;
@@ -17,8 +15,11 @@ import com.xjh.dao.dataobject.WmsMaterialStockDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.TkMappers;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
 @RequestMapping("/storeManage")
+@Slf4j
 public class StockManageController {
 	@Resource
 	HttpServletRequest request;
@@ -30,6 +31,7 @@ public class StockManageController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String materialCode = CommonUtils.get(request, "materialCode");
 		String cabinCode = CommonUtils.get(request, "cabinCode");
 		Double val1 = CommonUtils.getDbl(request, "warningValue1", 0D);
