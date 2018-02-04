@@ -125,7 +125,7 @@ public class FileController {
 					user = AccountUtils.getLoginUser(multiRequest);
 				}
 				if (user == null) {
-					return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+					//return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 				}
 				File dir = new File(System.getProperty("user.home") + "/wmsuploadfiles/");
 				if (dir.exists() == false) {
@@ -140,10 +140,10 @@ public class FileController {
 				ret.put("busiNo", busiNo);
 				while (iter.hasNext()) {
 					String localFileName = CommonUtils.uuid();
-					ret.put("filename", localFileName);
 					MultipartFile file = multiRequest.getFile(iter.next());
 					if (file != null) {
 						String suffix = CommonUtils.fileSuffix(file.getOriginalFilename());
+						ret.put("filename", localFileName + "." + suffix);
 						String path = dir.getAbsolutePath() + "/" + localFileName + "." + suffix;
 						File dst = new File(path);
 						file.transferTo(dst);

@@ -52,6 +52,7 @@ public class StoreController {
 		String managerPhone = CommonUtils.get(request, "managerPhone");
 		String managerEmail = CommonUtils.get(request, "managerEmail");
 		String outCode = CommonUtils.get(request, "outCode");
+		String storeImg = CommonUtils.get(request, "storeImg");
 		WmsStoreDO store = new WmsStoreDO();
 		store.setId(id);
 		store.setStoreName(storeName);
@@ -61,6 +62,7 @@ public class StoreController {
 		store.setManagerEmail(managerEmail);
 		store.setManagerPhone(managerPhone);
 		store.setOutCode(outCode);
+		store.setStoreImg(storeImg);
 		ResultBase<WmsStoreDO> rs = null;
 		if (StringUtils.isBlank(storeCode)) {
 			long val = sequenceService.next("wms_store");
