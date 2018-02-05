@@ -266,7 +266,9 @@ public class DiandanSystemService {
 			Example.Criteria cri = example.createCriteria();
 			cri.andEqualTo("isDeleted", "N");
 			TkMappers.inst().getRecipesMapper().updateByExampleSelective(value, example);
-			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(new WmsStoreDO());
+			WmsStoreDO storeCond = new WmsStoreDO();
+			storeCond.setStoreCode("MD0003");//只拉环球港店
+			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(storeCond);
 			//按部门同步菜单（api要求的，实际上可以一起拉过来的）
 			stores.forEach((store) -> {
 				log.info("同步{}菜单.....开始......", store.getStoreName());
@@ -284,6 +286,7 @@ public class DiandanSystemService {
 					String resp = HttpUtils.post(api_url, params);
 					JSONObject json = CommonUtils.parseJSON(resp);
 					JSONArray dishes = json.getJSONArray("allDishes");
+					log.info(json.toString());;
 					if (dishes != null && dishes.size() > 0) {
 						Observable.fromArray(dishes.toArray()) //
 								.map((o) -> (JSONObject) o) //
