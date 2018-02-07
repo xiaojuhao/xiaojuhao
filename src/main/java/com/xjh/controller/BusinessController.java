@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -57,6 +59,9 @@ import com.xjh.service.SequenceService;
 import com.xjh.service.SupplierService;
 import com.xjh.service.TkMappers;
 import com.xjh.service.UnitGroupService;
+import com.xjh.support.excel.CfWorkbook;
+import com.xjh.support.excel.model.CfRow;
+import com.xjh.support.excel.model.CfSheet;
 import com.xjh.valueobject.CabinVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -337,67 +342,134 @@ public class BusinessController {
 
 	@RequestMapping(value = "/queryMaterialsStock", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public Object queryMaterialsStock() {
-		WmsUserDO user = AccountUtils.getLoginUser(request);
-		if (user == null) {
-			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
-		}
-		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
-		int pageSize = CommonUtils.getPageSize(request);
-		int pageNo = CommonUtils.getPageNo(request);
-		Long id = CommonUtils.parseLong(request.getParameter("id"), null);
-		String materialCode = CommonUtils.get(request, "materialCode");
-		String cabCode = CommonUtils.get(request, "cabinCode");
-		String cabType = CommonUtils.get(request, "cabinType");
-		String searchKey = CommonUtils.get(request, "searchKey");
-		String category = CommonUtils.get(request, "category");
-		WmsMaterialStockDO example = new WmsMaterialStockDO();
-		example.setId(id);
-		example.setMaterialCode(materialCode);
-		example.setCabinCode(cabCode);
-		example.setCabinType(cabType);
-		example.setPageSize(pageSize);
-		example.setCategory(category);
-		example.setIsDeleted("N");
-		example.setPageNo(pageNo);
-		example.setSearchKey(searchKey);
-		if (!"1".equals(user.getIsSu())) {
-			List<String> mycabins = new ArrayList<>();
-			mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
-			mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
-			example.setMycabins(mycabins);
-		}
-		PageResult<WmsMaterialStockDO> page = new PageResult<>();
-		List<WmsMaterialStockDO> tempList = this.wmsMaterialStockMapper.query(example);
-		int totalRows = this.wmsMaterialStockMapper.count(example);
-		if (tempList != null) {
-			for (WmsMaterialStockDO stock : tempList) {
-				String sk = CommonUtils.genSearchKey(stock.getMaterialName(), "");
-				sk += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
-				stock.setSearchKey(sk);
-				//需求：根据食材库存，折算为第一个采购单位：currSpecAmtAndUnit
-				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(stock.getMaterialCode());
-				if (spec != null && spec.getTransRate() != null //
-						&& spec.getTransRate().doubleValue() > 0.001 //
-						&& spec.getUtilizationRatio() > 0//
-				) {
-					//公式:食材库存/转化率/利用率
-					double specAmt = new BigDecimal(stock.getCurrStock())
-							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP)//
-							.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.HALF_UP) //
-							.multiply(new BigDecimal(100))//
-							.setScale(2).doubleValue();
-					stock.setCurrSpecAmtAndUnit(specAmt + spec.getSpecUnit());
-				}
-				//currStockAmtAndUnit
-				stock.setCurrStockAmtAndUnit(stock.getCurrStock() + stock.getStockUnit());
+	public Object queryMaterialsStock(HttpServletResponse response) {
+		try {
+			WmsUserDO user = AccountUtils.getLoginUser(request);
+			if (user == null) {
+				return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 			}
+			log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
+			int pageSize = CommonUtils.getPageSize(request);
+			int pageNo = CommonUtils.getPageNo(request);
+			String download = CommonUtils.get(request, "download");
+			Long id = CommonUtils.parseLong(request.getParameter("id"), null);
+			String materialCode = CommonUtils.get(request, "materialCode");
+			String cabCode = CommonUtils.get(request, "cabinCode");
+			String cabType = CommonUtils.get(request, "cabinType");
+			String searchKey = CommonUtils.get(request, "searchKey");
+			String category = CommonUtils.get(request, "category");
+			WmsMaterialStockDO example = new WmsMaterialStockDO();
+			example.setId(id);
+			example.setMaterialCode(materialCode);
+			example.setCabinCode(cabCode);
+			example.setCabinType(cabType);
+			example.setPageSize(pageSize);
+			example.setCategory(category);
+			example.setIsDeleted("N");
+			example.setPageNo(pageNo);
+			example.setSearchKey(searchKey);
+			if (!"1".equals(user.getIsSu())) {
+				List<String> mycabins = new ArrayList<>();
+				mycabins.addAll(CommonUtils.splitAsList(user.getAuthStores(), ","));
+				mycabins.addAll(CommonUtils.splitAsList(user.getAuthWarehouse(), ","));
+				example.setMycabins(mycabins);
+			}
+			PageResult<WmsMaterialStockDO> page = new PageResult<>();
+			int totalRows = this.wmsMaterialStockMapper.count(example);
+			if ("excel".equals(download) && totalRows > 500) {
+				return ResultBaseBuilder.fails("导出记录不能超过500").rb(request);
+			}
+			if ("excel".equals(download)) {
+				example.setPageSize(500);
+			}
+			List<WmsMaterialStockDO> tempList = this.wmsMaterialStockMapper.query(example);
+
+			if (tempList != null) {
+				for (WmsMaterialStockDO stock : tempList) {
+					String sk = CommonUtils.genSearchKey(stock.getMaterialName(), "");
+					sk += "," + CommonUtils.genSearchKey(stock.getCabinName(), "");
+					stock.setSearchKey(sk);
+					//需求：根据食材库存，折算为第一个采购单位：currSpecAmtAndUnit
+					WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(stock.getMaterialCode());
+					if (spec != null && spec.getTransRate() != null //
+							&& spec.getTransRate().doubleValue() > 0.001 //
+							&& spec.getUtilizationRatio() > 0//
+					) {
+						//公式:食材库存/转化率/利用率
+						double specAmt = new BigDecimal(stock.getCurrStock())
+								.divide(spec.getTransRate(), 2, RoundingMode.CEILING)//
+								.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.CEILING) //
+								.multiply(new BigDecimal(100))//
+								.setScale(2).doubleValue();
+						BigDecimal dailyAvg = new BigDecimal(stock.getWarningStock())
+								.divide(spec.getTransRate(), 2, RoundingMode.CEILING)//
+								.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.CEILING) //
+								.multiply(new BigDecimal(100))//
+								.setScale(2);
+						;
+						BigDecimal weekAvg = new BigDecimal(stock.getWarningStock() * 7)
+								.divide(spec.getTransRate(), 2, RoundingMode.CEILING)//
+								.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.CEILING) //
+								.multiply(new BigDecimal(100))//
+								.setScale(2);
+						;
+						BigDecimal monthAvg = new BigDecimal(stock.getWarningStock() * 30)
+								.divide(spec.getTransRate(), 2, RoundingMode.CEILING)//
+								.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.CEILING) //
+								.multiply(new BigDecimal(100))//
+								.setScale(2);
+						;
+						stock.setCurrSpecAmtAndUnit(specAmt + spec.getSpecUnit());
+						stock.setFirstSpec(spec);
+						stock.setFirstSpecUnit(spec.getSpecUnit());
+						stock.setDailySpecAvg(dailyAvg.setScale(0, RoundingMode.CEILING).doubleValue());
+						stock.setWeekSpecAvg(weekAvg.setScale(0, RoundingMode.CEILING).doubleValue());
+						stock.setMonthSpecAvg(monthAvg.setScale(0, RoundingMode.CEILING).doubleValue());
+					}
+					//currStockAmtAndUnit
+					stock.setCurrStockAmtAndUnit(stock.getCurrStock() + stock.getStockUnit());
+				}
+			}
+			if ("excel".equals(download)) {
+				String filename = CommonUtils.get(request, "filename");
+				CfWorkbook wb = new CfWorkbook();
+				CfSheet sheet = wb.newSheet("data");
+				for (WmsMaterialStockDO dd : tempList) {
+					WmsMaterialSpecDetailDO spec = dd.getFirstSpec();
+					if (spec != null) {
+
+						CfRow row = sheet.newRow();
+						row.appendEx("原料名称", dd.getMaterialName(), //
+								"仓库名称", dd.getCabinName(), //
+								"日均消耗", dd.getWarningStock() + dd.getStockUnit(), //
+								"采购单位", spec.getSpecUnit(), //
+								"采购规格", spec.getTransRate().intValue() + spec.getStockUnit() + "/" + spec.getSpecUnit(), //
+								"利用率", spec.getUtilizationRatio(), //
+								"日均", dd.getDailySpecAvg(), //
+								"周均", dd.getWeekSpecAvg(), //
+								"月均", dd.getMonthSpecAvg());
+					}
+				}
+				if (filename == null || filename.length() == 0) {
+					filename = "MaterialStock";
+				}
+				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition",
+						"attachment; filename=" + filename + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+				wb.toHSSFWorkbook().write(response.getOutputStream());
+				response.getOutputStream().close();
+				return null;
+			} else {
+				page.setValues(tempList);
+				page.setTotalRows(totalRows);
+				page.setPageNo(pageNo);
+				page.setPageSize(pageSize);
+				return ResultBaseBuilder.succ().data(page).rb(request);
+			}
+		} catch (IOException e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails("系统异常").rb(request);
 		}
-		page.setValues(tempList);
-		page.setTotalRows(totalRows);
-		page.setPageNo(pageNo);
-		page.setPageSize(pageSize);
-		return ResultBaseBuilder.succ().data(page).rb(request);
 	}
 
 	@RequestMapping(value = "/queryStockByMaterialCodes", produces = "application/json;charset=UTF-8")

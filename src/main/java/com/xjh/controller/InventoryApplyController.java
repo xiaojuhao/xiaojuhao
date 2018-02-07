@@ -500,7 +500,7 @@ public class InventoryApplyController {
 				}
 				d.setSpecAmt(CommonUtils.parseDouble(j.getString("specAmt"), null));
 				d.setRealSpecAmt(d.getSpecAmt());
-				if (d.getSpecAmt() == null || d.getSpecAmt() <= 0.0001) {
+				if (d.getSpecAmt() == null || Math.abs(d.getSpecAmt()) <= 0.0001) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "采购数量必输").rb(request);
 				}
 				d.setSpecPrice(j.getDouble("specPrice"));
@@ -1344,7 +1344,7 @@ public class InventoryApplyController {
 		String images = CommonUtils.get(request, "images");
 		String remark = CommonUtils.get(request, "remark");
 		String imgBusiNo = CommonUtils.get(request, "busiNo");
-		if (lossAmt <= 0.00001) {
+		if (Math.abs(lossAmt) <= 0.00001) {
 			return ResultBaseBuilder.fails("报损数量不能为空").rb(request);
 		}
 		WmsInventoryApplyDO inorder = new WmsInventoryApplyDO();
