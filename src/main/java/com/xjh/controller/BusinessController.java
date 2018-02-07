@@ -376,11 +376,11 @@ public class BusinessController {
 			}
 			PageResult<WmsMaterialStockDO> page = new PageResult<>();
 			int totalRows = this.wmsMaterialStockMapper.count(example);
-			if ("excel".equals(download) && totalRows > 500) {
-				return ResultBaseBuilder.fails("导出记录不能超过500").rb(request);
+			if ("excel".equals(download) && totalRows > 3000) {
+				return ResultBaseBuilder.fails("导出记录不能超过3000").rb(request);
 			}
 			if ("excel".equals(download)) {
-				example.setPageSize(500);
+				example.setPageSize(3000);
 			}
 			List<WmsMaterialStockDO> tempList = this.wmsMaterialStockMapper.query(example);
 
