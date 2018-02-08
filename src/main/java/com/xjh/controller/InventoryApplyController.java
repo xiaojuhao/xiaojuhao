@@ -219,17 +219,34 @@ public class InventoryApplyController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		int pageNo = CommonUtils.getPageNo(request);
+		int pageSize = CommonUtils.getPageSize(request);
+		String materialName = CommonUtils.get(request, "materialName");
+		String cabinCode = CommonUtils.get(request, "cabinCode");
+		String materialCode = CommonUtils.get(request, "materialCode");
+		String startCreatedTime = CommonUtils.get(request, "startCreatedTime");
+		String endCreatedTime = CommonUtils.get(request, "endCreatedTime");
 		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
-		WmsInventoryApplyDetailDO cond = new WmsInventoryApplyDetailDO();
-		cond.setApplyType("claim_loss");
-		//超管可以查看所有的记录
+		Example example = new Example(WmsInventoryApplyDetailDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("applyType", "claim_loss");
+		cri.andEqualTo("cabinCode", cabinCode);
+		cri.andEqualTo("materialCode", materialCode);
+		cri.andGreaterThanOrEqualTo("gmtCreated", CommonUtils.parseDate(startCreatedTime, "yyyy-MM-dd"));
+		if (StringUtils.isNotBlank(endCreatedTime)) {
+			Date endCreatedDateD = CommonUtils.parseDate(endCreatedTime, "yyyy-MM-dd");
+			cri.andLessThan("gmtCreated", DateBuilder.base(endCreatedDateD).futureDays(1).date());
+		}
+		if (StringUtils.isNotBlank(materialName)) {
+			cri.andLike("materialName", "%" + materialName + "%");
+		}
+		//超管可以查看所有的记录	
 		if (!"1".equals(user.getIsSu()))
-			cond.setCreator(user.getUserCode());
-		cond.setPageNo(CommonUtils.getPageNo(request));
-		cond.setPageSize(CommonUtils.getPageSize(request));
-		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
+			cri.andEqualTo("creator", user.getUserCode());
+
+		PageHelper.startPage(pageNo, pageSize);
 		PageHelper.orderBy("gmt_created desc, id desc");
-		List<WmsInventoryApplyDetailDO> list = tkWmsInventoryApplyDetailMapper.select(cond);
+		List<WmsInventoryApplyDetailDO> list = tkWmsInventoryApplyDetailMapper.selectByExample(example);
 		List<JSONObject> ret = new ArrayList<>();
 		for (WmsInventoryApplyDetailDO dd : list) {
 			List<String> images = new ArrayList<>();
