@@ -244,6 +244,7 @@ public class InventoryApplyController {
 			json.put("creator", dd.getCreator());
 			json.put("creatorName", this.userService.getUserName(dd.getCreator()));
 			json.put("createTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dd.getGmtCreated()));
+			json.put("remark", dd.getRemark());
 			json.put("images", images);
 			if (StringUtils.isNotBlank(dd.getImgBusiNo())) {
 				WmsUploadFilesDO img = new WmsUploadFilesDO();
@@ -1341,7 +1342,6 @@ public class InventoryApplyController {
 		String specUnit = CommonUtils.get(request, "specUnit");
 		Integer utilizationRatio = CommonUtils.getInt(request, "utilizationRatio");
 		Double transRate = CommonUtils.getDbl(request, "transRate", null);
-		String images = CommonUtils.get(request, "images");
 		String remark = CommonUtils.get(request, "remark");
 		String imgBusiNo = CommonUtils.get(request, "busiNo");
 		if (Math.abs(lossAmt) <= 0.00001) {
@@ -1388,7 +1388,7 @@ public class InventoryApplyController {
 		indetail.setStatus("1");// 报损自动处理，状态直接置为1
 		indetail.setImgBusiNo(imgBusiNo);
 		indetail.setUtilizationRatio(100);
-		indetail.setRemark(images);
+		indetail.setRemark(remark);
 		indetail.setPaidStatus(PaidStatus.not_need_paid.code());
 		indetail.setPayables(0D);
 		indetail.setPaidAmt(0D);

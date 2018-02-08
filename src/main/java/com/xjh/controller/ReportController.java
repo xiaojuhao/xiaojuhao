@@ -81,8 +81,8 @@ public class ReportController {
 						&& spec.getTransRate().doubleValue() > 0.001//
 						&& spec.getUtilizationRatio() > 0) {
 					double specAmt = new BigDecimal(vo.getCurrstock())
-							.divide(spec.getTransRate(), 2, RoundingMode.HALF_UP) //
-							.divide(new BigDecimal(100), 2, RoundingMode.HALF_UP) //
+							.divide(spec.getTransRate(), 2, RoundingMode.CEILING) //
+							.divide(new BigDecimal(spec.getUtilizationRatio()), 2, RoundingMode.CEILING)//
 							.multiply(new BigDecimal(100))//
 							.setScale(2).doubleValue();
 					vo.setCurrSpecAndUnit(specAmt + spec.getSpecUnit());
