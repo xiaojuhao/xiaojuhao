@@ -3,6 +3,9 @@
 <mapper namespace="com.xjh.dao.mapper.WmsOrdersMapper">
 	<sql id="where_sql">
 		<where>
+			exists (select 1 from wms_recipes recipes
+			         where recipes.is_deleted = 'N' 
+			         and recipes.recipes_code = wms_orders.recipes_code)
 			<if test="searchKey!=null and searchKey!=''">
 				and search_key like "%"#{searchKey}"%"
 			</if>
