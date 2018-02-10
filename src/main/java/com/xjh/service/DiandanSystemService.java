@@ -292,8 +292,8 @@ public class DiandanSystemService {
 		Example example = new Example(WmsStoreDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
 		cri.andIn("storeCode", Arrays.asList("MD0003"));//只拉环球港店
-		//List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectByExample(example);
-		List<WmsStoreDO> stores =TkMappers.inst().getStoreMapper().selectAll();
+		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectByExample(example);
+		//List<WmsStoreDO> stores =TkMappers.inst().getStoreMapper().selectAll();
 		stores.forEach((store) -> {
 			syncRecipes(store.getStoreCode());
 		});
