@@ -1,5 +1,6 @@
 package com.xjh.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,14 +12,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xjh.commons.AccountUtils;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.ResultBase;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsStoreDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.service.DiandanSystemService;
 import com.xjh.service.OrderMaterialService;
+import com.xjh.service.TkMappers;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,9 +76,29 @@ public class RemoteController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
+		String storeCode = CommonUtils.get(request, "storeCode");
 		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
-		this.diandanSystemService.syncRecipes();
+		this.diandanSystemService.syncRecipes(storeCode);
 		return ResultBaseBuilder.succ().rb(request);
+	}
+
+	@RequestMapping(value = "/getRecipes", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object getRecipes() throws IOException {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		String storeCode = CommonUtils.get(request, "storeCode");
+		if (storeCode == null) {
+			return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+		}
+		WmsStoreDO store = new WmsStoreDO();
+		store.setStoreCode(storeCode);
+		store = TkMappers.inst().getStoreMapper().selectOne(store);
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
+		JSONObject json = diandanSystemService.getRecipes(store.getOutCode());
+		return ResultBaseBuilder.succ().data(json).rb(request);
 	}
 
 	@RequestMapping(value = "/syncOrders", produces = "application/json;charset=UTF-8")

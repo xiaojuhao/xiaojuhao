@@ -3,6 +3,7 @@ package com.xjh.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -248,7 +249,60 @@ public class DiandanSystemService {
 		return rb;
 	}
 
+	public JSONObject getRecipes(String outcode) throws IOException {
+		String nonce = CommonUtils.uuid().toLowerCase();
+		String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+		Map<String, String> params = new HashMap<>();
+		params.put("nonStr", nonce);
+		params.put("sign", sign);
+		params.put("jsonParameter",
+				CommonUtils.asJSONObject(//
+						"API_TYPE", "getDishes", //
+						"store_num", outcode//
+				).toJSONString());
+		String resp = HttpUtils.post(api_url, params);
+		JSONObject json = CommonUtils.parseJSON(resp);
+		return json;
+	}
+
+	public JSONObject getSaleOrder() throws IOException {
+		String nonce = CommonUtils.uuid().toLowerCase();
+		String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
+		Map<String, String> params = new HashMap<>();
+		params.put("nonStr", nonce);
+		params.put("sign", sign);
+		params.put("jsonParameter", CommonUtils.asJSONObject("API_TYPE", "getStores").toJSONString());
+		String resp = HttpUtils.post(api_url, params);
+		JSONObject json = CommonUtils.parseJSON(resp);
+		return json;
+	}
+
+	public void setAllRecipesDeleted() {
+		WmsRecipesDO value = new WmsRecipesDO();
+		value.setIsDeleted("Y");
+		Example example = new Example(WmsRecipesDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andEqualTo("isDeleted", "N");
+		TkMappers.inst().getRecipesMapper().updateByExampleSelective(value, example);
+	}
+
 	public void syncRecipes() {
+		//先把所有的菜单记录都置为已删除状态，等后面同步的时候在恢复
+		setAllRecipesDeleted();
+		Example example = new Example(WmsStoreDO.class, false, false);
+		Example.Criteria cri = example.createCriteria();
+		cri.andIn("storeCode", Arrays.asList("MD0003"));//只拉环球港店
+		//List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectByExample(example);
+		List<WmsStoreDO> stores =TkMappers.inst().getStoreMapper().selectAll();
+		stores.forEach((store) -> {
+			syncRecipes(store.getStoreCode());
+		});
+	}
+
+	public void syncRecipes(String storeCode) {
+		if (StringUtils.isBlank(storeCode)) {
+			return;
+		}
 		log.info("开始同步菜单.....开始......");
 		ResultBase<WmsTaskDO> task = TaskService.initTask("sync_recipes", "sync_recipes", "同步菜单");
 		if (task.getIsSuccess() == false) {
@@ -259,37 +313,21 @@ public class DiandanSystemService {
 			return;
 		}
 		try {
-			//先把所有的菜单记录都置为已删除状态，等后面同步的时候在恢复
-			WmsRecipesDO value = new WmsRecipesDO();
-			value.setIsDeleted("Y");
-			Example example = new Example(WmsRecipesDO.class, false, false);
-			Example.Criteria cri = example.createCriteria();
-			cri.andEqualTo("isDeleted", "N");
-			TkMappers.inst().getRecipesMapper().updateByExampleSelective(value, example);
 			WmsStoreDO storeCond = new WmsStoreDO();
-			storeCond.setStoreCode("MD0003");//只拉环球港店
+			storeCond.setStoreCode(storeCode);
 			List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(storeCond);
 			//按部门同步菜单（api要求的，实际上可以一起拉过来的）
 			stores.forEach((store) -> {
 				log.info("同步{}菜单.....开始......", store.getStoreName());
-				String nonce = CommonUtils.uuid().toLowerCase();
-				String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
-				Map<String, String> params = new HashMap<>();
-				params.put("nonStr", nonce);
-				params.put("sign", sign);
-				params.put("jsonParameter",
-						CommonUtils.asJSONObject(//
-								"API_TYPE", "getDishes", //
-								"store_num", store.getOutCode()//
-				).toJSONString());
 				try {
-					String resp = HttpUtils.post(api_url, params);
-					JSONObject json = CommonUtils.parseJSON(resp);
+					JSONObject json = getRecipes(store.getOutCode());
 					JSONArray dishes = json.getJSONArray("allDishes");
-					log.info(json.toString());;
+					log.info(json.toString());
+
 					if (dishes != null && dishes.size() > 0) {
 						Observable.fromArray(dishes.toArray()) //
 								.map((o) -> (JSONObject) o) //
+								//系统按照dishes_id标识唯一的菜单
 								.filter((jsonObj) -> jsonObj != null && jsonObj.containsKey("dishes_id")) //
 								.subscribe((jsonObj) -> {
 									WmsRecipesDO cond = new WmsRecipesDO();
@@ -333,15 +371,8 @@ public class DiandanSystemService {
 	}
 
 	public void syncStores() {
-		String nonce = CommonUtils.uuid().toLowerCase();
-		String sign = CommonUtils.md5(nonce + "&key=" + api_key).toLowerCase();
-		Map<String, String> params = new HashMap<>();
-		params.put("nonStr", nonce);
-		params.put("sign", sign);
-		params.put("jsonParameter", CommonUtils.asJSONObject("API_TYPE", "getStores").toJSONString());
 		try {
-			String resp = HttpUtils.post(api_url, params);
-			JSONObject json = CommonUtils.parseJSON(resp);
+			JSONObject json = getSaleOrder();
 			if (!"0".equals(json.getString("status"))) {
 				return;
 			}
