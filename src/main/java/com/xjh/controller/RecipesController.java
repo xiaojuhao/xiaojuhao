@@ -56,6 +56,7 @@ public class RecipesController {
 		recipes.setRecipesName(recipesName);
 		recipes.setOutCode(outCode);
 		recipes.setStatus("1");
+		recipes.setSearchKey(CommonUtils.genSearchKey(recipesName, ""));
 		//配料信息
 		JSONArray arr = CommonUtils.parseJSONArray(formula);
 		List<WmsRecipesFormulaDO> formulas = new ArrayList<>();
