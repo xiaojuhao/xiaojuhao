@@ -74,7 +74,14 @@ public class ReportController {
 			}
 			List<StockReportVo> list = stockReportMapper.reportData(input);
 			for (StockReportVo vo : list) {
+				Double saleAmtRatio = 0D;
+				Double totalAmt = vo.getSale() + vo.getInStockLoss() + vo.getClaimLoss() + vo.getCorrectDelta();
+				if (Math.abs(totalAmt) > 0.01) {
+					saleAmtRatio = new BigDecimal(vo.getSale() / totalAmt * 100)//
+							.setScale(2, RoundingMode.CEILING).doubleValue();
+				}
 				vo.setCurrStockAndUnit(vo.getCurrstock() + vo.getStockUnit());
+				vo.setSaleAmtRatio(saleAmtRatio);
 				//将食材库存转换为第一个采购单位
 				WmsMaterialSpecDetailDO spec = materialSpecService.queryFirstSpecDetail(vo.getMaterialCode());
 				if (spec != null && spec.getTransRate() != null //

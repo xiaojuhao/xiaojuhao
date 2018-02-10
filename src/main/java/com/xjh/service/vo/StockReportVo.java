@@ -19,6 +19,7 @@ public class StockReportVo implements Serializable{
 	Double inStockLoss;
 	Double claimLoss;
 	Double correctDelta;
+	Double saleAmtRatio;
 	
 	String category;
 	String searchKey;
