@@ -52,6 +52,7 @@ public class WarehouseController {
 		String managerPhone = CommonUtils.get(request, "managerPhone");
 		String managerEmail = CommonUtils.get(request, "managerEmail");
 		String relatedStoresStr = CommonUtils.get(request, "relatedStoresStr");
+		String headImg = CommonUtils.get(request, "headImg");
 		WmsWarehouseDO warehouse = new WmsWarehouseDO();
 		warehouse.setWarehouseCode(warehouseCode);
 		warehouse.setWarehouseName(warehouseName);
@@ -60,6 +61,7 @@ public class WarehouseController {
 		warehouse.setManagerPhone(managerPhone);
 		warehouse.setManagerEmail(managerEmail);
 		warehouse.setRelatedStore(relatedStoresStr);
+		warehouse.setHeadImg(headImg);
 		warehouse.setId(id);
 		if (id == null) {
 			long seq = sequence.next("wms_warehouse");
