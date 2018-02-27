@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -110,9 +111,16 @@ public class RemoteController {
 		}
 		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
 		String date = CommonUtils.get(request, "date");
+		String storeCode = CommonUtils.get(request, "storeCode");
+		if(StringUtils.isBlank(storeCode)){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).msg("请选择门店").rb(request);
+		}
+		if(StringUtils.isBlank(date)){
+			return ResultBaseBuilder.fails(ResultCode.param_missing).msg("请选择同步日期").rb(request);
+		}
 		Date saleDate = CommonUtils.parseDate(date, "yyyy-MM-dd");
 		diandanSystemService.syncRecipes();//同步菜单
-		ResultBase<String> rb = diandanSystemService.syncOrders(saleDate);//同步销售订单
+		ResultBase<String> rb = diandanSystemService.syncOrders(saleDate, storeCode);//同步销售订单
 		executor.submit(() -> orderMaterialService.handleOrders());
 		return ResultBaseBuilder.wrap(rb).rb(request);
 	}

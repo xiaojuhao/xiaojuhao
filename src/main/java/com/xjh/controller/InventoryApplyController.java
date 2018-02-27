@@ -508,6 +508,7 @@ public class InventoryApplyController {
 				d.setSupplierCode(j.getString("supplierCode"));
 				d.setSupplierName(j.getString("supplierName"));
 				d.setSpecCode(j.getString("specCode"));
+				d.setRemark(j.getString("remark"));
 				if (StringUtils.isBlank(d.getSpecCode())) {
 					return ResultBaseBuilder.fails(d.getMaterialName() + "没有填写规格信息").rb(request);
 				}

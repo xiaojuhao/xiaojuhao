@@ -57,10 +57,10 @@ public class DiandanSystemService {
 		}
 	}
 
-	public ResultBase<String> syncOrders(Date syncDate) {
+	public ResultBase<String> syncOrders(Date syncDate, String storeCode) {
 		try {
 			log.info("同步{}订单------开始-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
-			ResultBase<String> rb = interalSyncOrders(syncDate, true);
+			ResultBase<String> rb = interalSyncOrders(syncDate, storeCode, true);
 			log.info("同步{}订单------成功-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
 			return rb;
 		} catch (Exception e) {
@@ -70,10 +70,10 @@ public class DiandanSystemService {
 		}
 	}
 
-	public ResultBase<String> syncOrders(Date syncDate, boolean canRedo) {
+	public ResultBase<String> syncOrders(Date syncDate,  boolean canRedo) {
 		try {
 			log.info("同步{}订单------开始-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
-			ResultBase<String> rb = interalSyncOrders(syncDate, canRedo);
+			ResultBase<String> rb = interalSyncOrders(syncDate, null, canRedo);
 			log.info("同步{}订单------成功-------", CommonUtils.formatDate(syncDate, "yyyyMMdd"));
 			return rb;
 		} catch (Exception e) {
@@ -83,7 +83,7 @@ public class DiandanSystemService {
 		}
 	}
 
-	private ResultBase<String> interalSyncOrders(Date syncDate, boolean canRedo) {
+	private ResultBase<String> interalSyncOrders(Date syncDate,String storeCode, boolean canRedo) {
 		if (syncDate == null) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
@@ -96,8 +96,12 @@ public class DiandanSystemService {
 		String syncDateStr = new SimpleDateFormat("yyyy-MM-dd").format(syncDate);
 		Date saleDate = CommonUtils.parseDate(syncDateStr, "yyyy-MM-dd");
 		String shortSyncDate = syncDateStr.replaceAll("-", "");
+		WmsStoreDO storeCond = new WmsStoreDO();
+		if(StringUtils.isNotBlank(storeCode)){
+			storeCond.setStoreCode(storeCode);
+		}
 		//遍历每个门店，拉取销售数据
-		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectAll();
+		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().select(storeCond);
 		for (WmsStoreDO store : stores) {
 			log.info("同步" + store.getStoreName() + "@" + shortSyncDate + "。。。开始。。。");
 			//初始化任务
@@ -291,7 +295,7 @@ public class DiandanSystemService {
 		setAllRecipesDeleted();
 		Example example = new Example(WmsStoreDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
-		cri.andIn("storeCode", Arrays.asList("MD0003"));//只拉环球港店
+		cri.andIn("storeCode", Arrays.asList("MD0003","MD0008"));//只拉环球港店
 		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectByExample(example);
 		//List<WmsStoreDO> stores =TkMappers.inst().getStoreMapper().selectAll();
 		stores.forEach((store) -> {
