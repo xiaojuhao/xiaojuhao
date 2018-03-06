@@ -330,10 +330,10 @@ public class InventoryApplyController {
 		}
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
 		if ("excel".equals(download) || "excelInventory".equals(download)) {
-			if (totalRows > 500) {
+			if (totalRows > 3000) {
 				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
 			}
-			cond.setPageSize(500);
+			cond.setPageSize(3000);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			initCreatorName(list);
 			initBasePrice(list);
