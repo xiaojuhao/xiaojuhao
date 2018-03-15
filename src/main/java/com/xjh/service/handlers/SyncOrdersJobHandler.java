@@ -48,7 +48,7 @@ public class SyncOrdersJobHandler implements TimerJobHandler {
 			log.error("", e);
 		}
 		log.info("开始同步订单。。。。。");
-		diandanService.syncOrders(CommonUtils.todayDate(), true);
+		diandanService.syncOrders(DateBuilder.today().futureDays(-1).date(), true);
 		log.info("订单同步成功。。。。。");
 		log.info("开始处理原料。。。。。");
 		orderMaterialService.handleOrders();//处理订单原料数据
@@ -70,8 +70,8 @@ public class SyncOrdersJobHandler implements TimerJobHandler {
 			Date scheduledTime = DateBuilder//
 					.now().zeroAM() // 凌晨
 					.futureDays(1) //
-					.hour(23)//
-					.minute(45)//
+					.hour(8)//
+					.minute(0)//
 					.date();
 			WmsTimerJobDO record = new WmsTimerJobDO();
 			record.setJobType(JOB_TYPE);
