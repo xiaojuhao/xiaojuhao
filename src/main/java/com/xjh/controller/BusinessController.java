@@ -52,6 +52,7 @@ import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.eventbus.BusCruise;
 import com.xjh.eventbus.evthandles.MaterialChange;
 import com.xjh.service.CabinService;
+import com.xjh.service.Mappers;
 import com.xjh.service.MaterialService;
 import com.xjh.service.MaterialSpecService;
 import com.xjh.service.MaterialStockService;
@@ -626,7 +627,7 @@ public class BusinessController {
 		WmsMaterialSupplierDO ms = new WmsMaterialSupplierDO();
 		ms.setPageSize(3000);
 		ms.setIsDeleted("N");
-		List<WmsMaterialSupplierDO> list = TkMappers.inst().getMaterialSupplierMapper().select(ms);
+		List<WmsMaterialSupplierDO> list = Mappers.inst().getWmsMaterialSupplierMapper().query(ms);
 		List<JSONObject> retList = new ArrayList<>();
 		for (WmsMaterialSupplierDO s : list) {
 			JSONObject json = CommonUtils.toJSONObject(s);

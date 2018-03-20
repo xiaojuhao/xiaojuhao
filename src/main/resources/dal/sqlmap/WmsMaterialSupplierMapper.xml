@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xjh.dao.mapper.WmsMaterialSupplierMapper">
+	<sql id="where_sql">
+		<where>
+			exists (select 1 from wms_supplier s 
+			where s.supplier_code = wms_material_supplier.supplier_code
+			and s.status = '1')
+			<if test="materialName!=null and materialName!=''">
+				and material_name like "%"#{materialName}"%"
+			</if>
+			<if test="materialCode != null and materialCode != ''">
+				and material_code = #{materialCode}
+			</if>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+			<if test="isDeleted != null and isDeleted != ''">
+				and is_deleted = #{isDeleted}
+			</if>
+		</where>
+	</sql>
+	<select id="query" resultType="com.xjh.dao.dataobject.WmsMaterialSupplierDO">
+		select * from wms_material_supplier
+		<include refid="where_sql"></include>
+		order by material_name,id limit #{start},#{pageSize}
+	</select>
+	<select id="count" resultType="int">
+		select count(*) from wms_material_supplier
+		<include refid="where_sql"></include>
+	</select>
+</mapper>
