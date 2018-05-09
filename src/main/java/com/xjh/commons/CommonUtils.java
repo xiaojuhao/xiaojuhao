@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -692,8 +693,9 @@ public class CommonUtils {
 		}
 		return val;
 	}
-	public static List<String> mycabins(WmsUserDO user){
-		if(user==null){
+
+	public static List<String> mycabins(WmsUserDO user) {
+		if (user == null) {
 			return new ArrayList<>();
 		}
 		List<String> mycabins = new ArrayList<>();
@@ -701,6 +703,7 @@ public class CommonUtils {
 		mycabins.addAll(splitAsList(user.getAuthWarehouse(), ","));
 		return mycabins;
 	}
+
 	public static Date getDate(HttpServletRequest request, String paramName) {
 		String val = request.getParameter(paramName);
 		return parseDate(val);
@@ -1152,9 +1155,9 @@ public class CommonUtils {
 	}
 
 	static String letters[] = { //
-			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", //
+			"2", "3", "4", "5", "6", "7", "8", "9", //
 			"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", //
-			"k", "l", "m", "n", "o", "p", "q", "r", "s", "t", //
+			"k", "m", "n", "p", "q", "r", "s", "t", //
 			"u", "v", "w", "x", "y", "z" };
 
 	public static int setBit(int val, int pos, boolean b) {
@@ -1170,6 +1173,26 @@ public class CommonUtils {
 			mask1 = mask1 << 1;
 		}
 		return val & mask0 | mask1;
+	}
+
+	/**
+	 * 在val的第pos位插入一个bit位
+	 * @param val
+	 * @param pos
+	 * @param b
+	 * @return
+	 */
+	public static long insertBit(final long val, final int pos, final int b) {
+		long r = val >> pos;
+		r = r << 1 | (b == 0 ? 0 : 1);
+		long mask = 0;
+		int tmpPos = pos;
+		while (tmpPos-- > 0) {
+			mask = mask << 1 | 1;
+		}
+		long tail = val & mask;
+		r = r << pos | tail;
+		return r;
 	}
 
 	public static int getBit(int val, int pos) {
@@ -1206,23 +1229,42 @@ public class CommonUtils {
 				mask = 1;
 			}
 			i = i << 1 | mask;
-			sb.append(getLetters((int) i));
+			boolean upper = random.nextInt() % 2 == 0;
+			if (upper) {
+				sb.append(getLetters((int) i));
+			} else {
+				sb.append(getLetters((int) i));
+			}
 		}
-		return sb.toString();
+		return sb.reverse().toString();
+	}
+
+	public static long randomize(long input) {
+		if (input <= 0) {
+			return 0L;
+		}
+		//		int len = Long.toBinaryString(input).length();
+		long out = input;
+		int pos = 5;
+		while (input > 0) {
+			input = input >> 5;
+			//			System.out.println("insert bit at " + pos);
+			out = insertBit(out, pos, random.nextBoolean() ? 0 : 1);
+			pos += 6;
+		}
+		return out;
 	}
 
 	public static void main(String[] args) {
-		List<String> vals = new ArrayList<>();
-		for (int i = 1000000; i < 1000000 + 100; i++) {
-			String str = stirNumber(i);
-			if (vals.contains(str)) {
-				throw new RuntimeException();
-			}
-			vals.add(str);
+		long base = 21923255551L;
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			//System.out.println("----------" + i + "---------");
+			//base = base << 1 | 1;
+			Base62.encode(randomize(base + i));
+			//			System.out.println(base + "=" + Base62.encode(randomize(base + 1)));
+			//			System.out.println(base + "=" + Base62.encode(randomize(base + 2)));
 		}
-		Collections.sort(vals);
-		for (String str : vals) {
-			System.out.println(str);
-		}
+		System.out.println(System.currentTimeMillis() - start);
 	}
 }
