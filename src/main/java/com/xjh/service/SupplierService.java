@@ -12,7 +12,7 @@ import com.xjh.dao.dataobject.WmsSupplierDO;
 @Service
 public class SupplierService {
 	private static Cache<String, WmsSupplierDO> cache = CacheBuilder.newBuilder() //
-			.maximumSize(100) // 最多缓存的条数
+			.maximumSize(600) // 最多缓存的条数
 			.expireAfterWrite(5, TimeUnit.MINUTES) // 缓存时间
 			.build();
 

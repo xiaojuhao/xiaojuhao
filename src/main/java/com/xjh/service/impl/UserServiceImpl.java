@@ -1,6 +1,7 @@
 package com.xjh.service.impl;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.xjh.commons.CommonUtils;
 import com.xjh.commons.Constants;
 import com.xjh.commons.CookieUtils;
@@ -30,17 +33,28 @@ public class UserServiceImpl implements UserService {
 	@Resource
 	TkWmsUserMapper userMapper;
 
+	private static Cache<String, WmsUserDO> cache = CacheBuilder.newBuilder() //
+			.maximumSize(600) // 最多缓存的条数
+			.expireAfterWrite(5, TimeUnit.MINUTES) // 缓存时间
+			.build();
+
 	@Override
 	public ResultBase<WmsUserDO> queryUser(String userId) {
 		if (StringUtils.isBlank(userId)) {
 			return ResultBaseBuilder.fails(ResultCode.param_missing).rb();
 		}
-		WmsUserDO user = new WmsUserDO();
+		String key = "user_id_" + userId;
+		WmsUserDO user = cache.getIfPresent(key);
+		if (user != null) {
+			return ResultBaseBuilder.succ().data(user).rb();
+		}
+		user = new WmsUserDO();
 		user.setUserCode(userId);
 		user = userMapper.selectOne(user);
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.info_missing).rb();
 		}
+		cache.put(key, user);
 		return ResultBaseBuilder.succ().data(user).rb();
 	}
 

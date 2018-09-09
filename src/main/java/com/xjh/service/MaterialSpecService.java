@@ -3,6 +3,7 @@ package com.xjh.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -10,10 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.xjh.commons.CommonUtils;
 import com.xjh.dao.dataobject.WmsMaterialDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDO;
 import com.xjh.dao.dataobject.WmsMaterialSpecDetailDO;
+import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecMapper;
 
@@ -63,9 +67,19 @@ public class MaterialSpecService {
 		return spec;
 	}
 
+	private static Cache<String, WmsMaterialSpecDetailDO> cache = CacheBuilder.newBuilder() //
+			.maximumSize(600) // 最多缓存的条数
+			.expireAfterWrite(5, TimeUnit.MINUTES) // 缓存时间
+			.build();
+
 	public WmsMaterialSpecDetailDO querySpecDetailByCode(String materialCode, String specCode) {
 		if (CommonUtils.isAnyBlank(materialCode, specCode)) {
 			return null;
+		}
+		String key = "querySpecDetailByCode_" + materialCode + "_" + specCode;
+		WmsMaterialSpecDetailDO t = cache.getIfPresent(key);
+		if (t != null) {
+			return t;
 		}
 		if ("MS000000".equals(specCode)) {
 			WmsMaterialDO material = materialService.queryMaterialByCode(materialCode);
@@ -79,12 +93,15 @@ public class MaterialSpecService {
 			spec.setStockUnit(material.getStockUnit());
 			spec.setTransRate(BigDecimal.ONE);
 			spec.setUtilizationRatio(100);
+			cache.put(key, spec);
 			return spec;
 		}
 		WmsMaterialSpecDetailDO cond = new WmsMaterialSpecDetailDO();
 		cond.setSpecCode(specCode);
 		cond.setMaterialCode(materialCode);
 		WmsMaterialSpecDetailDO spec = specDetailMapper.selectOne(cond);
+		if (spec != null)
+			cache.put(key, spec);
 		return spec;
 	}
 
