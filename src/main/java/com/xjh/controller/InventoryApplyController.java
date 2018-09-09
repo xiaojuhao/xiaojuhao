@@ -330,10 +330,10 @@ public class InventoryApplyController {
 		}
 		int totalRows = wmsInventoryApplyDetailMapper.count(cond);
 		if ("excel".equals(download) || "excelInventory".equals(download)) {
-			if (totalRows > 3000) {
-				return ResultBaseBuilder.fails("导出数量超过500条,请限制导出条件").rb(request);
+			if (totalRows > 4000) {
+				return ResultBaseBuilder.fails("导出数量超过4000条,请限制导出条件").rb(request);
 			}
-			cond.setPageSize(3000);
+			cond.setPageSize(4000);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			initCreatorName(list);
 			initBasePrice(list);
@@ -385,7 +385,8 @@ public class InventoryApplyController {
 						"录入人", dd.getCreatorName(), //
 						"录入时间", dd.getGmtCreated(), //
 						"支付时间", dd.getPaidTime(), //
-						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单");
+						"采购类型", "purchase".equals(dd.getApplyType()) ? "采购单" : "调拨单",//
+						"备注", dd.getRemark());
 			}
 			String fileName = "excel".equals(download) ? "Payment" : "Inventory";
 			response.setContentType("application/octet-stream");
