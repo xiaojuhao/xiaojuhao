@@ -1243,12 +1243,12 @@ public class CommonUtils {
 		if (input <= 0) {
 			return 0L;
 		}
-		//		int len = Long.toBinaryString(input).length();
+		//int len = Long.toBinaryString(input).length();
 		long out = input;
 		int pos = 5;
 		while (input > 0) {
 			input = input >> 5;
-			//			System.out.println("insert bit at " + pos);
+			//System.out.println("insert bit at " + pos);
 			out = insertBit(out, pos, random.nextBoolean() ? 0 : 1);
 			pos += 6;
 		}
@@ -1256,12 +1256,15 @@ public class CommonUtils {
 	}
 
 	public static void main(String[] args) {
-		long base = 21923255551L;
+		long base = 21955551L;
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			//System.out.println("----------" + i + "---------");
 			//base = base << 1 | 1;
-			Base62.encode(randomize(base + i));
+			long src = randomize(base + i);
+			String encoded = Base62.encode(src);
+			long decoded = Base62.decode(encoded);
+			System.out.println(src + ":" + encoded + ":" + decoded);
 			//			System.out.println(base + "=" + Base62.encode(randomize(base + 1)));
 			//			System.out.println(base + "=" + Base62.encode(randomize(base + 2)));
 		}
