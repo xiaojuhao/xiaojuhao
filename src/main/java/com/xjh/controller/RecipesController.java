@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -18,12 +19,19 @@ import com.xjh.commons.CommonUtils;
 import com.xjh.commons.PageResult;
 import com.xjh.commons.ResultBaseBuilder;
 import com.xjh.commons.ResultCode;
+import com.xjh.dao.dataobject.WmsInventoryApplyDetailDO;
 import com.xjh.dao.dataobject.WmsRecipesDO;
 import com.xjh.dao.dataobject.WmsRecipesFormulaDO;
+import com.xjh.dao.dataobject.WmsSupplierDO;
 import com.xjh.dao.dataobject.WmsUserDO;
 import com.xjh.dao.mapper.WmsRecipesMapper;
+import com.xjh.dao.tkmapper.TkWmsRecipesFormulaMapper;
 import com.xjh.service.RecipesService;
 import com.xjh.service.TkMappers;
+import com.xjh.support.enums.PaidStatus;
+import com.xjh.support.excel.CfWorkbook;
+import com.xjh.support.excel.model.CfRow;
+import com.xjh.support.excel.model.CfSheet;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +45,8 @@ public class RecipesController {
 	RecipesService recipesService;
 	@Resource
 	WmsRecipesMapper wmsRecipesMapper;
+	@Resource
+	TkWmsRecipesFormulaMapper wmsRecipesFormulaMapper;
 
 	@RequestMapping(value = "/addRecipes", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -154,6 +164,50 @@ public class RecipesController {
 		page.setValues(list);
 		page.setTotalRows(totalRows);
 		return ResultBaseBuilder.succ().data(page).rb(request);
+	}
+
+	@RequestMapping(value = "/downloadRecipesFormula", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public Object downloadRecipesFormula(HttpServletResponse response) {
+		WmsUserDO user = AccountUtils.getLoginUser(request);
+		if (user == null) {
+			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
+		}
+		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
+		String recipesCode = CommonUtils.get(request, "recipesCode");
+		WmsRecipesFormulaDO cond = new WmsRecipesFormulaDO();
+		cond.setRecipesCode(recipesCode);
+		cond.setIsDeleted("N");
+		cond.setPageSize(4000);
+
+		List<WmsRecipesFormulaDO> list = wmsRecipesFormulaMapper.selectByExample(cond);
+
+		//导出excel
+		CfWorkbook wb = new CfWorkbook();
+		CfSheet sheet = wb.newSheet("data");
+		for (WmsRecipesFormulaDO dd : list) {
+			CfRow row = sheet.newRow();
+			row.appendEx("ID", dd.getId(), //
+					"菜单名称", dd.getRecipesName(), //
+					"菜单编码", dd.getRecipesCode(), //
+					"原料名称", dd.getMaterialName(), //
+					"原料编码", dd.getMaterialCode(), //
+					"原料单位", dd.getMaterialAmt(), //
+					"单位", dd.getMaterialUnit() //
+			);
+		}
+		String fileName = "ReceipiesFormat";
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition",
+				"attachment; filename=" + fileName + CommonUtils.stringOfToday("yyyyMMdd") + ".xlsx");
+		try {
+			wb.toHSSFWorkbook().write(response.getOutputStream());
+			response.getOutputStream().close();
+			return null;
+		} catch (Exception e) {
+			log.error("", e);
+			return ResultBaseBuilder.fails(e.getMessage()).rb(request);
+		}
 	}
 
 	@RequestMapping(value = "/queryAllRecipes", produces = "application/json;charset=UTF-8")
