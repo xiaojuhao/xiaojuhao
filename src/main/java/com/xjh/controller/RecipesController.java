@@ -180,7 +180,7 @@ public class RecipesController {
 		cond.setIsDeleted("N");
 		cond.setPageSize(4000);
 
-		List<WmsRecipesFormulaDO> list = wmsRecipesFormulaMapper.selectByExample(cond);
+		List<WmsRecipesFormulaDO> list = TkMappers.inst().getRecipesFormulaMapper().select(cond);
 
 		//导出excel
 		CfWorkbook wb = new CfWorkbook();
