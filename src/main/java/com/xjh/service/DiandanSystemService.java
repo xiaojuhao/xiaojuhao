@@ -295,7 +295,7 @@ public class DiandanSystemService {
 		setAllRecipesDeleted();
 		Example example = new Example(WmsStoreDO.class, false, false);
 		Example.Criteria cri = example.createCriteria();
-		cri.andIn("storeCode", Arrays.asList("MD0003","MD0008"));//只拉环球港店
+		cri.andIn("storeCode", Arrays.asList("MD0003","MD0008","MD0012"));//只拉环球港店
 		List<WmsStoreDO> stores = TkMappers.inst().getStoreMapper().selectByExample(example);
 		//List<WmsStoreDO> stores =TkMappers.inst().getStoreMapper().selectAll();
 		stores.forEach((store) -> {
