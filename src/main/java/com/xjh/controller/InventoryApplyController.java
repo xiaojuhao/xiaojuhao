@@ -334,6 +334,7 @@ public class InventoryApplyController {
 				return ResultBaseBuilder.fails("导出数量超过4000条,请限制导出条件").rb(request);
 			}
 			cond.setPageSize(4000);
+			cond.setPageNo(1);
 			List<WmsInventoryApplyDetailDO> list = wmsInventoryApplyDetailMapper.query(cond);
 			initCreatorName(list);
 			initBasePrice(list);
