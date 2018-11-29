@@ -28,6 +28,7 @@ import com.xjh.service.SequenceService;
 import com.xjh.service.TkMappers;
 
 import lombok.extern.slf4j.Slf4j;
+import tk.mybatis.mapper.entity.Example;
 
 @Controller
 @RequestMapping("/supplier")
@@ -185,17 +186,18 @@ public class SupplierController {
 		if (user == null) {
 			return ResultBaseBuilder.fails(ResultCode.no_login).rb(request);
 		}
-		log.info("操作人:{}-{}", user.getUserCode(), user.getUserName());
-		String supplierCode = CommonUtils.get(request, "supplierCode");
-		WmsSupplierDO cond = new WmsSupplierDO();
-		cond.setSupplierCode(supplierCode);
-		cond.setStatus(CommonUtils.get(request, "status"));
-		cond.setPageNo(CommonUtils.getPageNo(request));// 分页信息
-		cond.setPageSize(CommonUtils.getPageSize(request));// 分页信息
-		cond.setIsDeleted("N");
-		int totalRows = TkMappers.inst().getSupplierMapper().selectCount(cond);
-		PageHelper.startPage(cond.getPageNo(), cond.getPageSize());
-		List<WmsSupplierDO> list = TkMappers.inst().getSupplierMapper().select(cond);
+		String supplierName = CommonUtils.get(request, "supplierName");
+		Example exam = new Example(WmsSupplierDO.class, false, false);
+		Example.Criteria cri = exam.createCriteria();
+		cri.andEqualTo("supplierCode", CommonUtils.get(request, "supplierCode"));
+		cri.andEqualTo("status", CommonUtils.get(request, "status"));
+		cri.andEqualTo("isDeleted", "N");
+		if (StringUtils.isNotBlank(supplierName)) {
+			cri.andLike("supplierName", "%" + supplierName + "%");
+		}
+		int totalRows = TkMappers.inst().getSupplierMapper().selectCountByExample(exam);
+		PageHelper.startPage(CommonUtils.getPageNo(request), CommonUtils.getPageSize(request));
+		List<WmsSupplierDO> list = TkMappers.inst().getSupplierMapper().selectByExample(exam);
 
 		PageResult<WmsSupplierDO> page = new PageResult<>();
 		page.setTotalRows(totalRows);
