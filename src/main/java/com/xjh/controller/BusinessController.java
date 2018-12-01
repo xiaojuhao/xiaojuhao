@@ -47,6 +47,7 @@ import com.xjh.dao.tkmapper.TkWmsMaterialMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialSpecDetailMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockHistoryMapper;
 import com.xjh.dao.tkmapper.TkWmsMaterialStockMapper;
+import com.xjh.dao.tkmapper.TkWmsMaterialSupplierMapper;
 import com.xjh.dao.tkmapper.TkWmsStoreMapper;
 import com.xjh.dao.tkmapper.TkWmsWarehouseMapper;
 import com.xjh.eventbus.BusCruise;
@@ -78,6 +79,8 @@ public class BusinessController {
 	MaterialService materialService;
 	@Resource
 	TkWmsMaterialMapper tkWmsMaterialMapper;
+	@Resource
+	TkWmsMaterialSupplierMapper tkWmsMaterialSupplierMapper;
 	@Resource
 	WmsMaterialMapper wmsMaterialMapper;
 	@Resource
@@ -165,6 +168,7 @@ public class BusinessController {
 			Double warningCoeffient1 = CommonUtils.getDbl(request, "warningCoeffient1", 3D);
 			Double warningCoeffient2 = CommonUtils.getDbl(request, "warningCoeffient2", 5D);
 			JSONArray specList = CommonUtils.parseJSONArray(specDetail);
+			JSONArray suppliers = CommonUtils.parseJSONArray(request.getParameter("suppliers"));
 			if (specList.size() == 0) {
 				return ResultBaseBuilder.fails("至少需要一个采购单元").rb(request);
 			}
@@ -195,6 +199,19 @@ public class BusinessController {
 			material.setIsDeleted("N");
 			if (StringUtils.isBlank(material.getMaterialName())) {
 				return ResultBaseBuilder.fails(ResultCode.param_missing).rb(request);
+			}
+			//供应商信息
+			List<WmsMaterialSupplierDO> supplierDOList = new ArrayList<>();
+			for (int i = 0; i < suppliers.size(); i++) {
+				JSONObject json = suppliers.getJSONObject(i);
+				WmsMaterialSupplierDO d = new WmsMaterialSupplierDO();
+				d.setSupplierCode(json.getString("supplierCode"));
+				d.setSupplierName(json.getString("supplierName"));
+				d.setIsDeleted("N");
+				supplierDOList.add(d);
+				if (StringUtils.isAnyBlank(d.getSupplierCode(), d.getSupplierName())) {
+					return ResultBaseBuilder.fails("供应商编码或名称必输").rb(request);
+				}
 			}
 			//保存采购规格信息
 			//每次都重新生成一个分组,保证数据库只增不删
@@ -234,6 +251,7 @@ public class BusinessController {
 				sd.setBasePrice(basePrice);
 				specDetailList.add(sd);
 			}
+			//下面开始保存数据
 			if (material.getId() == null) {
 				long nextVal = this.sequenceService.next("wms_material");
 				String materialCode = "M" + StringUtils.leftPad(nextVal + "", 5, '0');
@@ -251,6 +269,10 @@ public class BusinessController {
 					o.setMaterialName(material.getMaterialName());
 				}
 			});
+			supplierDOList.forEach((o) -> {
+				o.setMaterialCode(material.getMaterialCode());
+				o.setMaterialName(material.getMaterialName());
+			});
 			Assert.state(StringUtils.isNotBlank(material.getMaterialCode()), "原料CODE为空");
 			WmsMaterialSpecDetailDO deleteCond = new WmsMaterialSpecDetailDO();
 			deleteCond.setMaterialCode(material.getMaterialCode());
@@ -258,6 +280,14 @@ public class BusinessController {
 			for (WmsMaterialSpecDetailDO sd : specDetailList) {
 				detailMapper.insert(sd);
 			}
+			//删除原料供应商
+			WmsMaterialSupplierDO materialSupplierDeleteCond = new WmsMaterialSupplierDO();
+			materialSupplierDeleteCond.setMaterialCode(material.getMaterialCode());
+			tkWmsMaterialSupplierMapper.delete(materialSupplierDeleteCond);
+			//保存新的供应商
+			supplierDOList.forEach((o) -> {
+				tkWmsMaterialSupplierMapper.insert(o);
+			});
 			materialStockService.initStock(material.getMaterialCode());
 			BusCruise.post(new MaterialChange(material), true);
 			return ResultBaseBuilder.succ().data(material).rb(request);

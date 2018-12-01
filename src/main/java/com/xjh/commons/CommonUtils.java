@@ -469,6 +469,9 @@ public class CommonUtils {
 	}
 
 	public static JSONArray parseJSONArray(String jsonStr) {
+		if(StringUtils.isBlank(jsonStr)){
+			return new JSONArray();
+		}
 		JSONArray json = null;
 		try {
 			json = JSON.parseArray(jsonStr);
