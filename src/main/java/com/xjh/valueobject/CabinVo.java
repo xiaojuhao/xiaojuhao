@@ -11,4 +11,5 @@ public class CabinVo implements Serializable{
 	String name;
 	String type;
 	String status;
+	String supplierCodes;
 }

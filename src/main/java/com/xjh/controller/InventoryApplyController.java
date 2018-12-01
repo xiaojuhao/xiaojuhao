@@ -773,7 +773,7 @@ public class InventoryApplyController {
 			}
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
-			String remark = "modify by " + user.getUserCode() + "|" + detail.getRealStockAmt() + ":"
+			String remark = detail.getRemark()+"#modify by " + user.getUserCode() + "|" + detail.getRealStockAmt() + ":"
 					+ detail.getRealSpecAmt() + ":" + detail.getTotalPrice() + ":" + detail.getSpecPrice();
 			update.setId(detail.getId());
 			update.setRealStockAmt(realStockAmt);

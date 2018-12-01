@@ -43,6 +43,7 @@ public class CabinServiceImpl implements CabinService {
 				vo.setName(store.getStoreName());
 				vo.setCode(cabinCode);
 				vo.setStatus(store.getStatus());
+				vo.setSupplierCodes(store.getSupplierCodes());
 				return vo;
 			}
 		}
@@ -81,6 +82,7 @@ public class CabinServiceImpl implements CabinService {
 					vo.setCode(it.getStoreCode());
 					vo.setName(it.getStoreName());
 					vo.setType("2");
+					vo.setSupplierCodes(it.getSupplierCodes());
 					cabins.add(vo);
 				});
 		return cabins;
