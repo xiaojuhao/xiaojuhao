@@ -773,8 +773,6 @@ public class InventoryApplyController {
 			}
 			//
 			WmsInventoryApplyDetailDO update = new WmsInventoryApplyDetailDO();
-			String remark = detail.getRemark()+"#modify by " + user.getUserCode() + "|" + detail.getRealStockAmt() + ":"
-					+ detail.getRealSpecAmt() + ":" + detail.getTotalPrice() + ":" + detail.getSpecPrice();
 			update.setId(detail.getId());
 			update.setRealStockAmt(realStockAmt);
 			update.setRealSpecAmt(realSpecAmt);
@@ -782,7 +780,6 @@ public class InventoryApplyController {
 			update.setSpecPrice(specPrice);
 			update.setModifier(user.getUserCode());
 			update.setGmtModified(new Date());
-			update.setRemark(remark);
 			detailUpdateList.add(update);
 		}
 		// 采购单状态修改
