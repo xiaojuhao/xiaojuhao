@@ -35,6 +35,7 @@ public class WmsSupplierDO extends PageDTO {
 	String supplierTel;
 	String supplierPhone;
 	String supplierEmail;
+	String supplyCabins;
 	String status;
 	String remark;
 	String modifer;

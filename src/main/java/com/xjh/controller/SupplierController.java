@@ -66,7 +66,10 @@ public class SupplierController {
 			String weixinAccount = CommonUtils.get(request, "weixinAccount");
 			String weixinAccountName = CommonUtils.get(request, "weixinAccountName");
 			String remark = CommonUtils.get(request, "remark");
-
+			String supplyCabins = CommonUtils.get(request, "supplyCabins");
+			if(supplyCabins == null){
+				supplyCabins = "";
+			}
 			String materialJson = CommonUtils.get(request, "materialJson");
 			WmsSupplierDO supplier = new WmsSupplierDO();
 			// 如果供应商不存在，则新增供应商
@@ -92,6 +95,7 @@ public class SupplierController {
 					supplier.setWeixinAccount(weixinAccount);
 					supplier.setWeixinAccountName(weixinAccountName);
 				}
+				supplier.setSupplyCabins(supplyCabins);
 				supplier.setRemark(remark);
 				supplier.setModifer(user.getUserCode());
 				supplier.setStatus("1");
@@ -136,6 +140,7 @@ public class SupplierController {
 				supplier.setModifer(user.getUserCode());
 				supplier.setGmtModified(new Date());
 				supplier.setStatus(status);
+				supplier.setSupplyCabins(supplyCabins);
 				TkMappers.inst().getSupplierMapper().updateByPrimaryKey(supplier);
 			}
 			// 保存供应商供应的菜品信息
