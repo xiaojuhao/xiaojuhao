@@ -25,5 +25,7 @@ public class WmsMaterialSupplierDO extends PageDTO{
 	
 	@Transient
 	String shortName;
+	@Transient
+	String supplyCabins;
 	
 }
